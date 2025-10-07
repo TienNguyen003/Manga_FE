@@ -1,0 +1,417 @@
+.manga-detail {
+  color: #fff;
+  padding: 40px;
+  font-family: 'Segoe UI', sans-serif;
+
+  .wrapper {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+
+  .left {
+    max-width: 280px;
+    flex: 1;
+
+    .cover {
+      width: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+
+    .actions {
+      margin: 16px 0;
+      display: flex;
+      gap: 10px;
+
+      button {
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .bookmark {
+        background-color: #5a4bdf;
+        color: #fff;
+
+        &:hover {
+          background-color: #4a3ccc;
+        }
+      }
+
+      .download {
+        background-color: #ccc;
+        color: #000;
+
+        &:hover {
+          background-color: #bbb;
+        }
+      }
+    }
+
+    .info-table {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+
+      p {
+        margin: 6px 0;
+        display: flex;
+        justify-content: space-between;
+
+        strong {
+          color: #aaa;
+        }
+      }
+    }
+  }
+
+  .right {
+    background: #fff;
+    border-radius: 6px;
+    padding: 20px 25px;
+    box-shadow: 0 2px 12px rgb(0 0 0 / 8%);
+    font-family: 'Arial', sans-serif;
+    color: #222;
+    flex: 1;
+
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+
+      .tag {
+        border: 1px solid #3b8140;
+        color: #3b8140;
+        padding: 5px 12px;
+        font-size: 13px;
+        border-radius: 6px;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #3b8140;
+          color: white;
+        }
+      }
+    }
+
+    .chapters {
+      .chapter {
+        display: flex;
+        align-items: center;
+        background-color: #f7fbfc;
+        border-bottom: 1px solid #d3e1df;
+        padding: 12px 16px;
+        gap: 12px;
+        cursor: pointer;
+        border-left: 4px solid transparent;
+        transition: background-color 0.3s ease, color 0.3s ease;
+
+        &:hover {
+          background-color: #1b5e20;
+          color: #fff;
+          border-left-color: #144d16;
+
+          .chapter-icon {
+            background-color: black;
+            color: #fff;
+            border-radius: 3px;
+            padding: 4px;
+          }
+
+          .chapter-title {
+            color: #fff !important;
+            font-weight: 700;
+          }
+
+          .chapter-download i, .chapter-date {
+            color: #fff !important;
+          }
+        }
+
+        .chapter-icon {
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          width: 32px;
+          height: 32px;
+          transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .chapter-info {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+
+          .chapter-title {
+            font-weight: 600;
+            color: #0c7b23;
+            font-size: 14px;
+            margin-bottom: 4px;
+            transition: color 0.3s ease;
+          }
+
+          .chapter-date {
+            font-size: 13px;
+            color: #666;
+          }
+        }
+
+        .chapter-download {
+          margin-left: auto;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+
+          i {
+            font-size: 18px;
+            color: #333;
+            transition: color 0.3s ease;
+          }
+        }
+      }
+    }
+  }
+
+  // carousel
+  .carousel-wrapper {
+    position: relative;
+    margin-top: 2rem;
+
+    .carousel-title {
+      position: relative;
+      font-size: 25px;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 20px 20px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 100%;
+        background-color: #ea982b;
+        border-radius: 2px;
+      }
+    }
+
+    .carousel-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      cursor: grab;
+      user-select: none;
+
+      &.active {
+        cursor: grabbing;
+      }
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      scrollbar-width: none;
+    }
+
+    .carousel-item {
+      flex: 0 0 auto;
+      width: 180px;
+      text-align: center;
+    }
+
+    .carousel-image {
+      width: 100%;
+      min-height: 250px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .carousel-title-item {
+      margin-top: 0.5rem;
+      font-size: 16px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .btn-scroll {
+      position: absolute;
+      top: 40%;
+      background-color: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      padding: 0 12px;
+      border-radius: 50%;
+      z-index: 10;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+    }
+  }
+
+  // comment
+  .comments-section {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 25px 20px;
+    border-radius: 12px;
+    color: white;
+    margin-top: 50px;
+
+    .comments-title {
+      font-weight: 900;
+      font-size: 30px;
+      margin-bottom: 6px;
+    }
+
+    .comments-subtitle {
+      font-size: 14px;
+      color: #bbb;
+      margin-bottom: 20px;
+    }
+
+    .comment-policy {
+      font-weight: 700;
+      color: #ff8c00;
+      cursor: pointer;
+    }
+
+    .comments-count {
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .comment-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 35px;
+    }
+
+    .comment-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .comment-input {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 22px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      color: white;
+      background: #222;
+      transition: background 0.3s ease;
+
+      &:focus {
+        background: #333;
+      }
+    }
+
+    .comment-post-btn {
+      background: #22c55e;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 22px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: #16a34a;
+      }
+    }
+
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .comment-item {
+      display: flex;
+      gap: 12px;
+    }
+
+    .comment-content {
+      flex: 1;
+    }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .comment-username {
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    .comment-time {
+      color: #888;
+      font-style: italic;
+    }
+
+    .comment-actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .comment-actions button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 18px;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #22c55e;
+      }
+    }
+  }
+}

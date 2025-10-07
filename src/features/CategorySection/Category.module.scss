@@ -1,0 +1,121 @@
+.category {
+  color: #fff;
+
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 100%;
+      background-color: #ea982b;
+      border-radius: 2px;
+    }
+  }
+
+  .card {
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.03);
+
+      .img {
+        transform: scale(1.25);
+      }
+    }
+
+    .img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+      transition: all 0.3s ease;
+    }
+
+    .badge {
+      position: absolute;
+      top: 60px;
+      left: -25px;
+      width: 120px;
+      height: 24px;
+      line-height: 24px;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      transform: rotate(-45deg);
+      transform-origin: 0 0;
+      z-index: 3;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+
+      &.ongoing {
+        background-color: #007bff;
+      }
+
+      &.completed {
+        background-color: #28a745;
+      }
+    }
+
+    .info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.39);
+      padding: 8px;
+      z-index: 1;
+
+      .score {
+        font-size: 12px;
+        color: #ffcc00;
+        margin-bottom: 2px;
+      }
+
+      .mangaTitle {
+        font-size: 16px;
+        font-weight: bold;
+        overflow: hidden;
+        cursor: pointer;
+        transition: color 0.2s;
+        color: #fff;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+
+        &:hover {
+          color: #ea982b;
+        }
+      }
+    }
+  }
+
+  .notFoundWrapper {
+    text-align: center;
+    width: 100%;
+    padding: 4rem 0;
+    color: #ccc;
+  }
+
+  .notFoundImage {
+    max-width: 200px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    opacity: 1;
+  }
+
+  .notFoundMessage {
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+}
