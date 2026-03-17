@@ -221,7 +221,7 @@ const ChapterReader = () => {
       {/* Bình luận chapter */}
       {slug && currentChapterSlug && (
         <div style={{ padding: '0 20px', maxWidth: 900, margin: '0 auto' }}>
-          <CommentSection mangaPath={slug} chapterName={currentChapterSlug} />
+          <CommentSection mangaPath={slug} chapterName={currentChapterSlug} mangaName={chapter?.item?.comic_name} />
         </div>
       )}
     </div>

@@ -175,7 +175,7 @@ const MangaDetail = () => {
       if (prev) {
         await unfollowManga({ userId, mangaPath: slug });
       } else {
-        await followManga({ userId, mangaPath: slug, mangaName: mangas.name, thumbnailUrl: `${IMG_BASE_URL}${mangas.thumb_url}` });
+        await followManga({ userId, mangaPath: slug, mangaName: mangas.name, thumbnailUrl: mangas.thumb_url });
       }
     } catch {
       setIsFollowing(prev); // revert
@@ -188,7 +188,7 @@ const MangaDetail = () => {
     if (!userId || ratingInput < 1 || ratingSubmitting) return;
     setRatingSubmitting(true);
     try {
-      await submitRating({ userId, mangaPath: slug, score: ratingInput, review: reviewText, mangaName: mangas.name });
+      await submitRating({ userId, mangaPath: slug, score: ratingInput, review: reviewText, mangaName: mangas.name, thumbnailUrl: mangas.thumb_url });
       setMyRating({ score: ratingInput, review: reviewText });
       // Refresh summary
       getRatingSummary({ mangaPath: slug, userId }).then((res) => setRatingSummary(res?.result));

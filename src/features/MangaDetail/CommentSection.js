@@ -17,7 +17,7 @@ function timeAgo(dateStr) {
   return `${Math.floor(diff / 86400)} ngày trước`;
 }
 
-function CommentItem({ comment, userId, mangaPath, chapterName, onDelete }) {
+function CommentItem({ comment, userId, mangaPath, chapterName, mangaName, onDelete }) {
   const [liked, setLiked] = useState(comment.likedByCurrentUser);
   const [likesCount, setLikesCount] = useState(comment.totalLikes || 0);
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -69,6 +69,7 @@ function CommentItem({ comment, userId, mangaPath, chapterName, onDelete }) {
       const res = await postComment({
         userId,
         mangaPath,
+        mangaName,
         chapterName,
         content: replyText.trim(),
         parentCommentId: comment.id,
@@ -140,7 +141,7 @@ function CommentItem({ comment, userId, mangaPath, chapterName, onDelete }) {
         {showReplies && replies.length > 0 && (
           <div className={cx('replies')}>
             {replies.map((r) => (
-              <CommentItem key={r.id} comment={r} userId={userId} mangaPath={mangaPath} chapterName={chapterName} onDelete={onDelete} />
+              <CommentItem key={r.id} comment={r} userId={userId} mangaPath={mangaPath} chapterName={chapterName} mangaName={mangaName} onDelete={onDelete} />
             ))}
           </div>
         )}
@@ -149,7 +150,7 @@ function CommentItem({ comment, userId, mangaPath, chapterName, onDelete }) {
   );
 }
 
-export default function CommentSection({ mangaPath, chapterName }) {
+export default function CommentSection({ mangaPath, chapterName, mangaName }) {
   const { userId, username } = useUser();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -201,6 +202,7 @@ export default function CommentSection({ mangaPath, chapterName }) {
       const res = await postComment({
         userId,
         mangaPath,
+        mangaName,
         chapterName,
         content: newComment.trim(),
       });
@@ -268,7 +270,7 @@ export default function CommentSection({ mangaPath, chapterName }) {
       ) : (
         <div className={cx('list')}>
           {comments.map((c) => (
-            <CommentItem key={c.id} comment={c} userId={userId} mangaPath={mangaPath} chapterName={chapterName} onDelete={handleDelete} />
+            <CommentItem key={c.id} comment={c} userId={userId} mangaPath={mangaPath} chapterName={chapterName} mangaName={mangaName} onDelete={handleDelete} />
           ))}
         </div>
       )}

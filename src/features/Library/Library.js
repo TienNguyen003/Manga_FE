@@ -19,6 +19,7 @@ const TABS = [
 ];
 
 export default function Library() {
+  const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
   const { userId } = useUser();
   const [activeTab, setActiveTab] = useState(0);
   const [follows, setFollows] = useState([]);
@@ -81,7 +82,7 @@ export default function Library() {
         {follows.map((f) => (
           <Link to={`${paths.mangaDetail}?slug=${f.mangaPath}`} key={f.id} className={cx('card')}>
             <img
-              src={f.thumbnailUrl || ''}
+              src={f.thumbnailUrl ? `${IMG_BASE_URL}${f.thumbnailUrl}` : ''}
               alt={f.mangaName}
               className={cx('cardImg')}
               onError={(e) => {

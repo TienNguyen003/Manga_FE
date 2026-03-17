@@ -29,6 +29,7 @@ const STAT_CONFIG = [
 ];
 
 export default function UserDashboard() {
+  const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
   const { userId, username } = useUser();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -126,7 +127,7 @@ export default function UserDashboard() {
                 {data.recentFollows.map((f) => (
                   <Link to={`${paths.mangaDetail}?slug=${f.mangaPath}`} key={f.id} className={cx('thumbCard')}>
                     <img
-                      src={f.thumbnailUrl || ''}
+                      src={f.thumbnailUrl ? `${IMG_BASE_URL}${f.thumbnailUrl}` : ''}
                       alt={f.mangaName}
                       className={cx('thumbImg')}
                       onError={(e) => {
@@ -181,7 +182,7 @@ export default function UserDashboard() {
                 {data.recentComments.map((c) => (
                   <div key={c.id} className={cx('commentItem')}>
                     <div className={cx('commentMeta')}>
-                      <span className={cx('commentManga')}>{c.mangaPath}</span>
+                      <span className={cx('commentManga')}>{c.mangaName}</span>
                       {c.chapterName && <span className={cx('commentChapter')}>• {c.chapterName}</span>}
                       <span className={cx('commentTime')}>{timeAgo(c.createdAt)}</span>
                     </div>

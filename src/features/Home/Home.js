@@ -99,7 +99,6 @@ export default function Home() {
   return (
     <div>
       <Banner />
-
       {/* ── Reuse MediaSecttion cho các block từ home feed ── */}
       {homeFeedSections.map((section) => (
         <MediaSecttion key={section.title} artic={section} />

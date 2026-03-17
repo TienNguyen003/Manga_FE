@@ -34,8 +34,8 @@ export default function MediaSecttion({ artic }) {
         <div className="row row-gap-4">
           {data.slice(0, 4).map((article, i) => (
             <div key={i} className="pc-3 pr-2 pl-2">
-              <Link to={`${paths.mangaDetail}?slug=${article.slug}`} className={cx('article-container', 'w-100', 'h-100')}>
-                <img src={`${IMG_BASE_URL}${article.thumb_url}`} alt={article.name} loading="lazy" className={cx('article-image', 'w-100', 'h-100')} />
+              <Link to={`${paths.mangaDetail}?slug=${article.slug || article.mangaPath}`} className={cx('article-container', 'w-100', 'h-100')}>
+                <img src={`${IMG_BASE_URL}${article.thumb_url != undefined ? article.thumb_url : article.thumbnailUrl}`} alt={article.name} loading="lazy" className={cx('article-image', 'w-100', 'h-100')} />
                 <div className={cx('article-text')}>
                   <div className="d-flex align-items-center gap-8">
                     {(article.category || []).slice(0, 2).map((tag, idx) => (
@@ -45,7 +45,7 @@ export default function MediaSecttion({ artic }) {
                     ))}
                   </div>
                   <div className={cx('article-title', 'mb-16')}>
-                    <h6>{article.name}</h6>
+                    <h6>{article.name || article.mangaName}</h6>
                   </div>
                   <div className={cx('cus-arrow-btn')}>
                     Read More
