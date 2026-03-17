@@ -32,16 +32,15 @@ export default function CategorySection() {
   const getManga = async () => {
     let res = [];
     if (slug) res = await getMangasByCategory({ path: slug, page: activePage });
-    else if (search)
-      res = await searchMangas({ keyword: search, page: activePage });
+    else if (search) res = await searchMangas({ keyword: search, page: activePage });
     setManga(res);
   };
 
   return (
     <div className={cx('category')}>
       <div className={cx('container-fluid')}>
-        {slug && (<h2 className={cx('title')}>Đề xuất truyện tranh {slug.charAt(0).toUpperCase() + slug.slice(1)}</h2>)}
-        {search && (<h2 className={cx('title')}>Tìm kiếm truyện tranh {search.charAt(0).toUpperCase() + search.slice(1)}</h2>)}
+        {slug && <h2 className={cx('title')}>Đề xuất truyện tranh {slug.charAt(0).toUpperCase() + slug.slice(1)}</h2>}
+        {search && <h2 className={cx('title')}>Tìm kiếm truyện tranh {search.charAt(0).toUpperCase() + search.slice(1)}</h2>}
         <div className={cx('row')}>
           {mangas.result && mangas.result.length > 0 ? (
             mangas.result.map((manga, index) => (

@@ -9,6 +9,7 @@ import styles from './App.module.scss';
 import Header from './layouts/Header/Header';
 import Footer from './layouts/Footer/footer';
 import Error from './components/404/404';
+import { UserProvider } from '~/providers/UserContext';
 
 const cx = classNames.bind(styles);
 
@@ -31,43 +32,45 @@ function App() {
   };
 
   return (
-    <Router>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-      {loading && (
-        <div className={cx('preloader')}>
-          <div id="preloader">
-            <div className={cx('loader')}>
-              <div className={cx('box1')}></div>
-              <div className={cx('box2')}></div>
-              <div className={cx('box3')}></div>
+    <UserProvider>
+      <Router>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
+        {loading && (
+          <div className={cx('preloader')}>
+            <div id="preloader">
+              <div className={cx('loader')}>
+                <div className={cx('box1')}></div>
+                <div className={cx('box2')}></div>
+                <div className={cx('box3')}></div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {isValidPath(window.location.pathname) && <Header />}
-      <div className="App" style={{ minHeight: '100vh' }}>
-        <Routes>
-          {publicRoutes.map((route, index) => {
-            const Page = route.component;
+        )}
+        {isValidPath(window.location.pathname) && <Header />}
+        <div className="App">
+          <Routes>
+            {publicRoutes.map((route, index) => {
+              const Page = route.component;
 
-            return <Route key={index} path={route.path} element={<Page />} />;
-          })}
-          <Route path="*" element={<Error />} />
-        </Routes>
-      </div>
-      {isValidPath(window.location.pathname) && <Footer />}
-    </Router>
+              return <Route key={index} path={route.path} element={<Page />} />;
+            })}
+            <Route path="*" element={<Error />} />
+          </Routes>
+        </div>
+        {isValidPath(window.location.pathname) && <Footer />}
+      </Router>
+    </UserProvider>
   );
 }
 

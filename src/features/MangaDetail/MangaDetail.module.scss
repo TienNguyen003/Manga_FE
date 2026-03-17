@@ -131,7 +131,9 @@
         gap: 12px;
         cursor: pointer;
         border-left: 4px solid transparent;
-        transition: background-color 0.3s ease, color 0.3s ease;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
 
         &:hover {
           background-color: #1b5e20;
@@ -150,7 +152,8 @@
             font-weight: 700;
           }
 
-          .chapter-download i, .chapter-date {
+          .chapter-download i,
+          .chapter-date {
             color: #fff !important;
           }
         }
@@ -163,7 +166,9 @@
           flex-shrink: 0;
           width: 32px;
           height: 32px;
-          transition: background-color 0.3s ease, color 0.3s ease;
+          transition:
+            background-color 0.3s ease,
+            color 0.3s ease;
         }
 
         .chapter-info {
@@ -414,4 +419,194 @@
       }
     }
   }
+}
+
+/* ─── Follow / Stats ─── */
+.bookmark {
+  &.following {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+}
+
+.stats-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 1.3rem;
+  color: #a0aec0;
+}
+
+/* ─── Rating section ─── */
+.rating-section {
+  padding: 32px 0;
+  border-top: 1px solid #1e2035;
+  margin-bottom: 24px;
+}
+
+.rating-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 18px;
+}
+
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.avg-score {
+  font-size: 5rem;
+  font-weight: 700;
+  color: #f5a623;
+  line-height: 1;
+}
+
+.stars {
+  display: flex;
+  gap: 3px;
+  font-size: 2rem;
+}
+
+.star {
+  color: #4a5568;
+
+  &.filled {
+    color: #f5a623;
+  }
+}
+
+.rating-count {
+  font-size: 1.3rem;
+  color: #718096;
+  margin-top: 4px;
+}
+
+.my-rating {
+  padding: 20px;
+  background: #1a1b2e;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.my-rating-label {
+  font-size: 1.4rem;
+  color: #a0aec0;
+}
+
+.star-input {
+  display: flex;
+  gap: 4px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 2.8rem;
+  color: #4a5568;
+  cursor: pointer;
+  padding: 0 2px;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+
+  &.filled {
+    color: #f5a623;
+  }
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.review-input {
+  width: 100%;
+  background: #252545;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 1.4rem;
+  font-family: inherit;
+  padding: 10px 14px;
+  resize: none;
+
+  &:focus {
+    border-color: var(--primary, #fe2c55);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #4a5568;
+  }
+}
+
+.submit-rating-btn {
+  align-self: flex-start;
+  background: var(--primary, #fe2c55);
+  border: none;
+  color: #fff;
+  font-size: 1.4rem;
+  font-family: inherit;
+  font-weight: 600;
+  padding: 9px 24px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* ─── Reviews list ─── */
+.reviews-list {
+  margin-bottom: 28px;
+}
+
+.reviews-heading {
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: #a0aec0;
+  margin-bottom: 14px;
+}
+
+.review-item {
+  background: #1a1b2e;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.review-user {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.review-score {
+  display: flex;
+  gap: 2px;
+  font-size: 1.4rem;
+}
+
+.review-text {
+  font-size: 1.4rem;
+  color: #a0aec0;
+  line-height: 1.5;
 }

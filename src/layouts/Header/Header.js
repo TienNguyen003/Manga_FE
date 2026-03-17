@@ -2,7 +2,9 @@ import React, { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import { Link, useNavigate } from 'react-router-dom';
 import paths from '~/routes/paths';
-
+import { useUser } from '~/providers/UserContext';
+import { getUnreadCount } from '~/services/notificationService';
+import { connectStomp, subscribe as wsSubscribe, disconnectStomp } from '~/lib/realtime';
 import styles from './header.module.scss';
 
 const cx = classNames.bind(styles);
@@ -10,6 +12,30 @@ const cx = classNames.bind(styles);
 export default function Header() {
   const menuRef = useRef();
   const navigate = useNavigate();
+  const { userId, username, unreadCount, setUnreadCount, logout } = useUser();
+
+  // Lấy số thông báo chưa đọc khi đăng nhập
+  useEffect(() => {
+    if (!userId) return;
+    getUnreadCount(userId)
+      .then((res) => setUnreadCount(res?.result ?? 0))
+      .catch(() => {});
+  }, [userId, setUnreadCount]);
+
+  // Realtime notification badge
+  useEffect(() => {
+    if (!userId) return;
+    const client = connectStomp({
+      onConnect: () => {
+        wsSubscribe(`/topic/notifications/${userId}`, () => {
+          setUnreadCount((c) => c + 1);
+        });
+      },
+    });
+    return () => {
+      if (client) disconnectStomp();
+    };
+  }, [userId, setUnreadCount]);
 
   const handleToggleMenu = () => {
     menuRef.current.classList.toggle(`${cx('active')}`);
@@ -113,55 +139,59 @@ export default function Header() {
 
                 {/* User + Notification */}
                 <div className={cx('main-menu__right')}>
-                  <div className={cx('search-heart-icon', 'd-flex', 'd-none', 'align-items-center', 'gap-24')}>
+                  <div className={cx('search-heart-icon', 'd-flex', 'align-items-center', 'gap-24')}>
                     {/* Bell */}
-                    <a href="#" className={cx('notification-bell')}>
-                      {/* SVG bell icon */}
+                    <Link to={paths.notifications} className={cx('notification-bell')} style={{ position: 'relative' }}>
                       <i className="fa-regular fa-bell"></i>
-                    </a>
+                      {unreadCount > 0 && <span className={cx('notif-badge')}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
+                    </Link>
 
-                    {/* Profile */}
-                    <div className={cx('profile')} onClick={handleToggleMenu}>
-                      <div className={cx('d-flex', 'align-items-center', 'gap-8')}>
-                        <img src="https://uiparadox.co.uk/templates/animewave/assets/media/user/user-1.png" alt="User" />
-                        <div>
-                          <p className={cx('white')}>Johns Smith</p>
-                          <p className={cx('subtitle')}>@7814johns</p>
+                    {userId ? (
+                      <>
+                        {/* Profile */}
+                        <div className={cx('profile')} onClick={handleToggleMenu}>
+                          <div className={cx('d-flex', 'align-items-center', 'gap-8')}>
+                            <div className={cx('avatar-circle')}>{(username || 'U').charAt(0).toUpperCase()}</div>
+                            <div>
+                              <p className={cx('white')}>{username || 'Người dùng'}</p>
+                              <p className={cx('subtitle')}>ID: {userId}</p>
+                            </div>
+                          </div>
+                          <i className="fa-solid fa-chevron-down"></i>
                         </div>
-                      </div>
-                      <i className="fa-solid fa-chevron-down"></i>
-                    </div>
 
-                    {/* Profile Dropdown Menu */}
-                    <div className={cx('menu')} ref={menuRef}>
-                      <ul>
-                        <li>
-                          <a href="#" className={cx('subtitle')}>
-                            <i className="fa-regular fa-user"></i>&nbsp;Profile
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" className={cx('subtitle')}>
-                            <i className="fa-solid fa-inbox"></i>&nbsp;Inbox
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" className={cx('subtitle')}>
-                            <i className="fa-solid fa-gear"></i>&nbsp;Settings
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" className={cx('subtitle')}>
-                            <i className="fa-solid fa-circle-question"></i>&nbsp;Help
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" className={cx('subtitle')}>
-                            <i className="fa-solid fa-right-from-bracket"></i>&nbsp;Sign Out
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
+                        {/* Dropdown Menu */}
+                        <div className={cx('menu')} ref={menuRef}>
+                          <ul>
+                            <li>
+                              <Link to={paths.library} className={cx('subtitle')}>
+                                <i className="fa-solid fa-book-bookmark"></i>&nbsp;Thư viện
+                              </Link>
+                            </li>
+                            <li>
+                              <Link to={paths.dashboard} className={cx('subtitle')}>
+                                <i className="fa-solid fa-chart-pie"></i>&nbsp;Tổng quan
+                              </Link>
+                            </li>
+                            <li>
+                              <Link to={paths.notifications} className={cx('subtitle')}>
+                                <i className="fa-regular fa-bell"></i>&nbsp;Thông báo
+                                {unreadCount > 0 && <span className={cx('menu-badge')}>{unreadCount}</span>}
+                              </Link>
+                            </li>
+                            <li>
+                              <button className={cx('subtitle', 'logout-btn')} onClick={logout}>
+                                <i className="fa-solid fa-right-from-bracket"></i>&nbsp;Đăng xuất
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </>
+                    ) : (
+                      <a href={process.env.REACT_APP_LOGIN_URL || '#'} className={cx('login-btn')}>
+                        <i className="fa-solid fa-right-to-bracket"></i>&nbsp;Đăng nhập
+                      </a>
+                    )}
                   </div>
                 </div>
               </nav>

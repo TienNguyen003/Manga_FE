@@ -6,6 +6,10 @@ import { Link, useLocation } from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import paths from '~/routes/paths';
+import { useUser } from '~/providers/UserContext';
+import { followManga, unfollowManga, getFollowStatus } from '~/services/followService';
+import { getMangaStats } from '~/services/statsService';
+import { getRatingSummary, getMyRating, getReviews, submitRating } from '~/services/ratingService';
 
 const cx = classNames.bind(styles);
 
@@ -95,6 +99,23 @@ const MangaDetail = () => {
   const [mangas, setManga] = useState([]);
   const [activePage, setActivePage] = useState(1);
 
+  const { userId } = useUser();
+
+  // Follow state
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+
+  // Stats
+  const [stats, setStats] = useState(null);
+
+  // Rating
+  const [ratingSummary, setRatingSummary] = useState(null);
+  const [myRating, setMyRating] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [ratingInput, setRatingInput] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
 
   const location = useLocation();
@@ -106,6 +127,36 @@ const MangaDetail = () => {
     getManga();
   }, [slug]);
 
+  // Load stats, follow status, ratings khi slug thay đổi
+  useEffect(() => {
+    if (!slug) return;
+    getMangaStats({ mangaPath: slug, userId: userId || undefined })
+      .then((res) => setStats(res?.result))
+      .catch(() => {});
+    getRatingSummary({ mangaPath: slug, userId: userId || undefined })
+      .then((res) => setRatingSummary(res?.result))
+      .catch(() => {});
+    getReviews({ mangaPath: slug })
+      .then((res) => setReviews(res?.result || []))
+      .catch(() => {});
+    if (userId) {
+      getFollowStatus({ userId, mangaPath: slug })
+        .then((res) => setIsFollowing(res?.result ?? false))
+        .catch(() => {});
+      getMyRating({ userId, mangaPath: slug })
+        .then((res) => {
+          const r = res?.result;
+          if (r) {
+            setMyRating(r);
+            setRatingInput(r.score || 0);
+            setReviewText(r.review || '');
+          }
+        })
+        .catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, userId]);
+
   const getManga = async () => {
     const res = await getMangaDetail({ path: slug });
     setManga(res.result);
@@ -115,6 +166,40 @@ const MangaDetail = () => {
     return btoa(unescape(encodeURIComponent(text)));
   };
 
+  const handleToggleFollow = async () => {
+    if (!userId || followLoading) return;
+    const prev = isFollowing;
+    setIsFollowing(!prev);
+    setFollowLoading(true);
+    try {
+      if (prev) {
+        await unfollowManga({ userId, mangaPath: slug });
+      } else {
+        await followManga({ userId, mangaPath: slug, mangaName: mangas.name, thumbnailUrl: `${IMG_BASE_URL}${mangas.thumb_url}` });
+      }
+    } catch {
+      setIsFollowing(prev); // revert
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const handleSubmitRating = async () => {
+    if (!userId || ratingInput < 1 || ratingSubmitting) return;
+    setRatingSubmitting(true);
+    try {
+      await submitRating({ userId, mangaPath: slug, score: ratingInput, review: reviewText, mangaName: mangas.name });
+      setMyRating({ score: ratingInput, review: reviewText });
+      // Refresh summary
+      getRatingSummary({ mangaPath: slug, userId }).then((res) => setRatingSummary(res?.result));
+      getReviews({ mangaPath: slug }).then((res) => setReviews(res?.result || []));
+    } catch {
+      /* handled by interceptor */
+    } finally {
+      setRatingSubmitting(false);
+    }
+  };
+
   return (
     <div className={cx('manga-detail', 'container-fluid')}>
       <div className={cx('wrapper')}>
@@ -122,8 +207,21 @@ const MangaDetail = () => {
           <img src={`${IMG_BASE_URL}${mangas.thumb_url}`} alt={mangas.name} loading="lazy" className={cx('cover')} />
 
           <div className={cx('actions')}>
-            <button className={cx('bookmark')}>BOOKMARKED</button>
-            <button className={cx('download')}>DOWNLOAD</button>
+            <button
+              className={cx('bookmark', { following: isFollowing })}
+              onClick={handleToggleFollow}
+              disabled={!userId || followLoading}
+              title={!userId ? 'Đăng nhập để theo dõi' : ''}
+            >
+              {followLoading ? '...' : isFollowing ? '🔖 Đang theo dõi' : '+ Theo dõi'}
+            </button>
+            {stats && (
+              <div className={cx('stats-row')}>
+                <span title="Lượt theo dõi">👥 {stats.totalFollowers ?? 0}</span>
+                <span title="Bình luận">💬 {stats.totalComments ?? 0}</span>
+                <span title="Đánh giá trung bình">⭐ {stats.averageRating ? Number(stats.averageRating).toFixed(1) : '—'}</span>
+              </div>
+            )}
           </div>
 
           <div className={cx('info-table')}>
@@ -257,40 +355,64 @@ const MangaDetail = () => {
 
       {/* Phần bình luận */}
       <div className={cx('comments-section')}>
-        <h2 className={cx('comments-title')}>COMMENTS</h2>
-        <p className={cx('comments-subtitle')}>
-          We hope you have a good time bro using the comment section! Please read our <span className={cx('comment-policy')}>Comment Policy</span> before commenting.
-        </p>
-        <h3 className={cx('comments-count')}>300 Comments</h3>
-
-        {/* Input viết comment */}
-        <div className={cx('comment-input-wrapper')}>
-          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="user avatar" className={cx('comment-avatar')} />
-          <input ref={commentRef} type="text" placeholder="Write a Comment" className={cx('comment-input')} />
-          <button className={cx('comment-post-btn')}>Post</button>
-        </div>
-
-        {/* Danh sách comment */}
-        <div className={cx('comments-list')}>
-          {commentsData.map((comment) => (
-            <div key={comment.id} className={cx('comment-item')}>
-              <img src={comment.user.avatar} alt={`${comment.user.name} avatar`} className={cx('comment-avatar')} />
-              <div className={cx('comment-content')}>
-                <div className={cx('comment-header')}>
-                  <span className={cx('comment-username')}>@{comment.user.name}</span>
-                  <span className={cx('comment-time')}>{comment.time}</span>
+        {/* ── Rating & Reviews ── */}
+        <div className={cx('rating-section')}>
+          <h2 className={cx('rating-title')}>⭐ Đánh giá truyện</h2>
+          {ratingSummary && (
+            <div className={cx('rating-summary')}>
+              <div className={cx('avg-score')}>{Number(ratingSummary.averageScore || 0).toFixed(1)}</div>
+              <div>
+                <div className={cx('stars')}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <span key={s} className={cx('star', { filled: s <= Math.round(ratingSummary.averageScore) })}>
+                      ★
+                    </span>
+                  ))}
                 </div>
-                <p>{comment.content}</p>
-
-                <div className={cx('comment-actions')}>
-                  <button className={cx('like-btn')}>👍</button>
-                  <button className={cx('dislike-btn')}>👎</button>
-                  <button className={cx('reply-btn')}>Reply</button>
-                </div>
+                <div className={cx('rating-count')}>{ratingSummary.totalRatings ?? 0} lượt đánh giá</div>
               </div>
             </div>
-          ))}
+          )}
+
+          {userId && (
+            <div className={cx('my-rating')}>
+              <p className={cx('my-rating-label')}>{myRating ? 'Đánh giá của bạn:' : 'Chưa đánh giá — hãy để lại nhận xét:'}</p>
+              <div className={cx('star-input')}>
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button key={s} className={cx('star-btn', { filled: s <= ratingInput })} onClick={() => setRatingInput(s)}>
+                    ★
+                  </button>
+                ))}
+              </div>
+              <textarea className={cx('review-input')} placeholder="Nhận xét của bạn (tuỳ chọn)..." rows={3} value={reviewText} onChange={(e) => setReviewText(e.target.value)} />
+              <button className={cx('submit-rating-btn')} onClick={handleSubmitRating} disabled={ratingInput < 1 || ratingSubmitting}>
+                {ratingSubmitting ? 'Đang lưu...' : myRating ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* ── Review list ── */}
+        {reviews.length > 0 && (
+          <div className={cx('reviews-list')}>
+            <h3 className={cx('reviews-heading')}>Nhận xét từ cộng đồng ({reviews.length})</h3>
+            {reviews.map((r, idx) => (
+              <div key={idx} className={cx('review-item')}>
+                <div className={cx('review-header')}>
+                  <span className={cx('review-user')}>{r.userDisplayName || r.username}</span>
+                  <span className={cx('review-score')}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <span key={s} className={cx('star', { filled: s <= r.score })}>
+                        ★
+                      </span>
+                    ))}
+                  </span>
+                </div>
+                {r.review && <p className={cx('review-text')}>{r.review}</p>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ const cx = classNames.bind(styles);
 export default function MediaSecttion({ artic }) {
   const { title, subTitle, slug, data = [] } = artic || {};
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
+  const viewAllPath = slug ? `${paths.category}?slug=${slug}` : paths.category;
 
   return (
     <section className={cx('article-section')}>
@@ -19,7 +20,7 @@ export default function MediaSecttion({ artic }) {
             <h2>{title}</h2>
             <p className={cx('mt-16')}>{subTitle}</p>
           </div>
-          <Link to={`${paths.category}?slug=${slug}`} className={cx('cus-arrow-btn')}>
+          <Link to={viewAllPath} className={cx('cus-arrow-btn')}>
             View All
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path
@@ -37,7 +38,7 @@ export default function MediaSecttion({ artic }) {
                 <img src={`${IMG_BASE_URL}${article.thumb_url}`} alt={article.name} loading="lazy" className={cx('article-image', 'w-100', 'h-100')} />
                 <div className={cx('article-text')}>
                   <div className="d-flex align-items-center gap-8">
-                    {article.category.slice(0, 2).map((tag, idx) => (
+                    {(article.category || []).slice(0, 2).map((tag, idx) => (
                       <div key={idx} className={cx('tags', 'subtitle', 'bg-2', 'mb-16')}>
                         {tag.name}
                       </div>

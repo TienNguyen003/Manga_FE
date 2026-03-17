@@ -1,0 +1,51 @@
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+  gap: 14px;
+}
+
+.icon {
+  font-size: 3.6rem;
+}
+
+.text {
+  font-size: 1.5rem;
+  color: #718096;
+  text-align: center;
+  max-width: 320px;
+}
+
+.spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--primary, #fe2c55);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.retryBtn {
+  margin-top: 4px;
+  padding: 8px 24px;
+  background: var(--primary, #fe2c55);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-family: inherit;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}

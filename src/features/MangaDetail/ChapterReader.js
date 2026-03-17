@@ -3,6 +3,10 @@ import { useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './ChapterReader.module.scss';
 import { getChappterManga, getMangaDetail } from '~/services/mangaService';
+import { saveHistory } from '~/services/historyService';
+import { updateProgress } from '~/services/followService';
+import { useUser } from '~/providers/UserContext';
+import CommentSection from './CommentSection';
 
 const cx = classNames.bind(styles);
 
@@ -15,6 +19,8 @@ const ChapterReader = () => {
   const imageRefs = useRef([]);
 
   const IMG_BASE_URL = 'https://sv1.otruyencdn.com/';
+
+  const { userId } = useUser();
 
   const [chapter, setChapter] = useState(null);
   const [allChapters, setAllChapters] = useState([]);
@@ -210,6 +216,12 @@ const ChapterReader = () => {
       {loading && (
         <div className={cx('loadingModal')}>
           <div className={cx('spinner')}></div>
+        </div>
+      )}
+      {/* Bình luận chapter */}
+      {slug && currentChapterSlug && (
+        <div style={{ padding: '0 20px', maxWidth: 900, margin: '0 auto' }}>
+          <CommentSection mangaPath={slug} chapterName={currentChapterSlug} />
         </div>
       )}
     </div>
