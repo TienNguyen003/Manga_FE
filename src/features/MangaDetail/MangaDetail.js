@@ -245,12 +245,7 @@ const MangaDetail = () => {
                   Lưu vào bộ sưu tập
                 </label>
                 <div className={cx('collection-row')}>
-                  <select
-                    id="manga-collection-select"
-                    value={selectedCollectionId}
-                    onChange={(e) => setSelectedCollectionId(e.target.value)}
-                    className={cx('collection-select')}
-                  >
+                  <select id="manga-collection-select" value={selectedCollectionId} onChange={(e) => setSelectedCollectionId(e.target.value)} className={cx('collection-select')}>
                     {collections.map((c) => (
                       <option key={c.id || c.collectionId} value={String(c.id || c.collectionId)}>
                         {c.collectionName || c.name || 'Bộ sưu tập'}
