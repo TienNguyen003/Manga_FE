@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Category.module.scss';
 import { getMangasByCategory, searchMangas } from '~/services/mangaService';
+import { ErrorState } from '~/components/common/AsyncState';
 import { Link, useLocation } from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
@@ -18,22 +19,32 @@ export default function CategorySection() {
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
   const [mangas, setManga] = useState([]);
   const [activePage, setActivePage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    getManga();
+    setActivePage(1);
   }, [slug, search]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     getManga();
-  }, [activePage]);
+  }, [activePage, slug, search]);
 
   const getManga = async () => {
+    setLoading(true);
+    setError('');
     let res = [];
-    if (slug) res = await getMangasByCategory({ path: slug, page: activePage });
-    else if (search) res = await searchMangas({ keyword: search, page: activePage });
-    setManga(res);
+    try {
+      if (slug) res = await getMangasByCategory({ path: slug, page: activePage });
+      else if (search) res = await searchMangas({ keyword: search, page: activePage });
+      setManga(res || []);
+    } catch {
+      setError('Không thể tải danh sách truyện. Vui lòng thử lại.');
+      setManga([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,10 +52,11 @@ export default function CategorySection() {
       <div className={cx('container-fluid')}>
         {slug && <h2 className={cx('title')}>Đề xuất truyện tranh {slug.charAt(0).toUpperCase() + slug.slice(1)}</h2>}
         {search && <h2 className={cx('title')}>Tìm kiếm truyện tranh {search.charAt(0).toUpperCase() + search.slice(1)}</h2>}
+        {error && !loading && <ErrorState text={error} onRetry={getManga} />}
         <div className={cx('row')}>
-          {mangas.result && mangas.result.length > 0 ? (
+          {!loading && !error && mangas.result && mangas.result.length > 0 ? (
             mangas.result.map((manga, index) => (
-              <div key={index} className={cx('pc-3 p-2')}>
+              <div key={index} className={cx('pc-2 p-2')}>
                 <Link to={`${paths.mangaDetail}?slug=${manga.slug}`}>
                   <div className={cx('card')}>
                     <div className={cx('badge', manga.status.toLowerCase())}>{manga.status}</div>
@@ -57,15 +69,15 @@ export default function CategorySection() {
                 </Link>
               </div>
             ))
-          ) : (
+          ) : !loading && !error ? (
             <div className={cx('notFoundWrapper')}>
               <img src="https://img.icons8.com/?size=100&id=45967&format=png&color=ffffff" alt="No manga found" className={cx('notFoundImage')} />
               <p className={cx('notFoundMessage')}>Không tìm thấy truyện nào phù hợp.</p>
             </div>
-          )}
+          ) : null}
         </div>
 
-        {mangas?.result && mangas.result.length > 0 && (
+        {!loading && !error && mangas?.result && mangas.result.length > 0 && (
           <Stack spacing={2} alignItems="center" sx={{ mt: 4 }}>
             <Pagination
               page={activePage}

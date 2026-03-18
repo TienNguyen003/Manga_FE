@@ -5,6 +5,8 @@ import styles from './ChapterReader.module.scss';
 import { getChappterManga, getMangaDetail } from '~/services/mangaService';
 import { saveHistory } from '~/services/historyService';
 import { updateProgress } from '~/services/followService';
+import { createReadingSession } from '~/services/readingAnalyticsService';
+import { createBookmark, deleteBookmark, getBookmarkStatus } from '~/services/bookmarkService';
 import { useUser } from '~/providers/UserContext';
 import CommentSection from './CommentSection';
 
@@ -30,6 +32,8 @@ const ChapterReader = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentChapterSlug, setCurrentChapterSlug] = useState(null);
   const [showChapterDropdown, setShowChapterDropdown] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
   useEffect(() => {
     if (urlChapterState && slug) {
@@ -49,6 +53,33 @@ const ChapterReader = () => {
       smoothScrollTo(top, 300);
     }
   }, [currentPage]);
+
+  useEffect(() => {
+    if (!userId || !slug || !currentChapterSlug) return;
+
+    saveHistory({ userId, mangaPath: slug, chapterName: currentChapterSlug, mangaName: chapter?.item?.comic_name }).catch(() => {});
+
+    updateProgress({ userId, mangaPath: slug, lastReadChapter: currentChapterSlug }).catch(() => {});
+
+    createReadingSession({
+      userId,
+      mangaPath: slug,
+      chapterName: currentChapterSlug,
+      mangaName: chapter?.item?.comic_name,
+      minutesRead: 1,
+      chaptersRead: chapter?.item?.chapter_name,
+    }).catch(() => {});
+  }, [userId, slug, currentChapterSlug, chapter?.item?.comic_name]);
+
+  useEffect(() => {
+    if (!userId || !slug || !currentChapterSlug) {
+      setBookmarked(false);
+      return;
+    }
+    getBookmarkStatus({ userId, mangaPath: slug, chapterName: currentChapterSlug })
+      .then((res) => setBookmarked(Boolean(res?.result)))
+      .catch(() => setBookmarked(false));
+  }, [userId, slug, currentChapterSlug]);
 
   const smoothScrollTo = (targetY, duration = 300) => {
     const startY = window.scrollY || window.pageYOffset;
@@ -147,6 +178,31 @@ const ChapterReader = () => {
     setCurrentPage(1);
   };
 
+  const handleToggleBookmark = async () => {
+    if (!userId || !slug || !currentChapterSlug || bookmarkLoading) return;
+    const prev = bookmarked;
+    setBookmarked(!prev);
+    setBookmarkLoading(true);
+    console.log(chapter)
+    try {
+      if (prev) {
+        await deleteBookmark({ userId, mangaPath: slug, chapterName: currentChapterSlug });
+      } else {
+        await createBookmark({
+          userId,
+          mangaPath: slug,
+          thumbnailUrl: chapter?.item?.chapter_path + '/' + chapter?.item?.chapter_image?.[0]?.image_file,
+          chapterName: currentChapterSlug,
+          mangaName: chapter?.item?.comic_name,
+        });
+      }
+    } catch {
+      setBookmarked(prev);
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
+
   return (
     <div className={cx('readerContainer')}>
       <div className={cx('header')}>
@@ -212,6 +268,15 @@ const ChapterReader = () => {
             </div>
           )}
         </div>
+
+        <button
+          onClick={handleToggleBookmark}
+          disabled={!userId || !currentChapterSlug || bookmarkLoading}
+          className={cx('btn', { disabled: !userId || !currentChapterSlug || bookmarkLoading })}
+          title={!userId ? 'Đăng nhập để đánh dấu chương' : ''}
+        >
+          {bookmarkLoading ? '...' : bookmarked ? 'Bỏ đánh dấu' : 'Đánh dấu chương'}
+        </button>
       </div>
       {loading && (
         <div className={cx('loadingModal')}>

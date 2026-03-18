@@ -1,6 +1,14 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
+export const WS_TOPICS = {
+  comments: (mangaPath) => `/topic/comments/${mangaPath}`,
+  commentReaction: (commentId) => `/topic/comments/reaction/${commentId}`,
+  notifications: (userId) => `/topic/notifications/${userId}`,
+  login: '/topic/login',
+  updateStatus: '/topic/updateStt',
+};
+
 let stompClient = null;
 
 export const connectStomp = ({ onConnect, onDisconnect } = {}) => {

@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import paths from '~/routes/paths';
 import { getHomeFeed } from '~/services/homeService';
 import { getMangasByCategory } from '~/services/mangaService';
+import { getPreferences } from '~/services/preferenceService';
 import { useUser } from '~/providers/UserContext';
 
 const cx = classNames.bind(styles);
@@ -26,13 +27,13 @@ export default function Home() {
   const [trendingSection, setTrendingSection] = useState({});
   const [topViewData, setTopViewData] = useState({});
 
-  const arrayCategory = [
+  const [categoryFallbacks, setCategoryFallbacks] = useState([
     { title: 'Manhua', subTitle: 'Kho truyện Trung Quốc đặc sắc', slug: 'manhua' },
     { title: 'Manhwa', subTitle: 'Truyện tranh Hàn Quốc hàng đầu', slug: 'manhwa' },
     { title: 'Romance', subTitle: 'Chuyện tình cảm lãng mạn', slug: 'romance' },
     { title: 'Drama', subTitle: 'Kịch tính, bất ngờ', slug: 'drama' },
     { title: 'Fantasy', subTitle: 'Thế giới phép thuật kỳ bí', slug: 'fantasy' },
-  ];
+  ]);
 
   useEffect(() => {
     // Thử lấy home feed từ API mới
@@ -46,10 +47,30 @@ export default function Home() {
       })
       .finally(() => setFeedLoading(false));
 
-    // Vẫn load category sections (dự phòng / fill thêm nếu home feed thiếu)
-    arrayCategory.forEach((item) => getManga(item.title, item.subTitle, item.slug));
+    if (userId) {
+      getPreferences({ userId })
+        .then((res) => {
+          const pref = res?.result || {};
+          const categories = pref.favoriteCategories || pref.preferredCategories || [];
+          if (Array.isArray(categories) && categories.length > 0) {
+            const mapped = categories.slice(0, 5).map((slug) => ({
+              title: String(slug).charAt(0).toUpperCase() + String(slug).slice(1),
+              subTitle: 'Gợi ý theo sở thích của bạn',
+              slug,
+            }));
+            setCategoryFallbacks(mapped);
+          }
+        })
+        .catch(() => {});
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
+  useEffect(() => {
+    categoryFallbacks.forEach((item) => getManga(item.title, item.subTitle, item.slug));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryFallbacks]);
 
   const getManga = async (title, subTitle, slug) => {
     const res = await getMangasByCategory({ path: slug, page: 1 });

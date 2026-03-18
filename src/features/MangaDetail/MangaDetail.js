@@ -10,6 +10,9 @@ import { useUser } from '~/providers/UserContext';
 import { followManga, unfollowManga, getFollowStatus } from '~/services/followService';
 import { getMangaStats } from '~/services/statsService';
 import { getRatingSummary, getMyRating, getReviews, submitRating } from '~/services/ratingService';
+import { getRecommendations } from '~/services/recommendationService';
+import { getCollections, addCollectionItem } from '~/services/collectionService';
+import CommentSection from './CommentSection';
 
 const cx = classNames.bind(styles);
 
@@ -72,30 +75,8 @@ const recommendations = [
   },
 ];
 
-const commentsData = [
-  {
-    id: 1,
-    user: {
-      name: 'John Doe',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    },
-    time: '5 minutes ago',
-    content: 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias.',
-  },
-  {
-    id: 2,
-    user: {
-      name: 'Jane Smith',
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-    },
-    time: '10 minutes ago',
-    content: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
-  },
-];
-
 const MangaDetail = () => {
   const sliderRef = useRef();
-  const commentRef = useRef();
   const [mangas, setManga] = useState([]);
   const [activePage, setActivePage] = useState(1);
 
@@ -115,6 +96,10 @@ const MangaDetail = () => {
   const [ratingInput, setRatingInput] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [recommendationItems, setRecommendationItems] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState('');
+  const [addingToCollection, setAddingToCollection] = useState(false);
 
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
 
@@ -139,6 +124,9 @@ const MangaDetail = () => {
     getReviews({ mangaPath: slug })
       .then((res) => setReviews(res?.result || []))
       .catch(() => {});
+    getRecommendations({ userId: userId || undefined, limit: 14 })
+      .then((res) => setRecommendationItems(res?.result || []))
+      .catch(() => {});
     if (userId) {
       getFollowStatus({ userId, mangaPath: slug })
         .then((res) => setIsFollowing(res?.result ?? false))
@@ -150,6 +138,16 @@ const MangaDetail = () => {
             setMyRating(r);
             setRatingInput(r.score || 0);
             setReviewText(r.review || '');
+          }
+        })
+        .catch(() => {});
+
+      getCollections({ userId })
+        .then((res) => {
+          const list = res?.result || [];
+          setCollections(list);
+          if (list.length > 0) {
+            setSelectedCollectionId(String(list[0].id || list[0].collectionId));
           }
         })
         .catch(() => {});
@@ -200,6 +198,24 @@ const MangaDetail = () => {
     }
   };
 
+  const handleAddToCollection = async () => {
+    if (!userId || !selectedCollectionId || !slug || addingToCollection) return;
+    setAddingToCollection(true);
+    try {
+      await addCollectionItem({
+        userId,
+        collectionId: selectedCollectionId,
+        mangaPath: slug,
+        mangaName: mangas.name,
+        thumbnailUrl: mangas.thumb_url,
+      });
+    } catch {
+      /* toast handled by interceptor */
+    } finally {
+      setAddingToCollection(false);
+    }
+  };
+
   return (
     <div className={cx('manga-detail', 'container-fluid')}>
       <div className={cx('wrapper')}>
@@ -220,6 +236,31 @@ const MangaDetail = () => {
                 <span title="Lượt theo dõi">👥 {stats.totalFollowers ?? 0}</span>
                 <span title="Bình luận">💬 {stats.totalComments ?? 0}</span>
                 <span title="Đánh giá trung bình">⭐ {stats.averageRating ? Number(stats.averageRating).toFixed(1) : '—'}</span>
+              </div>
+            )}
+
+            {userId && collections.length > 0 && (
+              <div className={cx('collection-block')}>
+                <label htmlFor="manga-collection-select" className={cx('collection-label')}>
+                  Lưu vào bộ sưu tập
+                </label>
+                <div className={cx('collection-row')}>
+                  <select
+                    id="manga-collection-select"
+                    value={selectedCollectionId}
+                    onChange={(e) => setSelectedCollectionId(e.target.value)}
+                    className={cx('collection-select')}
+                  >
+                    {collections.map((c) => (
+                      <option key={c.id || c.collectionId} value={String(c.id || c.collectionId)}>
+                        {c.collectionName || c.name || 'Bộ sưu tập'}
+                      </option>
+                    ))}
+                  </select>
+                  <button className={cx('collection-btn')} onClick={handleAddToCollection} disabled={!selectedCollectionId || addingToCollection}>
+                    {addingToCollection ? 'Đang thêm...' : 'Thêm vào bộ sưu tập'}
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -344,12 +385,27 @@ const MangaDetail = () => {
             slider.scrollLeft -= walk;
           }}
         >
-          {recommendations.map((item, index) => (
-            <div key={index} className={cx('carousel-item')}>
-              <img src={item.image} alt={item.title} className={cx('carousel-image')} />
-              <div className={cx('carousel-title-item')}>{item.title}</div>
-            </div>
-          ))}
+          {(recommendationItems.length > 0 ? recommendationItems : recommendations).map((item, index) => {
+            const recSlug = item.slug || item.mangaPath;
+            const recTitle = item.name || item.mangaName || item.title;
+            const recImage = item.thumb_url ? `${IMG_BASE_URL}${item.thumb_url}` : item.thumbnailUrl || item.image;
+
+            if (recSlug) {
+              return (
+                <Link key={index} to={`${paths.mangaDetail}?slug=${recSlug}`} className={cx('carousel-item')}>
+                  <img src={recImage} alt={recTitle} className={cx('carousel-image')} />
+                  <div className={cx('carousel-title-item')}>{recTitle}</div>
+                </Link>
+              );
+            }
+
+            return (
+              <div key={index} className={cx('carousel-item')}>
+                <img src={recImage} alt={recTitle} className={cx('carousel-image')} />
+                <div className={cx('carousel-title-item')}>{recTitle}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

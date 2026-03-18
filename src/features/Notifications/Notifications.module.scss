@@ -13,6 +13,13 @@
   margin-bottom: 24px;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .pageTitle {
   font-size: 2.6rem;
   font-weight: 700;
@@ -40,6 +47,28 @@
   &:hover {
     background: #252545;
     color: #e2e8f0;
+  }
+}
+
+.deleteAllBtn {
+  background: #2d1a1a;
+  border: 1px solid #4a1f1f;
+  color: #fca5a5;
+  font-size: 1.4rem;
+  font-family: inherit;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+
+  &:hover {
+    background: #c53030;
+    color: #fff;
   }
 }
 
@@ -152,6 +181,19 @@
   align-items: flex-end;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.deleteOneBtn {
+  border: none;
+  background: transparent;
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 1.3rem;
+  padding: 2px;
+
+  &:hover {
+    color: #ef4444;
+  }
 }
 
 .time {

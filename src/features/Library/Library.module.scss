@@ -150,3 +150,161 @@
     color: #fff;
   }
 }
+
+.collectionCard {
+  min-height: 140px;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #2a2d55;
+
+  .cardInfo {
+    width: 100%;
+    padding: 14px;
+  }
+
+  .cardTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f2f5ff;
+    margin-bottom: 10px;
+  }
+}
+
+.collectionGrid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  align-items: start;
+
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 680px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.collectionDesc {
+  font-size: 1.2rem;
+  color: #a0aec0;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.collectionCreateRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.collectionInput {
+  flex: 1;
+  min-width: 220px;
+  border: 1px solid #2d2d50;
+  background: #1a1b2e;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1.3rem;
+}
+
+.createBtn {
+  border: none;
+  background: #fe2c55;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1.3rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.collectionActions {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.smallBtn,
+.smallDangerBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  width: 100%;
+  min-height: 40px;
+  font-weight: 600;
+  transition:
+    transform 0.15s,
+    filter 0.2s;
+
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+  }
+}
+
+.smallBtn {
+  background: #252545;
+  color: #e2e8f0;
+}
+
+.smallDangerBtn {
+  background: #2d1a1a;
+  color: #fca5a5;
+}
+
+.collectionItems {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collectionItemLink {
+  font-size: 1.2rem;
+  color: #a0aec0;
+  text-decoration: none;
+  background: #252545;
+  border-radius: 999px;
+  padding: 5px 10px;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.collectionItemRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #252545;
+  border-radius: 8px;
+  padding: 8px 10px;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.collectionItemActions {
+  display: flex;
+  gap: 6px;
+
+  @media (max-width: 640px) {
+    width: 100%;
+  }
+}

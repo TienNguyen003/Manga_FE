@@ -1,4 +1,4 @@
-import { get, post, del } from '~/lib/httpRequest';
+import { get, post, put, del } from '~/lib/httpRequest';
 
 const url = '/mangas/comments';
 
@@ -7,6 +7,8 @@ export const getComments = ({ mangaPath, chapterName, currentUserId }) => get(ur
 export const getReplies = ({ parentCommentId, currentUserId }) => get(`${url}/replies`, { params: { parentCommentId, currentUserId } });
 
 export const postComment = (data) => post(url, data);
+
+export const updateComment = (data) => put(url, data);
 
 export const likeComment = (data) => post(`${url}/like`, data);
 

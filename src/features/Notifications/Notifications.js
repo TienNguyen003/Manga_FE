@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Notifications.module.scss';
 import { useUser } from '~/providers/UserContext';
-import { getNotifications, getUnreadCount, markRead, markAllRead } from '~/services/notificationService';
+import { getNotifications, markRead, markAllRead, deleteNotification, deleteAllNotifications } from '~/services/notificationService';
 import { LoadingSpinner, EmptyState, ErrorState } from '~/components/common/AsyncState';
 import { Link } from 'react-router-dom';
 import paths from '~/routes/paths';
@@ -43,7 +43,7 @@ export default function Notifications() {
       try {
         const res = await getNotifications({
           userId,
-          isRead: filter === 'unread' ? false : undefined,
+          isRead: filter === 'unread' ? 0 : undefined,
           pageNumber: pageNum,
           pageSize: PAGE_SIZE,
         });
@@ -91,6 +91,31 @@ export default function Notifications() {
     }
   };
 
+  const handleDeleteOne = async (notifId) => {
+    const target = items.find((n) => n.id === notifId);
+    setItems((prev) => prev.filter((n) => n.id !== notifId));
+    if (target && !target.isRead) {
+      setUnreadCount((c) => Math.max(0, c - 1));
+    }
+    try {
+      await deleteNotification({ userId, notificationId: notifId });
+    } catch {
+      load(true);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    const prev = items;
+    setItems([]);
+    setUnreadCount(0);
+    try {
+      await deleteAllNotifications({ userId });
+    } catch {
+      setItems(prev);
+      load(true);
+    }
+  };
+
   const handleLoadMore = () => {
     setPage((p) => p + 1);
     load(false);
@@ -111,11 +136,18 @@ export default function Notifications() {
       <div className={cx('container-fluid')}>
         <div className={cx('header')}>
           <h1 className={cx('pageTitle')}>Thông báo</h1>
-          {items.some((n) => !n.isRead) && (
-            <button className={cx('markAllBtn')} onClick={handleMarkAllRead}>
-              <i className="fa-regular fa-circle-check"></i> Đánh dấu tất cả đã đọc
-            </button>
-          )}
+          <div className={cx('headerActions')}>
+            {items.some((n) => !n.isRead) && (
+              <button className={cx('markAllBtn')} onClick={handleMarkAllRead}>
+                <i className="fa-regular fa-circle-check"></i> Đánh dấu tất cả đã đọc
+              </button>
+            )}
+            {items.length > 0 && (
+              <button className={cx('deleteAllBtn')} onClick={handleDeleteAll}>
+                <i className="fa-regular fa-trash-can"></i> Xóa tất cả
+              </button>
+            )}
+          </div>
         </div>
 
         <div className={cx('filters')}>
@@ -147,6 +179,16 @@ export default function Notifications() {
               <div className={cx('itemMeta')}>
                 <span className={cx('time')}>{timeAgo(notif.createdAt)}</span>
                 {!notif.isRead && <span className={cx('dot')} />}
+                <button
+                  className={cx('deleteOneBtn')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteOne(notif.id);
+                  }}
+                  title="Xóa thông báo"
+                >
+                  <i className="fa-regular fa-trash-can"></i>
+                </button>
               </div>
             </div>
           ))}

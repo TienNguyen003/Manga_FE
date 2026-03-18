@@ -218,3 +218,70 @@
     }
   }
 }
+
+.routeLoader {
+  position: fixed;
+  inset: 0;
+  pointer-events: all;
+  z-index: 9999;
+  background: #000;
+}
+
+.routeLoaderBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 35%;
+  background: linear-gradient(90deg, #fe2c55, #ea982b);
+  border-radius: 0 3px 3px 0;
+  animation: routeLoading 0.9s ease-in-out infinite;
+}
+
+.routeLoaderCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.routeLoaderSpinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fe2c55;
+  animation: routeSpin 0.8s linear infinite;
+}
+
+.routeLoaderText {
+  margin: 0;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes routeLoading {
+  0% {
+    left: -35%;
+    width: 35%;
+  }
+  50% {
+    left: 30%;
+    width: 40%;
+  }
+  100% {
+    left: 100%;
+    width: 30%;
+  }
+}
+
+@keyframes routeSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

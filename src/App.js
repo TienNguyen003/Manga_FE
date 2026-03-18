@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { publicRoutes } from '~/routes';
@@ -13,16 +13,18 @@ import { UserProvider } from '~/providers/UserContext';
 
 const cx = classNames.bind(styles);
 
-function App() {
-  const [loading, setLoading] = useState(true);
+function AppContent() {
+  const location = useLocation();
+  const [routeLoading, setRouteLoading] = useState(false);
 
   useEffect(() => {
+    setRouteLoading(true);
     const timer = setTimeout(() => {
-      setLoading(false);
-    }, 5000);
+      setRouteLoading(false);
+    }, 650);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.pathname, location.search]);
 
   const isValidPath = (path) => {
     return publicRoutes.some((route) => {
@@ -30,6 +32,47 @@ function App() {
       return regex.test(path);
     });
   };
+
+  const showLayout = isValidPath(location.pathname);
+
+  return (
+    <>
+      {routeLoading && (
+        <div className={cx('routeLoader')}>
+          <div className={cx('routeLoaderBar')} />
+          <div className={cx('routeLoaderCenter')}>
+            <div className={cx('routeLoaderSpinner')} />
+            <p className={cx('routeLoaderText')}>Đang chuyển trang...</p>
+          </div>
+        </div>
+      )}
+
+      {showLayout && <Header />}
+      <div className="App">
+        <Routes>
+          {publicRoutes.map((route, index) => {
+            const Page = route.component;
+
+            return <Route key={index} path={route.path} element={<Page />} />;
+          })}
+          <Route path="*" element={<Error />} />
+        </Routes>
+      </div>
+      {showLayout && <Footer />}
+    </>
+  );
+}
+
+function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <UserProvider>
@@ -57,18 +100,7 @@ function App() {
             </div>
           </div>
         )}
-        {isValidPath(window.location.pathname) && <Header />}
-        <div className="App">
-          <Routes>
-            {publicRoutes.map((route, index) => {
-              const Page = route.component;
-
-              return <Route key={index} path={route.path} element={<Page />} />;
-            })}
-            <Route path="*" element={<Error />} />
-          </Routes>
-        </div>
-        {isValidPath(window.location.pathname) && <Footer />}
+        <AppContent />
       </Router>
     </UserProvider>
   );

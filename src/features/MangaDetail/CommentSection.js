@@ -70,7 +70,7 @@ function CommentItem({ comment, userId, mangaPath, chapterName, mangaName, onDel
         userId,
         mangaPath,
         mangaName,
-        chapterName,
+        chapterName: chapterName || undefined,
         content: replyText.trim(),
         parentCommentId: comment.id,
       });
@@ -150,7 +150,7 @@ function CommentItem({ comment, userId, mangaPath, chapterName, mangaName, onDel
   );
 }
 
-export default function CommentSection({ mangaPath, chapterName, mangaName }) {
+export default function CommentSection({ mangaPath, chapterName, mangaName, title = 'Bình luận truyện' }) {
   const { userId, username } = useUser();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -159,10 +159,10 @@ export default function CommentSection({ mangaPath, chapterName, mangaName }) {
   const stompRef = useRef(null);
 
   const loadComments = useCallback(async () => {
-    if (!mangaPath || !chapterName) return;
+    if (!mangaPath) return;
     setLoading(true);
     try {
-      const res = await getComments({ mangaPath, chapterName, currentUserId: userId || '' });
+      const res = await getComments({ mangaPath, chapterName: chapterName || undefined, currentUserId: userId || '' });
       setComments(res?.result || []);
     } catch {
       /* handled by interceptor */
@@ -203,7 +203,7 @@ export default function CommentSection({ mangaPath, chapterName, mangaName }) {
         userId,
         mangaPath,
         mangaName,
-        chapterName,
+        chapterName: chapterName || undefined,
         content: newComment.trim(),
       });
       const added = res?.result || res;
@@ -229,7 +229,7 @@ export default function CommentSection({ mangaPath, chapterName, mangaName }) {
   return (
     <div className={cx('section')}>
       <h3 className={cx('sectionTitle')}>
-        <i className="fa-regular fa-comments"></i> Bình luận chương này
+        <i className="fa-regular fa-comments"></i> {title}
         {comments.length > 0 && <span className={cx('count')}>{comments.length}</span>}
       </h3>
 
@@ -240,7 +240,7 @@ export default function CommentSection({ mangaPath, chapterName, mangaName }) {
           <div className={cx('inputWrap')}>
             <textarea
               className={cx('textarea')}
-              placeholder="Nhận xét về chương này..."
+              placeholder={chapterName ? 'Nhận xét về chương này...' : 'Nhận xét về truyện này...'}
               rows={2}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
