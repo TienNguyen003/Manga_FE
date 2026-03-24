@@ -6,215 +6,53 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  background: #141516;
+  background: linear-gradient(135deg, #0f172a 0%, #1a2847 100%);
 
   .loader {
-    width: 112px;
-    height: 112px;
+    width: 80px;
+    height: 80px;
+    position: relative;
 
     .box1,
     .box2,
     .box3 {
-      border: 16px solid #f5f5f5;
+      border: 3px solid transparent;
+      border-top-color: var(--primary);
       box-sizing: border-box;
       position: absolute;
       display: block;
+      border-radius: 50%;
     }
 
     .box1 {
-      width: 112px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-      animation: abox1 2s 1s forwards ease-in-out infinite;
+      width: 80px;
+      height: 80px;
+      animation: spin 1.2s linear infinite;
     }
 
     .box2 {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
-      animation: abox2 2s 1s forwards ease-in-out infinite;
+      width: 60px;
+      height: 60px;
+      top: 10px;
+      left: 10px;
+      animation: spin 1.4s linear infinite reverse;
     }
 
     .box3 {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 64px;
-      animation: abox3 2s 1s forwards ease-in-out infinite;
+      width: 40px;
+      height: 40px;
+      top: 20px;
+      left: 20px;
+      animation: spin 1.6s linear infinite;
     }
   }
 
-  @keyframes abox3 {
+  @keyframes spin {
     0% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 64px;
-    }
-    12.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 64px;
-    }
-    25% {
-      width: 48px;
-      height: 112px;
-      margin-top: 0px;
-      margin-left: 64px;
-    }
-    37.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 64px;
-    }
-    50% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 64px;
-    }
-    62.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 64px;
-    }
-    75% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 64px;
-    }
-    87.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 64px;
+      transform: rotate(0deg);
     }
     100% {
-      width: 112px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-    }
-  }
-
-  @keyframes abox2 {
-    0% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    12.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    25% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    37.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    50% {
-      width: 112px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    62.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 64px;
-    }
-    75% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 64px;
-    }
-    87.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 64px;
-    }
-    100% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 64px;
-    }
-  }
-
-  @keyframes abox1 {
-    0% {
-      width: 112px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-    }
-
-    12.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-    }
-    25% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-    }
-    37.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-    }
-    50% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-    }
-    62.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 64px;
-      margin-left: 0px;
-    }
-    75% {
-      width: 48px;
-      height: 112px;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    87.5% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
-    }
-    100% {
-      width: 48px;
-      height: 48px;
-      margin-top: 0px;
-      margin-left: 0px;
+      transform: rotate(360deg);
     }
   }
 }
@@ -224,18 +62,20 @@
   inset: 0;
   pointer-events: all;
   z-index: 9999;
-  background: #000;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(4px);
 }
 
 .routeLoaderBar {
   position: absolute;
   top: 0;
   left: 0;
-  height: 3px;
+  height: 4px;
   width: 35%;
-  background: linear-gradient(90deg, #fe2c55, #ea982b);
-  border-radius: 0 3px 3px 0;
-  animation: routeLoading 0.9s ease-in-out infinite;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 0;
+  animation: routeLoading 0.65s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
 }
 
 .routeLoaderCenter {
@@ -245,24 +85,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 16px;
 }
 
 .routeLoaderSpinner {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.25);
-  border-top-color: #fe2c55;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-right-color: var(--secondary);
   animation: routeSpin 0.8s linear infinite;
 }
 
 .routeLoaderText {
   margin: 0;
-  color: #fff;
-  font-size: 1.3rem;
-  font-weight: 500;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes routeLoading {

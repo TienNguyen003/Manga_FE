@@ -1,0 +1,64 @@
+.recommendPage {
+  color: var(--ink);
+  padding: 22px 0 36px;
+}
+
+.hero {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  padding: 20px;
+  margin-bottom: 18px;
+  h1 {
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    margin-bottom: 7px;
+    color: #2c394a;
+  }
+  p {
+    color: var(--muted-ink);
+    font-size: 1.2rem;
+  }
+}
+
+.listWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.item {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(44, 57, 74, 0.06);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #a86b2d;
+}
+.reason {
+  color: #6b7280;
+  font-size: 1rem;
+}
+.readBtn {
+  align-self: flex-end;
+  background: #f4e5d3;
+  color: #a86b2d;
+  border: 1px solid #e4c9a3;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 7px 18px;
+  font-size: 1rem;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.readBtn:hover {
+  background: #ffe3b0;
+}

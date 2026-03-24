@@ -39,13 +39,15 @@ const ChapterReader = () => {
     if (urlChapterState && slug) {
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlChapterState, slug]);
 
   useEffect(() => {
     if (chapter?.item?.chapter_name) {
       setCurrentChapterSlug(chapter.item.chapter_name);
     }
-  }, [chapter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapter?.item?.chapter_name]);
 
   useEffect(() => {
     if (imageRefs.current[currentPage - 1]) {
@@ -56,8 +58,14 @@ const ChapterReader = () => {
 
   useEffect(() => {
     if (!userId || !slug || !currentChapterSlug) return;
-
-    saveHistory({ userId, mangaPath: slug, chapterName: currentChapterSlug, mangaName: chapter?.item?.comic_name }).catch(() => {});
+    console.log(chapter);
+    saveHistory({
+      userId,
+      mangaPath: slug,
+      chapterName: currentChapterSlug,
+      mangaName: chapter?.item?.comic_name,
+      thumbnailUrl: chapter?.item?.chapter_path + '/' + chapter?.item?.chapter_image?.[0].image_file,
+    }).catch(() => {});
 
     updateProgress({ userId, mangaPath: slug, lastReadChapter: currentChapterSlug }).catch(() => {});
 
@@ -69,6 +77,7 @@ const ChapterReader = () => {
       minutesRead: 1,
       chaptersRead: chapter?.item?.chapter_name,
     }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, slug, currentChapterSlug, chapter?.item?.comic_name]);
 
   useEffect(() => {
@@ -183,7 +192,7 @@ const ChapterReader = () => {
     const prev = bookmarked;
     setBookmarked(!prev);
     setBookmarkLoading(true);
-    console.log(chapter)
+    console.log(chapter);
     try {
       if (prev) {
         await deleteBookmark({ userId, mangaPath: slug, chapterName: currentChapterSlug });

@@ -12,8 +12,6 @@ import paths from '~/routes/paths';
 
 const cx = classNames.bind(styles);
 
-const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || '';
-
 function timeAgo(dateStr) {
   if (!dateStr) return '';
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);

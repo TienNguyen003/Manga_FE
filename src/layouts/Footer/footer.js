@@ -1,5 +1,7 @@
 import React from 'react';
 import classNames from 'classnames/bind';
+import { Link } from 'react-router-dom';
+import paths from '~/routes/paths';
 
 import styles from './footer.module.scss';
 
@@ -7,111 +9,77 @@ const cx = classNames.bind(styles);
 
 export default function Footer() {
   return (
-    <footer>
-      <div className={cx('container-fluid')}>
-        <div className={cx('footer-main')}>
-          <div className={cx('footer-info')}>
-            <div className={cx('footer-about')}>
-              <div className={cx('logo')}>
-                <a href="./index.html">
-                  <img src="https://uiparadox.co.uk/templates/animewave/assets/media/logo.png" alt="" />
-                </a>
-              </div>
-              <p className={cx('light-gray', 'h-20', 'light', 'mb-32')}>
-                Stay connected with us and lets know <br /> more stories about new movies and <br /> More Explorer Us for get it
-              </p>
-
-              <ul className={cx('unstyled', 'social-icons')}>
-                <li>
-                  <a href="index.html">
-                    <i className="fa-brands fa-instagram"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="index.html">
-                    <i className="fa-brands fa-facebook-f"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="index.html">
-                    <i className="fa-brands fa-twitter"></i>
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Top Links */}
-            <div className={cx('list')}>
-              <h5 className={cx('h-24', 'bold', 'color-white', 'mb-24')}>Top Links</h5>
-              <ul className={cx('link', 'unstyled')}>
-                <li>
-                  <a href="index.html">Home</a>
-                </li>
-                <li>
-                  <a href="anime-listing.html">Animes</a>
-                </li>
-                <li>
-                  <a href="./blog.html">Blog</a>
-                </li>
-                <li>
-                  <a href="./blog-with-sidebar.html">Blog With Sidebar</a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Information */}
-            <div className={cx('list')}>
-              <h5 className={cx('h-24', 'bold', 'color-white', 'mb-24')}>Information</h5>
-              <ul className={cx('link', 'unstyled')}>
-                <li>
-                  <a href="./sign-up.html">Sign up</a>
-                </li>
-                <li>
-                  <a href="./login.html">Login</a>
-                </li>
-                <li>About Us</li>
-              </ul>
-            </div>
-
-            {/* Services */}
-            <div className={cx('list')}>
-              <h5 className={cx('h-24', 'bold', 'color-white', 'mb-24')}>Services</h5>
-              <ul className={cx('link', 'unstyled')}>
-                <li>
-                  <a href="./movie-detail.html">Movies</a>
-                </li>
-                <li>
-                  <a href="#">Newsletter</a>
-                </li>
-                <li>
-                  <a href="./blog.html">Blog</a>
-                </li>
-                <li>
-                  <a href="./blog-with-sidebar.html">Blog With Sidebar</a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Security */}
-            <div className={cx('list')}>
-              <h5 className={cx('h-24', 'bold', 'color-white', 'mb-24')}>Security</h5>
-              <ul className={cx('link', 'unstyled')}>
-                <li>
-                  <a href="#">Terms and Condition</a>
-                </li>
-                <li>
-                  <a href="#">Privacy Policy</a>
-                </li>
-                <li>
-                  <a href="#">Contact us</a>
-                </li>
-              </ul>
-            </div>
+    <footer className={cx('footer')}>
+      <div className={cx('shell')}>
+        <section className={cx('brandCol')}>
+          <div className={cx('brandBox')}>
+            <span>WL</span>
           </div>
-        </div>
+          <h3>WEB COMICS LAB</h3>
+          <p>Nền tảng đọc truyện và theo dõi tiến độ đọc cho người dùng Việt. Phiên bản giao diện được thiết kế lại từ đầu.</p>
+          <div className={cx('socials')}>
+            <button type="button" aria-label="facebook">
+              <i className="fa-brands fa-facebook-f"></i>
+            </button>
+            <button type="button" aria-label="instagram">
+              <i className="fa-brands fa-instagram"></i>
+            </button>
+            <button type="button" aria-label="youtube">
+              <i className="fa-brands fa-youtube"></i>
+            </button>
+          </div>
+        </section>
 
-        <p className={cx('color-white', 'text-center', 'copyright')}>All rights reserved by TienNguyen ©2025.</p>
+        <section>
+          <h4>Điều hướng nhanh</h4>
+          <ul>
+            <li>
+              <Link to={paths.home}>Trang chủ</Link>
+            </li>
+            <li>
+              <Link to={paths.discover}>Khám phá</Link>
+            </li>
+            <li>
+              <Link to={paths.rankings}>Bảng xếp hạng</Link>
+            </li>
+            <li>
+              <Link to={paths.advancedSearch}>Tìm kiếm nâng cao</Link>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Khu cá nhân</h4>
+          <ul>
+            <li>
+              <Link to={paths.library}>Thư viện của tôi</Link>
+            </li>
+            <li>
+              <Link to={paths.dashboard}>Bảng điều khiển</Link>
+            </li>
+            <li>
+              <Link to={paths.notifications}>Thông báo</Link>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Phát triển tiếp</h4>
+          <ul>
+            <li>
+              <button type="button">API đồng bộ lịch đọc</button>
+            </li>
+            <li>
+              <button type="button">Gợi ý AI theo sở thích</button>
+            </li>
+            <li>
+              <button type="button">Khu tác giả và nhóm dịch</button>
+            </li>
+          </ul>
+        </section>
       </div>
+
+      <p className={cx('copyright')}>© 2026 Web Comics Lab. Toàn bộ giao diện đã rebuild mới.</p>
     </footer>
   );
 }

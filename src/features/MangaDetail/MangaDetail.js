@@ -12,7 +12,6 @@ import { getMangaStats } from '~/services/statsService';
 import { getRatingSummary, getMyRating, getReviews, submitRating } from '~/services/ratingService';
 import { getRecommendations } from '~/services/recommendationService';
 import { getCollections, addCollectionItem } from '~/services/collectionService';
-import CommentSection from './CommentSection';
 
 const cx = classNames.bind(styles);
 
@@ -110,6 +109,7 @@ const MangaDetail = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     getManga();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   // Load stats, follow status, ratings khi slug thay đổi

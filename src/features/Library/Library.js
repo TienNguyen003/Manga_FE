@@ -44,6 +44,14 @@ export default function Library() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const quickStats = {
+    follows: follows.length,
+    continueReading: continueList.length,
+    history: history.length,
+    collections: collections.length,
+    bookmarks: bookmarks.length,
+  };
+
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
@@ -139,7 +147,7 @@ export default function Library() {
         {continueList.map((item, idx) => (
           <Link to={`${paths.mangaDetail}?slug=${item.mangaPath}`} key={idx} className={cx('card')}>
             <img
-              src={item.thumbnailUrl || ''}
+              src={item.thumbnailUrl ? `https://sv1.otruyencdn.com/${item.thumbnailUrl}` : ''}
               alt={item.mangaName}
               className={cx('cardImg')}
               onError={(e) => {
@@ -170,7 +178,7 @@ export default function Library() {
           <div key={idx} className={cx('card', 'hasDelete')}>
             <Link to={`${paths.mangaDetail}?slug=${item.mangaPath}`} className={cx('cardLinkWrap')}>
               <img
-                src={item.thumbnailUrl || ''}
+                src={item.thumbnailUrl ? `https://sv1.otruyencdn.com/${item.thumbnailUrl}` : ''}
                 alt={item.mangaName}
                 className={cx('cardImg')}
                 onError={(e) => {
@@ -407,21 +415,70 @@ export default function Library() {
   return (
     <div className={cx('wrapper')}>
       <div className={cx('container-fluid')}>
-        <h1 className={cx('pageTitle')}>Thư viện của tôi</h1>
-        <div className={cx('tabs')}>
-          {TABS.map((tab, i) => (
-            <button key={i} className={cx('tab', { active: activeTab === i })} onClick={() => setActiveTab(i)}>
-              <span>{tab.icon}</span> {tab.label}
-            </button>
-          ))}
-        </div>
-        <div className={cx('content')}>
-          {activeTab === 0 && renderFollows()}
-          {activeTab === 1 && renderContinue()}
-          {activeTab === 2 && renderHistory()}
-          {activeTab === 3 && renderCollections()}
-          {activeTab === 4 && renderBookmarks()}
-        </div>
+        <section className={cx('hero')}>
+          <div className={cx('heroText')}>
+            <p className={cx('heroKicker')}>Không gian cá nhân</p>
+            <h1 className={cx('pageTitle')}>Thư viện truyện của bạn</h1>
+            <p className={cx('heroDesc')}>Quản lý truyện đang theo dõi, tiếp tục đọc dở, ghi chú bộ sưu tập và lưu chương quan trọng tại một nơi.</p>
+          </div>
+          <div className={cx('heroStats')}>
+            <article>
+              <strong>{quickStats.follows}</strong>
+              <span>Đang theo dõi</span>
+            </article>
+            <article>
+              <strong>{quickStats.continueReading}</strong>
+              <span>Đang đọc dở</span>
+            </article>
+            <article>
+              <strong>{quickStats.collections}</strong>
+              <span>Bộ sưu tập</span>
+            </article>
+            <article>
+              <strong>{quickStats.bookmarks}</strong>
+              <span>Chương đã đánh dấu</span>
+            </article>
+          </div>
+        </section>
+
+        <section className={cx('libraryShell')}>
+          <aside className={cx('quickPanel')}>
+            <h3>Mục nhanh</h3>
+            <div className={cx('quickList')}>
+              {TABS.map((tab, i) => (
+                <button key={i} className={cx('quickItem', { active: activeTab === i })} onClick={() => setActiveTab(i)}>
+                  <span>{tab.icon}</span>
+                  <b>{tab.label}</b>
+                </button>
+              ))}
+            </div>
+            <div className={cx('summaryBlock')}>
+              <p>Tổng hoạt động</p>
+              <h4>{quickStats.history + quickStats.follows + quickStats.bookmarks}</h4>
+              <span>bản ghi cá nhân</span>
+            </div>
+          </aside>
+
+          <div className={cx('mainPanel')}>
+            <div className={cx('tabs')}>
+              {TABS.map((tab, i) => (
+                <button key={i} className={cx('tab', { active: activeTab === i })} onClick={() => setActiveTab(i)}>
+                  <span>{tab.icon}</span> {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className={cx('panelTitle')}>{TABS[activeTab]?.label}</div>
+
+            <div className={cx('content')}>
+              {activeTab === 0 && renderFollows()}
+              {activeTab === 1 && renderContinue()}
+              {activeTab === 2 && renderHistory()}
+              {activeTab === 3 && renderCollections()}
+              {activeTab === 4 && renderBookmarks()}
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

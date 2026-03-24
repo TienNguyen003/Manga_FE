@@ -13,7 +13,7 @@ const cx = classNames.bind(styles);
 export default function CategorySection() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const slug = queryParams.get('slug');
+  const slug = queryParams.get('slug') || queryParams.get('type');
   const search = queryParams.get('search');
 
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
@@ -29,6 +29,7 @@ export default function CategorySection() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     getManga();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePage, slug, search]);
 
   const getManga = async () => {
@@ -47,28 +48,31 @@ export default function CategorySection() {
     }
   };
 
+  const pageHeading = search ? `Kết quả tìm kiếm: ${search}` : slug ? `Danh mục: ${slug.charAt(0).toUpperCase() + slug.slice(1)}` : 'Khám phá truyện';
+
   return (
     <div className={cx('category')}>
-      <div className={cx('container-fluid')}>
-        {slug && <h2 className={cx('title')}>Đề xuất truyện tranh {slug.charAt(0).toUpperCase() + slug.slice(1)}</h2>}
-        {search && <h2 className={cx('title')}>Tìm kiếm truyện tranh {search.charAt(0).toUpperCase() + search.slice(1)}</h2>}
+      <div>
+        <h2 className={cx('title')}>{pageHeading}</h2>
         {error && !loading && <ErrorState text={error} onRetry={getManga} />}
         <div className={cx('row')}>
           {!loading && !error && mangas.result && mangas.result.length > 0 ? (
-            mangas.result.map((manga, index) => (
-              <div key={index} className={cx('pc-2 p-2')}>
-                <Link to={`${paths.mangaDetail}?slug=${manga.slug}`}>
-                  <div className={cx('card')}>
-                    <div className={cx('badge', manga.status.toLowerCase())}>{manga.status}</div>
-                    <img src={`${IMG_BASE_URL}${manga.thumb_url}`} alt={manga.name} loading="lazy" className={cx('img')} />
-                    <div className={cx('info')}>
-                      {manga.score > 0 && <div className={cx('score')}>⭐ Score {manga.score}</div>}
-                      <div className={cx('mangaTitle')}>{manga.name}</div>
+            <div className={cx('mangaList')}>
+              {mangas.result.map((manga, index) => (
+                <div key={index}>
+                  <Link to={`${paths.mangaDetail}?slug=${manga.slug}`}>
+                    <div className={cx('card')}>
+                      <div className={cx('badge', manga.status.toLowerCase())}>{manga.status}</div>
+                      <img loading="lazy" src={`${IMG_BASE_URL}${manga.thumb_url}`} alt={manga.name} className={cx('img')} />
+                      <div className={cx('info')}>
+                        {manga.score > 0 && <div className={cx('score')}>⭐ Score {manga.score}</div>}
+                        <div className={cx('mangaTitle')}>{manga.name}</div>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </div>
-            ))
+                  </Link>
+                </div>
+              ))}
+            </div>
           ) : !loading && !error ? (
             <div className={cx('notFoundWrapper')}>
               <img src="https://img.icons8.com/?size=100&id=45967&format=png&color=ffffff" alt="No manga found" className={cx('notFoundImage')} />
@@ -90,12 +94,30 @@ export default function CategorySection() {
               }}
               sx={{
                 '& .MuiPaginationItem-root': {
-                  fontSize: '1.5rem',
-                  color: '#fff',
+                  fontSize: '1.25rem',
+                  color: '#b97a1a',
+                  background: '#fff',
+                  borderRadius: '50%',
+                  border: '1.5px solid #f3e9de',
+                  boxShadow: '0 2px 8px 0 rgba(60,40,20,0.06)',
+                  minWidth: 40,
+                  minHeight: 40,
+                  margin: '0 4px',
+                  fontWeight: 700,
+                  transition: 'all 0.18s',
                 },
                 '& .Mui-selected': {
                   backgroundColor: '#EA982B !important',
-                  color: '#fff',
+                  color: '#fff !important',
+                  border: 'none',
+                  boxShadow: '0 4px 16px 0 rgba(234,152,43,0.13)',
+                  fontWeight: 800,
+                  transform: 'scale(1.08)',
+                },
+                '& .MuiPaginationItem-root:hover': {
+                  background: '#fff7e0',
+                  color: '#a86a1a',
+                  borderColor: '#f7d9a8',
                 },
               }}
             />

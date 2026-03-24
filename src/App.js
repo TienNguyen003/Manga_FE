@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
-import { publicRoutes } from '~/routes';
+import { publicRoutes, privateRoutesNoHeader } from '~/routes';
 import classNames from 'classnames/bind';
 
 import '~/components/LibaralyLayout/grid.css';
@@ -33,7 +33,9 @@ function AppContent() {
     });
   };
 
-  const showLayout = isValidPath(location.pathname);
+  const noHeaderPaths = privateRoutesNoHeader.map((route) => route.path);
+
+  const showLayout = !noHeaderPaths.includes(location.pathname);
 
   return (
     <>
@@ -42,22 +44,24 @@ function AppContent() {
           <div className={cx('routeLoaderBar')} />
           <div className={cx('routeLoaderCenter')}>
             <div className={cx('routeLoaderSpinner')} />
-            <p className={cx('routeLoaderText')}>Đang chuyển trang...</p>
+            <p className={cx('routeLoaderText')}>Đang tải trang...</p>
           </div>
         </div>
       )}
 
       {showLayout && <Header />}
+
       <div className="App">
         <Routes>
-          {publicRoutes.map((route, index) => {
+          {[...publicRoutes, ...privateRoutesNoHeader].map((route, index) => {
             const Page = route.component;
-
             return <Route key={index} path={route.path} element={<Page />} />;
           })}
+
           <Route path="*" element={<Error />} />
         </Routes>
       </div>
+
       {showLayout && <Footer />}
     </>
   );

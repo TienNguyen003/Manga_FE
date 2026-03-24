@@ -1,0 +1,118 @@
+﻿.communityPage {
+  color: var(--ink);
+  padding: 22px 0 36px;
+}
+
+.hero {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  padding: 20px;
+  margin-bottom: 14px;
+
+  h1 {
+    font-size: clamp(2.6rem, 4.2vw, 4.2rem);
+    line-height: 1.08;
+    margin-bottom: 8px;
+    max-width: 14ch;
+    color: #2c394a;
+  }
+
+  p {
+    font-size: 1.4rem;
+    max-width: 64ch;
+  }
+}
+
+.tag {
+  display: inline-flex;
+  width: fit-content;
+  font-size: 1.1rem;
+  color: #fdf1df;
+  background: #364457;
+  border-radius: 999px;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.topicGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.topicCard {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  padding: 14px;
+
+  h3 {
+    font-size: 2rem;
+    color: #334152;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  p {
+    color: var(--muted-ink);
+    font-size: 1.3rem;
+    margin-bottom: 9px;
+  }
+
+  button {
+    border: none;
+    border-radius: 9px;
+    min-height: 36px;
+    padding: 0 12px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d261d;
+  }
+
+  &.orange button {
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  }
+
+  &.blue button {
+    background: linear-gradient(90deg, #8bc9ff, #cdeaff);
+  }
+
+  &.green button {
+    background: linear-gradient(90deg, #8de6b8, #dafae8);
+  }
+
+  &.pink button {
+    background: linear-gradient(90deg, #fcb0d1, #ffd9ea);
+  }
+}
+
+.roadmap {
+  border: 1px dashed #e2c7a4;
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--surface);
+
+  h2 {
+    font-size: 2.2rem;
+    color: #354354;
+    margin-bottom: 8px;
+  }
+
+  ul {
+    padding-left: 18px;
+    color: var(--muted-ink);
+    font-size: 1.3rem;
+    line-height: 1.65;
+  }
+}
+

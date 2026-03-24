@@ -1,0 +1,130 @@
+﻿.discoverPage,
+.rankingsPage,
+.communityPage,
+.authorPage,
+.calendarPage,
+.searchPage {
+  color: var(--ink);
+  padding: 22px 0 38px;
+}
+
+.hero {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  padding: 20px;
+  margin-bottom: 14px;
+
+  h1 {
+    font-size: clamp(2.6rem, 4.6vw, 4.5rem);
+    line-height: 1.06;
+    margin-bottom: 8px;
+    max-width: 14ch;
+    color: #2c394a;
+  }
+
+  p {
+    // color: #6d7987;
+    font-size: 1.4rem;
+    max-width: 64ch;
+  }
+}
+
+.kicker,
+.tag {
+  display: inline-flex;
+  width: fit-content;
+  font-size: 1.1rem;
+  color: #fdf1df;
+  background: #364457;
+  border-radius: 999px;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.heroBtn {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2a2218;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+}
+
+.loading,
+.empty,
+.state {
+  border: 1px dashed #e4c9a3;
+  border-radius: 12px;
+  color: var(--muted-ink);
+  padding: 16px;
+  background: var(--surface);
+}
+
+.section,
+.topicCard,
+.teamCard,
+.spotlight,
+.dayCard,
+.filterBar {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.section,
+.spotlight,
+.topicCard,
+.teamCard,
+.dayCard {
+  padding: 12px;
+}
+
+.section {
+  margin-bottom: 12px;
+}
+
+.sectionHead,
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  h2 {
+    font-size: clamp(2rem, 3.2vw, 2.9rem);
+    line-height: 1.1;
+    color: #304051;
+  }
+
+  p {
+    color: #758292;
+    font-size: 1.3rem;
+  }
+
+  a {
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+}
+
+.grid,
+.works,
+.topicGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  @media (min-width: 760px) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
