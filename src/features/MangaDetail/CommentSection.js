@@ -17,7 +17,7 @@ function timeAgo(dateStr) {
   return `${Math.floor(diff / 86400)} ngày trước`;
 }
 
-function CommentItem({ comment, userId, mangaPath, chapterName, mangaName, onDelete }) {
+function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mangaName, onDelete, level = 1 }) {
   const [liked, setLiked] = useState(comment.likedByCurrentUser);
   const [likesCount, setLikesCount] = useState(comment.totalLikes || 0);
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -87,8 +87,8 @@ function CommentItem({ comment, userId, mangaPath, chapterName, mangaName, onDel
   };
 
   return (
-    <div className={cx('comment')}>
-      <div className={cx('commentAvatar')}>{(comment.userDisplayName || comment.username || '?').charAt(0).toUpperCase()}</div>
+    <div className={cx('comment', { [`level-${level}`]: level > 3 })}>
+      <img src={userAvatar} className={cx('commentAvatar')} />
       <div className={cx('commentBody')}>
         <div className={cx('commentHeader')}>
           <span className={cx('commentUser')}>{comment.userDisplayName || comment.username}</span>
@@ -139,9 +139,19 @@ function CommentItem({ comment, userId, mangaPath, chapterName, mangaName, onDel
 
         {repliesLoading && <LoadingSpinner text="" />}
         {showReplies && replies.length > 0 && (
-          <div className={cx('replies')}>
+          <div className={cx(level < 3 ? 'replies' : 'flatReplies')}>
             {replies.map((r) => (
-              <CommentItem key={r.id} comment={r} userId={userId} mangaPath={mangaPath} chapterName={chapterName} mangaName={mangaName} onDelete={onDelete} />
+              <CommentItem
+                key={r.id}
+                comment={r}
+                userAvatar={r.userAvatar}
+                userId={userId}
+                mangaPath={mangaPath}
+                chapterName={chapterName}
+                mangaName={mangaName}
+                onDelete={onDelete}
+                level={level + 1} // Tăng cấp độ lên cho con
+              />
             ))}
           </div>
         )}
@@ -270,7 +280,16 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
       ) : (
         <div className={cx('list')}>
           {comments.map((c) => (
-            <CommentItem key={c.id} comment={c} userId={userId} mangaPath={mangaPath} chapterName={chapterName} mangaName={mangaName} onDelete={handleDelete} />
+            <CommentItem
+              key={c.id}
+              comment={c}
+              userAvatar={c.userAvatar}
+              userId={userId}
+              mangaPath={mangaPath}
+              chapterName={chapterName}
+              mangaName={mangaName}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       )}

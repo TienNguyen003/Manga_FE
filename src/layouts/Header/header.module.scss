@@ -269,6 +269,12 @@
     font-size: 1.3rem;
     font-weight: 700;
     color: #514640;
+    transition: all .2s ease;
+
+    &:hover {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    }
   }
 
   a.active {

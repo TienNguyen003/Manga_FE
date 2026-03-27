@@ -166,9 +166,13 @@ export default function CommunityTopic() {
                   <div className={cx('postHeader')}>
                     <div className={cx('userInfo')}>
                       <img className={cx('avatar')} src={post.author?.urlImage || 'https://via.placeholder.com/40'} alt="avatar" />
-                      <span className={cx('userName')}>{post.author?.username}</span>
+                      <div className={cx('userMeta')}>
+                        <span className={cx('userName')}>Tác giả: <span style={{color: '#ff4757'}}>{post.author?.username}</span></span>
+                        <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleDateString()}</span>
+                      </div>
                     </div>
-                    <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleDateString()}</span>
+
+                    <h3 className={cx('postTitle')}>{post.title}</h3>
                   </div>
 
                   <div className={cx('postContent')} onClick={() => navigate(`/cong-dong/post/${post.id}`)}>
