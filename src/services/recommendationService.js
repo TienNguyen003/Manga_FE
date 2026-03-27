@@ -1,5 +1,9 @@
 import { get } from '~/lib/httpRequest';
 
-const url = '/mangas/recommendations';
+const url = '/recommendations';
 
-export const getRecommendations = ({ userId, limit = 12 }) => get(url, { params: { userId, limit } });
+const getRecommendationsMangas = ({ userId, limit = 12 }) => get(`${url}/mangas`, { params: { userId, limit } });
+
+const getRecommendationPosts = ({ userId, limit = 12 }) => get(`${url}/posts`, { params: { userId, limit } });
+
+export { getRecommendationsMangas, getRecommendationPosts };

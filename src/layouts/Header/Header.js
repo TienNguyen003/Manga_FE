@@ -110,7 +110,7 @@ export default function Header() {
   return (
     <header className={cx('header')}>
       <div className={cx('topLine')}>
-        <span>Phiên bản giao diện mới</span>
+        <span></span>
         <Link to={paths.releaseCalendar}>Lịch ra chương tuần này</Link>
       </div>
 

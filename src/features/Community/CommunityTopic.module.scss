@@ -1,102 +1,251 @@
+$primary: #ff4757;
+$primary-soft: rgba(255, 71, 87, 0.1);
+$ink: #2c394a;
+$muted-ink: #606770;
+$line: #edf0f5;
+$bg-body: #f8faff; 
+$transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
 .topicPage {
-  padding: 48px 0 32px 0;
-  background: #f7f8fa;
-  min-height: 100vh;
+  background-color: $bg-body;
+  padding: 40px 0;
+  font-family: 'Inter', sans-serif;
 }
 
-.container-fluid {
-  max-width: 520px;
+.container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 0 20px;
 }
 
 .hero {
-  margin-bottom: 32px;
-  text-align: center;
-}
+  background: #ffffff;
+  border: 1px solid $line;
+  border-radius: 30px;
+  padding: 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
 
-.topicTitle {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  color: #222;
-}
+  &::after {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 150px;
+    height: 150px;
+    background: $primary-soft;
+    border-radius: 50%;
+    z-index: 0;
+  }
 
-.topicSubtitle {
-  font-size: 1.22rem;
-  font-weight: 500;
-  color: #444;
-  margin-bottom: 1.5rem;
+  .topNav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    margin-bottom: 25px;
+  }
+
+  .backBtn {
+    background: #f1f3f6;
+    color: $ink;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      background: $ink;
+      color: white;
+      transform: translateX(-5px);
+    }
+  }
+
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: $ink;
+    margin: 0;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .topicSubtitle {
+    font-size: 1.3rem;
+    color: $primary;
+    font-weight: 700;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
 }
 
 .postList {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  width: 100%;
-  align-items: center;
+  gap: 20px;
 }
 
 .postCard {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 6px 32px rgba(45,123,229,0.10);
-  padding: 28px 28px 18px 28px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 18px;
-  min-height: 80px;
-  width: 100%;
-  max-width: 520px;
-  transition: box-shadow 0.2s;
-  margin: 0 auto;
-}
-.postCard:hover {
-  box-shadow: 0 12px 36px rgba(45,123,229,0.16);
+  background: #ffffff;
+  border: 1px solid $line;
+  border-radius: 24px;
+  padding: 24px 30px;
+  transition: $transition;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    border-color: rgba($primary, 0.2);
+  }
+
+  .postHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+
+    .userInfo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        object-fit: cover;
+        border: 2px solid $bg-body;
+      }
+
+      .userName {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: $ink;
+      }
+    }
+
+    .postTime {
+      font-size: 1.2rem;
+      color: $muted-ink;
+      font-weight: 500;
+    }
+  }
+
+  .postContent {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    color: #4a5568;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+  }
+
+  .postActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #f1f4f8;
+
+    .reactions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .reactBtn {
+        background: transparent;
+        border: 1px solid $line;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        color: $muted-ink;
+        transition: $transition;
+
+        &:hover {
+          background: $bg-body;
+          border-color: $primary;
+          color: $primary;
+        }
+      }
+
+      .statItem {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: $muted-ink;
+        background: $bg-body;
+        padding: 6px 12px;
+        border-radius: 10px;
+      }
+    }
+
+    .viewDetail {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: $primary;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 }
 
-.avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #2d7be5;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(45,123,229,0.10);
+// Button "Viết bài mới"
+.createBtn {
+  background-color: $primary !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-weight: 700 !important;
+  font-size: 1.3rem !important;
+  padding: 10px 20px !important;
+  box-shadow: 0 4px 14px rgba($primary, 0.3) !important;
+  
+  &:hover {
+    background-color: darken($primary, 5%) !important;
+    transform: translateY(-2px);
+  }
 }
 
-.author {
-  font-weight: 600;
-  color: #2d7be5;
-  margin-bottom: 2px;
-  font-size: 1.08rem;
-}
-
-.content {
-  font-size: 1.12rem;
-  color: #23272f;
-  margin-bottom: 8px;
-  line-height: 1.6;
-}
-
-.meta {
-  font-size: 0.93rem;
-  color: #b0b4bb;
-  margin-top: 4px;
-  text-align: right;
-}
-
-.error {
-  color: #e74c3c;
+// Trạng thái trống
+.emptyState {
   text-align: center;
-  margin: 16px 0;
+  padding: 80px 40px;
+  background: #fff;
+  border-radius: 30px;
+  border: 2px dashed $line;
+  // margin-top: 20px;
+
+  .emptyIcon {
+    font-size: 4rem !important;
+    color: $line;
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: $ink;
+  }
+
+  p {
+    color: $muted-ink;
+    margin-bottom: 20px;
+  }
+}
+
+// Loader
+.status {
+  text-align: center;
+  padding: 50px;
+  font-weight: 600;
+  color: $muted-ink;
 }

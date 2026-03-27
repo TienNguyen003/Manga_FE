@@ -10,7 +10,7 @@ import { useUser } from '~/providers/UserContext';
 import { followManga, unfollowManga, getFollowStatus } from '~/services/followService';
 import { getMangaStats } from '~/services/statsService';
 import { getRatingSummary, getMyRating, getReviews, submitRating } from '~/services/ratingService';
-import { getRecommendations } from '~/services/recommendationService';
+import { getRecommendationsMangas } from '~/services/recommendationService';
 import { getCollections, addCollectionItem } from '~/services/collectionService';
 
 const cx = classNames.bind(styles);
@@ -124,7 +124,7 @@ const MangaDetail = () => {
     getReviews({ mangaPath: slug })
       .then((res) => setReviews(res?.result || []))
       .catch(() => {});
-    getRecommendations({ userId: userId || undefined, limit: 14 })
+    getRecommendationsMangas({ userId: userId || undefined, limit: 14 })
       .then((res) => setRecommendationItems(res?.result || []))
       .catch(() => {});
     if (userId) {

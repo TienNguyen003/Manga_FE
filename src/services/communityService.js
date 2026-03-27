@@ -10,13 +10,13 @@ export const communityService = {
   getPostComments: async (postId) => {
     return httpRequest.get(`/community/posts/${postId}/comments`);
   },
-  async createPost(topicId, data) {
-    return httpRequest.post(`/community/topic/${topicId}/post`, data);
+  async createPost(userID, data) {
+    return httpRequest.post(`/community/posts?id=${userID}`, data);
   },
-  async commentPost(postId, data) {
-    return httpRequest.post(`/community/post/${postId}/comment`, data);
+  async commentPost(userID, data) {
+    return httpRequest.post(`/community/comments?id=${userID}`, data);
   },
-  async reactPost(postId, data) {
-    return httpRequest.post(`/community/post/${postId}/reaction`, data);
+  async reactPost(data, userId) {
+    return httpRequest.post(`/community/reactions?id=${userId}`, data);
   },
 };

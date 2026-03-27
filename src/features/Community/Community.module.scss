@@ -1,118 +1,224 @@
-﻿.communityPage {
-  color: var(--ink);
-  padding: 22px 0 36px;
+﻿$text-black: #1d1d1f;
+$text-gray: #86868b;
+$primary: #ff4757;
+$bg-card: #f5f5f7;
+$transition: all 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+
+.communityPage {
+  background: #ffffff;
+  padding: 60px 0;
+  font-family: 'Inter', sans-serif;
 }
 
-.hero {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
-  padding: 20px;
-  margin-bottom: 14px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
 
-  h1 {
-    font-size: clamp(2.6rem, 4.2vw, 4.2rem);
-    line-height: 1.08;
-    margin-bottom: 8px;
-    max-width: 14ch;
-    color: #2c394a;
+.header {
+  margin-bottom: 50px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #eee;
+
+  .giantTitle {
+    font-size: 5rem;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -3px;
+    color: $text-black;
+    margin: 0;
   }
 
-  p {
-    font-size: 1.4rem;
-    max-width: 64ch;
+  .statusBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-gray;
+    margin-top: 10px;
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: #32d74b;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #32d74b;
+    }
+  }
+
+  .subTitle {
+    font-size: 1.1rem;
+    color: $text-gray;
+    max-width: 250px;
+    font-weight: 500;
+    margin: 0;
   }
 }
 
-.tag {
-  display: inline-flex;
-  width: fit-content;
-  font-size: 1.1rem;
-  color: #fdf1df;
-  background: #364457;
-  border-radius: 999px;
-  padding: 5px 10px;
-  margin-bottom: 8px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.topicGrid {
+.bentoGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(4, 1fr); // 4 cột cố định
+  grid-auto-rows: 180px;
+  gap: 20px;
 
-  @media (max-width: 760px) {
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
+    grid-auto-rows: auto;
   }
 }
 
-.topicCard {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--card);
-  padding: 14px;
+.bentoCard {
+  background: $bg-card;
+  border-radius: 28px;
+  padding: 24px;
+  transition: $transition;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+
+  // Chia ô
+  &.cardSmall {
+    grid-column: span 1;
+  }
+  &.cardLarge {
+    grid-column: span 2;
+    background: #fafafa;
+    border-color: #eee;
+  }
+
+  // Style cho Card màu tối (xen kẽ cho đẹp)
+  &:nth-child(3n + 1) {
+    background: $text-black;
+    color: #ffffff;
+    .topicLabel {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .cardDesc {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .goBtn {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-color: transparent;
+    }
+
+    &:hover {
+      background: #2c2c2e; // Không đổi sang trắng để tránh mất chữ
+      color: #ffffff;
+    }
+  }
+
+  &:not(:nth-child(3n + 1)) {      
+      h3{
+        color: $text-black !important;
+      }
+    }
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    border-color: rgba($primary, 0.3);
+
+    &:not(:nth-child(3n + 1)) {
+      background: #ffffff;
+
+      h3{
+        color: $text-black !important;
+      }
+    }
+
+    .goBtn {
+      background: $primary;
+      // color: white;
+      transform: rotate(-45deg);
+    }
+  }
+
+  .cardContent {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .topicLabel {
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $text-gray;
+    margin-bottom: 8px;
+    display: block;
+  }
 
   h3 {
-    font-size: 2rem;
-    color: #334152;
+    font-size: 1.7rem;
+    font-weight: 800;
     line-height: 1.2;
-    margin-bottom: 6px;
+    margin: 0;
+    color: white;
+    // Giới hạn 2 dòng cho tiêu đề
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
-  p {
-    color: var(--muted-ink);
-    font-size: 1.3rem;
-    margin-bottom: 9px;
+  .cardDesc {
+    margin-top: 8px;
+    font-size: 1.4rem;
+    color: $text-gray;
+    // Giới hạn 2 dòng cho mô tả
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
-  button {
-    border: none;
-    border-radius: 9px;
-    min-height: 36px;
-    padding: 0 12px;
-    cursor: pointer;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #2d261d;
-  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
 
-  &.orange button {
-    background: linear-gradient(90deg, var(--primary), var(--primary-light));
-  }
+    .postCount {
+      font-size: 1.2rem;
+      font-weight: 600;
+      opacity: 0.8;
+      b {
+        color: $primary;
+      }
+    }
 
-  &.blue button {
-    background: linear-gradient(90deg, #8bc9ff, #cdeaff);
-  }
-
-  &.green button {
-    background: linear-gradient(90deg, #8de6b8, #dafae8);
-  }
-
-  &.pink button {
-    background: linear-gradient(90deg, #fcb0d1, #ffd9ea);
-  }
-}
-
-.roadmap {
-  border: 1px dashed #e2c7a4;
-  border-radius: 12px;
-  padding: 14px;
-  background: var(--surface);
-
-  h2 {
-    font-size: 2.2rem;
-    color: #354354;
-    margin-bottom: 8px;
-  }
-
-  ul {
-    padding-left: 18px;
-    color: var(--muted-ink);
-    font-size: 1.3rem;
-    line-height: 1.65;
+    .goBtn {
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: $transition;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
   }
 }
 
+.loader {
+  grid-column: span 4;
+  text-align: center;
+  padding: 100px;
+  font-size: 1.2rem;
+  color: $text-gray;
+  font-weight: 600;
+}

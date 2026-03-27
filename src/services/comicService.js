@@ -7,7 +7,4 @@ export const comicService = {
   async getMyComics() {
     return httpRequest.get('/comic/my');
   },
-  async getRecommendations() {
-    return httpRequest.get('/recommendation');
-  },
 };

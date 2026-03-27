@@ -79,7 +79,7 @@ export default function Footer() {
         </section>
       </div>
 
-      <p className={cx('copyright')}>© 2026 Web Comics Lab. Toàn bộ giao diện đã rebuild mới.</p>
+      <p className={cx('copyright')}>© 2026 Web Comics Lab. Toàn bộ giao diện mới.</p>
     </footer>
   );
 }
