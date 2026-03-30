@@ -6,9 +6,8 @@ import paths from '~/routes/paths';
 
 const cx = classNames.bind(styles);
 
-const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || '';
-
 export default function MangaCard({ manga, badge, rank }) {
+  const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || '';
   if (!manga) return null;
 
   // normalize data (hỗ trợ cả 2 kiểu)

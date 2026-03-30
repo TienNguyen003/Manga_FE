@@ -7,6 +7,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 
 import { communityService } from '~/services/communityService';
 import { useUser } from '~/providers/UserContext';
+import paths from '~/routes/paths';
 
 import styles from './CommunityTopic.module.scss';
 
@@ -198,7 +199,7 @@ export default function CommunityTopic() {
                         </div>
                       </div>
                     </div>
-                    <span className={cx('viewDetail')} onClick={() => navigate(`/cong-dong/post/${post.id}`)}>
+                    <span className={cx('viewDetail')} onClick={() => navigate(`${paths.postDetail}`.replace(':id', post.id))}>
                       Xem chi tiết →
                     </span>
                   </div>

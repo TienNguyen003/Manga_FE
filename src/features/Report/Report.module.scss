@@ -1,81 +1,100 @@
+$primary-orange: #ea982b;
+$text-black: #000000;
+$border-light: #eeeeee;
+
 .reportPage {
-  color: var(--ink);
-  padding: 22px 0 36px;
-}
-
-.hero {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
-  padding: 20px;
-  margin-bottom: 18px;
-  h1 {
-    font-size: clamp(2.2rem, 4vw, 3.2rem);
-    margin-bottom: 7px;
-    color: #2c394a;
-  }
-  p {
-    color: var(--muted-ink);
-    font-size: 1.2rem;
-  }
-}
-
-.form {
-  max-width: 480px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(44, 57, 74, 0.06);
-  padding: 24px 20px;
+  background-color: #ffffff;
   display: flex;
-  flex-direction: column;
-  gap: 18px;
+  justify-content: center;
+  padding: 80px 20px;
 }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.content {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
 }
 
-input,
-textarea,
-select {
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 7px 12px;
-  font-size: 1rem;
-  background: #f9f6f2;
+.pageTitle {
+  font-size: 4.2rem !important;
+  font-weight: 900 !important;
+  color: $text-black;
+  margin-bottom: 15px !important;
+  letter-spacing: -2px;
 }
 
-.error {
-  color: #d32f2f;
-  background: #fff0f0;
-  border-radius: 6px;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+.subTitle {
+  font-size: 1.6rem;
+  color: #666;
+  margin-bottom: 50px;
+  line-height: 1.6;
 }
 
-.success {
-  color: #388e3c;
-  background: #e8f5e9;
-  border-radius: 6px;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+// --- HỆ THỐNG FOCUS HIGHLIGHT ĐỒNG BỘ ---
+:global(.MuiTextField-root) {
+  :global(.MuiInputLabel-root) {
+    font-size: 1.6rem !important;
+  }
+
+  :global(.MuiOutlinedInput-root) {
+    font-size: 1.7rem !important;
+    border-radius: 12px !important;
+    background: #fafafa;
+    transition: all 0.25s ease;
+
+    :global(.MuiAutocomplete-endAdornment) {
+      :global(.MuiSvgIcon-root) {
+        font-size: 2rem !important;
+        color: #666;
+      }
+    }
+
+    :global(.MuiOutlinedInput-notchedOutline) {
+      border: 2px solid $border-light !important;
+      transition: all 0.25s ease;
+    }
+
+    &:hover :global(.MuiOutlinedInput-notchedOutline) {
+      border-color: #ccc !important;
+    }
+
+    &.Mui-focused {
+      background-color: #ffffff !important;
+      box-shadow: 0 0 0 5px rgba(234, 152, 43, 0.2);
+
+      :global(.MuiOutlinedInput-notchedOutline) {
+        border-color: $primary-orange !important;
+        border-width: 2px !important;
+      }
+    }
+  }
+}
+
+:global(.MuiAutocomplete-option) {
+    font-size: 1.4rem !important;
+    padding: 12px 20px !important;
+    color: #333 !important;
+    font-weight: 500 !important;
+    transition: background 0.2s ease;
 }
 
 .submitBtn {
-  background: #f4e5d3;
-  color: #a86b2d;
-  border: 1px solid #e4c9a3;
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 10px 0;
-  font-size: 1.1rem;
-  margin-top: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.submitBtn:hover {
-  background: #ffe3b0;
+  background-color: $text-black !important;
+  color: #fff !important;
+  padding: 15px !important;
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  margin-top: 20px !important;
+  transition: 0.3s !important;
+
+  &:hover {
+    background-color: $primary-orange !important;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(234, 152, 43, 0.3);
+  }
+
+  &:disabled {
+    background-color: #eee !important;
+  }
 }

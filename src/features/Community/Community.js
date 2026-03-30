@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { communityService } from '~/services/communityService';
+import paths from '~/routes/paths';
 import classNames from 'classnames/bind';
 import styles from './Community.module.scss';
 
@@ -41,7 +43,7 @@ export default function Community() {
               const isLarge = topic.description?.length > 40;
 
               return (
-                <div key={topic.id} className={cx('bentoCard', isLarge ? 'cardLarge' : 'cardSmall')} onClick={() => navigate(`/cong-dong/topic/${topic.id}`)}>
+                <div key={topic.id} className={cx('bentoCard', isLarge ? 'cardLarge' : 'cardSmall')} onClick={() => navigate(`${paths.communityTopic}`.replace(':id', topic.id))}>
                   <div className={cx('cardContent')}>
                     <div className={cx('top')}>
                       <span className={cx('topicLabel')}>Chủ đề #{index + 1}</span>

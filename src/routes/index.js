@@ -14,6 +14,7 @@ import Community from '~/features/Community/Community';
 import CommunityTopic from '~/features/Community/CommunityTopic';
 import PostDetail from '~/features/Community/PostDetail';
 import AuthorHub from '~/features/AuthorHub/AuthorHub';
+import TeamProfile from '~/features/AuthorHub/TeamProfile';
 import ReleaseCalendar from '~/features/ReleaseCalendar/ReleaseCalendar';
 import AdvancedSearch from '~/features/AdvancedSearch/AdvancedSearch';
 import Upload from '~/features/Upload/Upload';
@@ -38,6 +39,7 @@ const publicRoutes = [
   { path: paths.communityTopic, component: CommunityTopic },
   { path: paths.postDetail, component: PostDetail },
   { path: paths.authorHub, component: AuthorHub },
+  { path: paths.teamProfile, component: TeamProfile },
   { path: paths.releaseCalendar, component: ReleaseCalendar },
   { path: paths.advancedSearch, component: AdvancedSearch },
   { path: paths.library, component: Library },

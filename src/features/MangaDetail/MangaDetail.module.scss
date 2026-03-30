@@ -1,7 +1,7 @@
 ﻿.manga-detail {
   color: var(--ink);
   padding: 26px 0;
-  margin-bottom: 14px;
+  margin: 30px 0 !important;
 
   .wrapper {
     display: grid;
@@ -327,6 +327,10 @@
 .review-user,
 .reviews-heading {
   color: #3d4b5b;
+}
+
+.reviews-heading{
+  margin-bottom: 10px;
 }
 
 .collection-label {

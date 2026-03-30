@@ -17,14 +17,13 @@ export default function AuthorHub() {
 
   useEffect(() => {
     let mounted = true;
-    // Lấy danh sách nhóm tác giả
     setLoadingTeams(true);
     setErrorTeams('');
     teamService
       .getTeamList()
       .then((res) => {
         if (!mounted) return;
-        setTeams(res?.data || []);
+        setTeams(res?.result || []);
       })
       .catch(() => {
         if (!mounted) return;
@@ -35,7 +34,6 @@ export default function AuthorHub() {
         if (mounted) setLoadingTeams(false);
       });
 
-    // Lấy spotlight truyện như cũ
     getMangasByCategory({ path: 'manhwa', page: 1 })
       .then((res) => {
         if (!mounted) return;
@@ -71,9 +69,10 @@ export default function AuthorHub() {
                 <h3>{team.name}</h3>
                 <div className={cx('meta')}>
                   <span>{team.members?.length || 0} thành viên</span>
-                  <span>{team.description}</span>
                 </div>
-                <button type="button">Xem hồ sơ nhóm</button>
+                <Link to={paths.teamProfile.replace(':id', team.id)} className={cx('profileBtn')}>
+                  Xem hồ sơ nhóm
+                </Link>
               </article>
             ))}
         </section>

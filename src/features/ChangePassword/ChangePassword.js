@@ -1,74 +1,121 @@
 import React, { useState } from 'react';
-import { userService } from '~/services/userService';
 import classNames from 'classnames/bind';
+import { 
+    Box, Typography, TextField, Button, Stack, Alert, 
+    InputAdornment, IconButton, CircularProgress 
+} from '@mui/material';
+import { LockResetRounded, VpnKeyRounded, Visibility, VisibilityOff } from '@mui/icons-material';
 import styles from './ChangePassword.module.scss';
+import { userService } from '~/services/userService';
 
 const cx = classNames.bind(styles);
 
 export default function ChangePassword() {
-  const [oldPass, setOldPass] = useState('');
-  const [newPass, setNewPass] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+    const [oldPass, setOldPass] = useState('');
+    const [newPass, setNewPass] = useState('');
+    const [confirmPass, setConfirmPass] = useState('');
+    const [showPass, setShowPass] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState({ type: '', msg: '' });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess(false);
-    if (!oldPass || !newPass || !confirmPass) {
-      setError('Vui lòng nhập đầy đủ các trường.');
-      return;
-    }
-    if (newPass !== confirmPass) {
-      setError('Mật khẩu mới không khớp.');
-      return;
-    }
-    try {
-      const res = await userService.changePassword({ oldPassword: oldPass, newPassword: newPass });
-      if (res?.data?.success) {
-        setSuccess(true);
-      } else {
-        setError('Đổi mật khẩu thất bại.');
-      }
-    } catch (err) {
-      setError('Đổi mật khẩu thất bại.');
-    }
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setStatus({ type: '', msg: '' });
 
-  return (
-    <main className={cx('changePassPage')}>
-      <div className={cx('container-fluid')}>
-        <section className={cx('hero')}>
-          <h1>Đổi mật khẩu</h1>
-          <p>Đảm bảo tài khoản của bạn luôn an toàn. (Demo UI, cần nối backend sau)</p>
-        </section>
-        <form className={cx('form')} onSubmit={handleSubmit}>
-          <div className={cx('formGroup')}>
-            <label>
-              Mật khẩu hiện tại <span style={{ color: 'red' }}>*</span>
-            </label>
-            <input type="password" value={oldPass} onChange={(e) => setOldPass(e.target.value)} placeholder="Nhập mật khẩu hiện tại" />
-          </div>
-          <div className={cx('formGroup')}>
-            <label>
-              Mật khẩu mới <span style={{ color: 'red' }}>*</span>
-            </label>
-            <input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="Nhập mật khẩu mới" />
-          </div>
-          <div className={cx('formGroup')}>
-            <label>
-              Nhập lại mật khẩu mới <span style={{ color: 'red' }}>*</span>
-            </label>
-            <input type="password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} placeholder="Nhập lại mật khẩu mới" />
-          </div>
-          {error && <div className={cx('error')}>{error}</div>}
-          {success && <div className={cx('success')}>Đổi mật khẩu thành công! (Demo)</div>}
-          <button type="submit" className={cx('submitBtn')}>
-            Đổi mật khẩu
-          </button>
-        </form>
-      </div>
-    </main>
-  );
+        if (!oldPass || !newPass || !confirmPass) {
+            setStatus({ type: 'error', msg: 'Vui lòng điền đủ các trường.' });
+            return;
+        }
+        if (newPass !== confirmPass) {
+            setStatus({ type: 'error', msg: 'Mật khẩu mới không khớp.' });
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const res = await userService.changePassword({ oldPassword: oldPass, newPassword: newPass });
+            if (res?.data?.success) {
+                setStatus({ type: 'success', msg: 'Đổi mật khẩu thành công!' });
+                setOldPass(''); setNewPass(''); setConfirmPass('');
+            } else {
+                setStatus({ type: 'error', msg: 'Thất bại. Mật khẩu cũ không đúng?' });
+            }
+        } catch (err) {
+            setStatus({ type: 'error', msg: 'Có lỗi xảy ra, thử lại sau.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <main className={cx('changePassPage')}>
+            <div className={cx('content')}>
+                <Typography variant="h2" className={cx('pageTitle')}>
+                    Bảo Mật Tài Khoản
+                </Typography>
+                
+                <Typography className={cx('subTitle')}>
+                    Cập nhật mật khẩu định kỳ để bảo vệ tác phẩm của bạn.
+                </Typography>
+
+                <form className={cx('form')} onSubmit={handleSubmit}>
+                    <Stack spacing={4}>
+                        <TextField
+                            fullWidth
+                            type={showPass ? 'text' : 'password'}
+                            label="Mật khẩu hiện tại"
+                            variant="outlined"
+                            value={oldPass}
+                            onChange={(e) => setOldPass(e.target.value)}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <VpnKeyRounded />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
+                        <TextField
+                            fullWidth
+                            type={showPass ? 'text' : 'password'}
+                            label="Mật khẩu mới"
+                            variant="outlined"
+                            value={newPass}
+                            onChange={(e) => setNewPass(e.target.value)}
+                        />
+
+                        <TextField
+                            fullWidth
+                            type={showPass ? 'text' : 'password'}
+                            label="Nhập lại mật khẩu mới"
+                            variant="outlined"
+                            value={confirmPass}
+                            onChange={(e) => setConfirmPass(e.target.value)}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton onClick={() => setShowPass(!showPass)}>
+                                            {showPass ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
+                        {status.msg && <Alert severity={status.type} sx={{ fontSize: '1.4rem' }}>{status.msg}</Alert>}
+
+                        <Button 
+                            className={cx('submitBtn')} 
+                            type="submit" 
+                            disabled={loading}
+                            startIcon={!loading && <LockResetRounded />}
+                        >
+                            {loading ? <CircularProgress size={28} color="inherit" /> : 'CẬP NHẬT MẬT KHẨU'}
+                        </Button>
+                    </Stack>
+                </form>
+            </div>
+        </main>
+    );
 }

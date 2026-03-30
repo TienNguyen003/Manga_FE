@@ -9,6 +9,7 @@ const paths = {
   communityTopic: '/cong-dong/topic/:id',
   postDetail: '/cong-dong/post/:id',
   authorHub: '/tac-gia-nhom-dich',
+  teamProfile: '/nhom/:id',
   releaseCalendar: '/lich-phat-hanh',
   advancedSearch: '/tim-kiem-nang-cao',
   search: '/search',

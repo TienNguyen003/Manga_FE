@@ -1,69 +1,83 @@
-import React, { useState } from 'react';
-import { reportService } from '~/services/reportService';
+import { CampaignRounded } from '@mui/icons-material';
+import { Alert, Autocomplete, Button, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
+import { useState } from 'react';
+import { reportService } from '~/services/reportService';
 import styles from './Report.module.scss';
 
 const cx = classNames.bind(styles);
 
-export default function Report() {
-  const [type, setType] = useState('');
-  const [content, setContent] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+const REPORT_TYPES = ['Báo lỗi truyện', 'Báo cáo vi phạm', 'Báo lỗi hình ảnh', 'Vấn đề tài khoản', 'Khác'];
 
-  const types = ['', 'Báo lỗi truyện', 'Báo cáo vi phạm', 'Báo lỗi hình ảnh', 'Khác'];
+export default function Report() {
+  const [type, setType] = useState(null);
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: '', msg: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess(false);
+    setStatus({ type: '', msg: '' });
+
     if (!type || !content) {
-      setError('Vui lòng chọn loại báo cáo và nhập nội dung.');
+      setStatus({ type: 'error', msg: 'Vui lòng chọn loại báo cáo và nhập nội dung.' });
       return;
     }
+
+    setLoading(true);
     try {
       const res = await reportService.sendReport({ type, content });
       if (res?.data?.success) {
-        setSuccess(true);
-      } else {
-        setError('Gửi báo cáo thất bại.');
+        setStatus({ type: 'success', msg: 'Cảm ơn phản hồi của bạn, chúng tôi sẽ xử lý sớm!' });
+        setContent('');
+        setType(null);
       }
     } catch (err) {
-      setError('Gửi báo cáo thất bại.');
+      setStatus({ type: 'error', msg: 'Gửi báo cáo thất bại, thử lại sau nhé.' });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <main className={cx('reportPage')}>
-      <div className={cx('container-fluid')}>
-        <section className={cx('hero')}>
-          <h1>Báo cáo sự cố/truyện</h1>
-          <p>Gửi phản hồi về lỗi, vi phạm hoặc vấn đề khác. (Demo UI, cần nối backend sau)</p>
-        </section>
+      <div className={cx('content')}>
+        <Typography variant="h2" className={cx('pageTitle')}>
+          Báo Cáo Sự Cố
+        </Typography>
+
+        <Typography className={cx('subTitle')}>Chúng tôi luôn lắng nghe để cải thiện cộng đồng tốt hơn mỗi ngày.</Typography>
+
         <form className={cx('form')} onSubmit={handleSubmit}>
-          <div className={cx('formGroup')}>
-            <label>
-              Loại báo cáo <span style={{ color: 'red' }}>*</span>
-            </label>
-            <select value={type} onChange={(e) => setType(e.target.value)}>
-              {types.map((t, idx) => (
-                <option value={t} key={idx}>
-                  {t || 'Chọn loại báo cáo'}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={cx('formGroup')}>
-            <label>
-              Nội dung <span style={{ color: 'red' }}>*</span>
-            </label>
-            <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Mô tả chi tiết vấn đề..." rows={4} />
-          </div>
-          {error && <div className={cx('error')}>{error}</div>}
-          {success && <div className={cx('success')}>Gửi báo cáo thành công! (Demo)</div>}
-          <button type="submit" className={cx('submitBtn')}>
-            Gửi báo cáo
-          </button>
+          <Stack spacing={4}>
+            <Autocomplete
+              options={REPORT_TYPES}
+              value={type}
+              onChange={(e, newValue) => setType(newValue)}
+              renderInput={(params) => <TextField {...params} label="Vấn đề bạn gặp phải" variant="outlined" placeholder="Chọn loại báo cáo..." />}
+            />
+
+            <TextField
+              fullWidth
+              label="Nội dung chi tiết"
+              variant="outlined"
+              multiline
+              rows={6}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Mô tả cụ thể sự cố để chúng tôi hỗ trợ bạn tốt nhất..."
+            />
+
+            {status.msg && (
+              <Alert severity={status.type} sx={{ fontSize: '1.4rem' }}>
+                {status.msg}
+              </Alert>
+            )}
+
+            <Button className={cx('submitBtn')} type="submit" disabled={loading} startIcon={!loading && <CampaignRounded />}>
+              {loading ? <CircularProgress size={28} color="inherit" /> : 'GỬI PHẢN HỒI'}
+            </Button>
+          </Stack>
         </form>
       </div>
     </main>

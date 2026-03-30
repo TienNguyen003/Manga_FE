@@ -30,16 +30,12 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
 
   const handleLike = async () => {
     if (!userId) return;
-    // Optimistic
     const wasLiked = liked;
     setLiked(!wasLiked);
     setLikesCount((c) => (wasLiked ? c - 1 : c + 1));
     try {
-      if (wasLiked) {
-        await unlikeComment({ commentId: comment.id, userId });
-      } else {
-        await likeComment({ commentId: comment.id, userId });
-      }
+      if (wasLiked) await unlikeComment({ commentId: comment.id, userId });
+      else await likeComment({ commentId: comment.id, userId });
     } catch {
       setLiked(wasLiked);
       setLikesCount((c) => (wasLiked ? c + 1 : c - 1));
@@ -53,11 +49,7 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
         const res = await getReplies({ parentCommentId: comment.id, currentUserId: userId || '' });
         setReplies(res?.result || []);
         setRepliesLoaded(true);
-      } catch {
-        /* ignore */
-      } finally {
-        setRepliesLoading(false);
-      }
+      } finally { setRepliesLoading(false); }
     }
     setShowReplies((v) => !v);
   };
@@ -67,9 +59,7 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
     setSubmitting(true);
     try {
       const res = await postComment({
-        userId,
-        mangaPath,
-        mangaName,
+        userId, mangaPath, mangaName,
         chapterName: chapterName || undefined,
         content: replyText.trim(),
         parentCommentId: comment.id,
@@ -79,94 +69,100 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
       setReplyText('');
       setShowReplyInput(false);
       if (!showReplies) setShowReplies(true);
-    } catch {
-      /* ignore, toast handled by http interceptor */
-    } finally {
-      setSubmitting(false);
+    } finally { setSubmitting(false); }
+  };
+
+  // Logic xóa bình luận con (reply) ngay tại component chứa nó
+  const handleDeleteLocal = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa bình luận này?")) return;
+    try {
+      await deleteComment({ commentId: id, userId });
+      setReplies((prev) => prev.filter((r) => r.id !== id));
+    } catch (e) {
+      console.error("Delete failed", e);
     }
   };
 
   return (
-    <div className={cx('comment', { [`level-${level}`]: level > 3 })}>
-      <img src={userAvatar} className={cx('commentAvatar')} />
+    <div className={cx('commentWrapper', { [`level-${level}`]: level > 1 })}>
+      {/* Chỉ phần này là có border */}
       <div className={cx('commentBody')}>
-        <div className={cx('commentHeader')}>
-          <span className={cx('commentUser')}>{comment.userDisplayName || comment.username}</span>
-          <span className={cx('commentTime')}>{timeAgo(comment.createdAt)}</span>
-          {userId === String(comment.userId) && (
-            <button className={cx('deleteBtn')} onClick={() => onDelete(comment.id)} title="Xóa bình luận">
-              <i className="fa-solid fa-trash-can"></i>
-            </button>
-          )}
-        </div>
-        <p className={cx('commentContent')}>{comment.content}</p>
-        <div className={cx('commentActions')}>
-          <button className={cx('actionBtn', { liked })} onClick={handleLike} disabled={!userId}>
-            <i className={liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
-            <span>{likesCount}</span>
-          </button>
-          {userId && (
-            <button className={cx('actionBtn')} onClick={() => setShowReplyInput((v) => !v)}>
-              <i className="fa-regular fa-comment"></i>
-              <span>Trả lời</span>
-            </button>
-          )}
-          {comment.totalReplies > 0 && (
-            <button className={cx('actionBtn', 'replyToggle')} onClick={toggleReplies}>
-              <i className="fa-solid fa-chevron-down"></i>
-              <span>
-                {showReplies ? 'Ẩn' : 'Xem'} {comment.totalReplies} trả lời
-              </span>
-            </button>
-          )}
-        </div>
-
-        {showReplyInput && (
-          <div className={cx('replyInput')}>
-            <input
-              type="text"
-              placeholder="Viết trả lời..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handlePostReply()}
-              className={cx('inputField')}
-            />
-            <button className={cx('submitBtn')} onClick={handlePostReply} disabled={!replyText.trim() || submitting}>
-              {submitting ? '...' : 'Gửi'}
-            </button>
+        <img src={userAvatar || 'https://via.placeholder.com/40'} className={cx('commentAvatar')} />
+        <div className={cx('commentContentSection')}>
+          <div className={cx('commentHeader')}>
+            <span className={cx('commentUser')}>{comment.userDisplayName || comment.username}</span>
+            <span className={cx('commentTime')}>{timeAgo(comment.createdAt)}</span>
+            {userId === String(comment.userId) && (
+              <button className={cx('deleteBtn')} onClick={() => onDelete(comment.id)} title="Xóa">
+                <i className="fa-solid fa-trash-can"></i>
+              </button>
+            )}
           </div>
-        )}
-
-        {repliesLoading && <LoadingSpinner text="" />}
-        {showReplies && replies.length > 0 && (
-          <div className={cx(level < 3 ? 'replies' : 'flatReplies')}>
-            {replies.map((r) => (
-              <CommentItem
-                key={r.id}
-                comment={r}
-                userAvatar={r.userAvatar}
-                userId={userId}
-                mangaPath={mangaPath}
-                chapterName={chapterName}
-                mangaName={mangaName}
-                onDelete={onDelete}
-                level={level + 1} // Tăng cấp độ lên cho con
-              />
-            ))}
+          <p className={cx('commentContent')}>{comment.content}</p>
+          <div className={cx('commentActions')}>
+            <button className={cx('actionBtn', { liked })} onClick={handleLike} disabled={!userId}>
+              <i className={liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+              <span>{likesCount}</span>
+            </button>
+            {userId && level < 3 && (
+              <button className={cx('actionBtn')} onClick={() => setShowReplyInput((v) => !v)}>
+                <i className="fa-regular fa-comment"></i>
+                <span>Trả lời</span>
+              </button>
+            )}
+            {(comment.totalReplies > 0 || replies.length > 0) && (
+              <button className={cx('actionBtn', 'replyToggle')} onClick={toggleReplies}>
+                <i className={showReplies ? "fa-solid fa-chevron-up" : "fa-solid fa-chevron-down"}></i>
+                <span>{showReplies ? 'Ẩn' : 'Xem'} {replies.length > 0 ? replies.length : comment.totalReplies} trả lời</span>
+              </button>
+            )}
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Input trả lời và Danh sách con nằm NGOÀI commentBody để tránh lồng border */}
+      {showReplyInput && (
+        <div className={cx('replyInput')}>
+          <input
+            type="text"
+            className={cx('inputField')}
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Viết trả lời..."
+          />
+          <button className={cx('submitBtn')} onClick={handlePostReply} disabled={!replyText.trim() || submitting}>Gửi</button>
+        </div>
+      )}
+
+      {repliesLoading && <LoadingSpinner text="" />}
+      
+      {showReplies && replies.length > 0 && (
+        <div className={cx(level < 3 ? 'repliesContainer' : 'flatReplies')}>
+          {replies.map((r) => (
+            <CommentItem
+              key={r.id}
+              comment={r}
+              userAvatar={r.userAvatar}
+              userId={userId}
+              mangaPath={mangaPath}
+              chapterName={chapterName}
+              mangaName={mangaName}
+              onDelete={handleDeleteLocal}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-export default function CommentSection({ mangaPath, chapterName, mangaName, title = 'Bình luận truyện' }) {
+export default function CommentSection({ mangaPath, chapterName, mangaName, title = 'Bình luận' }) {
   const { userId, username } = useUser();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const stompRef = useRef(null);
 
   const loadComments = useCallback(async () => {
     if (!mangaPath) return;
@@ -174,125 +170,67 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
     try {
       const res = await getComments({ mangaPath, chapterName: chapterName || undefined, currentUserId: userId || '' });
       setComments(res?.result || []);
-    } catch {
-      /* handled by interceptor */
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }, [mangaPath, chapterName, userId]);
 
-  useEffect(() => {
-    loadComments();
-  }, [loadComments]);
-
-  // WebSocket realtime
-  useEffect(() => {
-    if (!mangaPath) return;
-    const client = connectStomp({
-      onConnect: () => {
-        subscribe(`/topic/comments/${mangaPath}`, (newCmt) => {
-          setComments((prev) => {
-            const exists = prev.some((c) => c.id === newCmt.id);
-            if (exists) return prev;
-            return [newCmt, ...prev];
-          });
-        });
-      },
-    });
-    stompRef.current = client;
-    return () => {
-      disconnectStomp();
-    };
-  }, [mangaPath]);
+  useEffect(() => { loadComments(); }, [loadComments]);
 
   const handlePost = async () => {
     if (!newComment.trim() || !userId || submitting) return;
     setSubmitting(true);
     try {
       const res = await postComment({
-        userId,
-        mangaPath,
-        mangaName,
+        userId, mangaPath, mangaName,
         chapterName: chapterName || undefined,
         content: newComment.trim(),
       });
-      const added = res?.result || res;
-      setComments((prev) => [added, ...prev]);
+      setComments((prev) => [res?.result || res, ...prev]);
       setNewComment('');
-    } catch {
-      /* handled by interceptor */
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   };
 
-  const handleDelete = async (commentId) => {
-    if (!userId) return;
-    setComments((prev) => prev.filter((c) => c.id !== commentId));
+  const handleDeleteRoot = async (commentId) => {
+    if (!window.confirm("Xóa bình luận này?")) return;
     try {
       await deleteComment({ commentId, userId });
-    } catch {
-      loadComments();
-    }
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch (e) { console.error(e); }
   };
 
   return (
     <div className={cx('section')}>
-      <h3 className={cx('sectionTitle')}>
-        <i className="fa-regular fa-comments"></i> {title}
-        {comments.length > 0 && <span className={cx('count')}>{comments.length}</span>}
-      </h3>
-
-      {/* Ô nhập bình luận */}
+      <h3 className={cx('sectionTitle')}>Bình luận {comments.length > 0 && <span className={cx('count')}>{comments.length}</span>}</h3>
       {userId ? (
         <div className={cx('inputRow')}>
           <div className={cx('inputAvatar')}>{(username || '?').charAt(0).toUpperCase()}</div>
           <div className={cx('inputWrap')}>
             <textarea
               className={cx('textarea')}
-              placeholder={chapterName ? 'Nhận xét về chương này...' : 'Nhận xét về truyện này...'}
               rows={2}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handlePost();
-                }
-              }}
+              placeholder="Nhận xét của bạn..."
             />
-            <button className={cx('postBtn')} onClick={handlePost} disabled={!newComment.trim() || submitting}>
-              {submitting ? 'Đang gửi...' : 'Đăng'}
-            </button>
+            <button className={cx('postBtn')} onClick={handlePost} disabled={!newComment.trim() || submitting}>Đăng</button>
           </div>
         </div>
-      ) : (
-        <p className={cx('loginNotice')}>
-          <i className="fa-solid fa-lock"></i> Đăng nhập để bình luận.
-        </p>
-      )}
+      ) : <p className={cx('loginNotice')}>Vui lòng đăng nhập để bình luận.</p>}
 
-      {/* Danh sách bình luận */}
-      {loading ? (
-        <LoadingSpinner text="Đang tải bình luận..." />
-      ) : comments.length === 0 ? (
-        <EmptyState icon="💬" text="Chưa có bình luận nào. Hãy là người đầu tiên!" />
-      ) : (
-        <div className={cx('list')}>
-          {comments.map((c) => (
-            <CommentItem
-              key={c.id}
-              comment={c}
-              userAvatar={c.userAvatar}
-              userId={userId}
-              mangaPath={mangaPath}
-              chapterName={chapterName}
-              mangaName={mangaName}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      )}
+      <div className={cx('list')}>
+        {loading ? <LoadingSpinner /> : comments.map((c) => (
+          <CommentItem
+            key={c.id}
+            comment={c}
+            userAvatar={c.userAvatar}
+            userId={userId}
+            mangaPath={mangaPath}
+            chapterName={chapterName}
+            mangaName={mangaName}
+            onDelete={handleDeleteRoot}
+            level={1}
+          />
+        ))}
+      </div>
     </div>
   );
 }

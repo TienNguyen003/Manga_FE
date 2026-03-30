@@ -1,51 +1,105 @@
+$primary-orange: #ea982b;
+$text-black: #000000;
+$border-light: #eeeeee;
+
 .registerPage {
-  min-height: 100vh;
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f7f7f7;
+  padding: 60px 20px;
 }
-.formContainer {
-  background: #fff;
-  padding: 2.5rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+
+.content {
+  max-width: 550px;
   width: 100%;
-  max-width: 400px;
-}
-h1 {
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
 }
-.formGroup {
-  margin-bottom: 1.2rem;
-  display: flex;
-  flex-direction: column;
+
+.pageTitle {
+  font-size: 4rem !important;
+  font-weight: 900 !important;
+  color: $text-black;
+  margin-bottom: 15px !important;
+  letter-spacing: -2px;
 }
-label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+
+.subTitle {
+  font-size: 1.6rem;
+  color: #777;
+  margin-bottom: 45px;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
 }
-input {
-  padding: 0.7rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
+
+// CUSTOM MUI INPUT VỚI HIGHLIGHT GLOW
+:global(.MuiTextField-root) {
+  :global(.MuiInputLabel-root) {
+    font-size: 1.5rem !important;
+  }
+
+  :global(.MuiOutlinedInput-root) {
+    font-size: 1.7rem !important;
+    border-radius: 12px !important;
+    background: #fafafa;
+    transition: all 0.2s ease;
+
+    fieldset {
+      border: 2px solid $border-light !important;
+    }
+
+    &:hover fieldset {
+      border-color: #ccc !important;
+    }
+
+    &.Mui-focused {
+      background-color: #fff !important;
+      box-shadow: 0 0 0 5px rgba(234, 152, 43, 0.2); // HIGHLIGHT CAM rực rỡ
+
+      fieldset {
+        border-color: $primary-orange !important;
+      }
+    }
+  }
+
+  // Icon Adornment
+  :global(.MuiInputAdornment-root) svg {
+    font-size: 2.2rem;
+    transition: 0.2s;
+  }
+
+  :global(.Mui-focused) :global(.MuiInputAdornment-root) svg {
+    color: $primary-orange;
+  }
 }
+
 .submitBtn {
-  width: 100%;
-  padding: 0.8rem;
-  background: #ff5a5f;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: background 0.2s;
+  background-color: $text-black !important;
+  color: #fff !important;
+  padding: 15px !important;
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  margin-top: 20px !important;
+  transition: 0.3s !important;
+
+  &:hover {
+    background-color: $primary-orange !important;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(234, 152, 43, 0.25);
+  }
 }
-.submitBtn:hover {
-  background: #e14c4c;
+
+.footerLinks {
+  margin-top: 35px;
+  font-size: 1.6rem;
+  color: #666;
+
+  .highlight {
+    color: $primary-orange;
+    font-weight: 700;
+    text-decoration: underline;
+    margin-left: 5px;
+  }
 }

@@ -1,86 +1,138 @@
+$primary-orange: #ea982b;
+$text-dark: #000000;
+$border-color: #dddddd;
+
 .uploadPage {
-  color: var(--ink);
-  padding: 22px 0 36px;
+    background-color: #ffffff;
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
 }
 
-.hero {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
-  padding: 20px;
-  margin-bottom: 18px;
-  h1 {
-    font-size: clamp(2.2rem, 4vw, 3.2rem);
-    margin-bottom: 7px;
-    color: #2c394a;
-  }
-  p {
-    color: var(--muted-ink);
-    font-size: 1.2rem;
-  }
+.content {
+    max-width: 800px;
+    width: 100%;
 }
 
-.form {
-  max-width: 480px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(44, 57, 74, 0.06);
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+.pageTitle {
+    font-size: 4.5rem !important;
+    font-weight: 900 !important;
+    color: $text-dark;
+    margin-bottom: 60px !important;
+    text-align: center;
+    letter-spacing: -2px;
 }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.section {
+    width: 100%;
 }
 
-input,
-textarea,
-select {
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 7px 12px;
-  font-size: 1rem;
-  background: #f9f6f2;
+.sectionLabel {
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    color: $text-dark;
+    margin-bottom: 25px !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-input[type='file'] {
-  padding: 0;
-  background: none;
+.coverUpload {
+    display: block;
+    width: 320px;
+    aspect-ratio: 3/4;
+    border: 3px solid $border-color;
+    border-radius: 4px;
+    margin: 0 auto;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+    background: #fdfdfd;
+
+    &:hover {
+        border-color: $primary-orange;
+        background: #fff;
+    }
+
+    &.hasPreview {
+        border-style: solid;
+        border-width: 2px;
+    }
+
+    .uploadPlaceholder {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        gap: 15px;
+
+        svg { font-size: 6rem; }
+        span { font-size: 1.4rem; font-weight: 600; }
+    }
+
+    .imgFull {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 }
 
-.error {
-  color: #d32f2f;
-  background: #fff0f0;
-  border-radius: 6px;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+// CUSTOM LẠI INPUT TEXT CHO TO
+:global(.MuiTextField-root) {
+    :global(.MuiInputLabel-root) {
+        font-size: 1.6rem !important;
+        color: #666;
+    }
+
+    :global(.MuiOutlinedInput-root) {
+        font-size: 1.6rem !important;
+        border-radius: 8px !important;
+        
+        fieldset {
+            border-width: 2px !important;
+            border-color: $border-color !important;
+        }
+
+        &:hover fieldset {
+            border-color: #888 !important;
+        }
+
+        &.Mui-focused fieldset {
+            border-color: $primary-orange !important;
+        }
+    }
 }
 
-.success {
-  color: #388e3c;
-  background: #e8f5e9;
-  border-radius: 6px;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+:global(.MuiButtonBase-root){
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.genreChip {
+    height: 36px !important;
+    font-size: 1.4rem !important;
+    font-weight: 600 !important;
+    background-color: #f0f0f0 !important;
+    border-radius: 6px !important;
 }
 
 .submitBtn {
-  background: #f4e5d3;
-  color: #a86b2d;
-  border: 1px solid #e4c9a3;
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 10px 0;
-  font-size: 1.1rem;
-  margin-top: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.submitBtn:hover {
-  background: #ffe3b0;
+    background-color: $text-dark !important;
+    color: #ffffff !important;
+    padding: 15px !important;
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+    margin-top: 40px !important;
+    transition: 0.3s !important;
+
+    &:hover {
+        background-color: $primary-orange !important;
+        transform: translateY(-3px);
+    }
+
+    &:disabled {
+        background-color: #ccc !important;
+    }
 }

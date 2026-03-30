@@ -19,7 +19,7 @@
   }
 
   p {
-    color: var(--muted-ink);
+    // color: var(--muted-ink);
     font-size: 1.4rem;
     max-width: 64ch;
   }
@@ -54,25 +54,60 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--card);
-  padding: 12px;
+  padding: 16px; // Tăng padding một chút cho thoáng
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
 
-  h3 {
-    font-size: 2rem;
-    line-height: 1.2;
-    margin-bottom: 6px;
-    color: #344253;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary);
   }
 
-  button {
-    border: none;
-    border-radius: 9px;
-    min-height: 36px;
-    padding: 0 12px;
-    cursor: pointer;
-    font-size: 1.25rem;
+  h3 {
+    font-size: 1.8rem;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    color: #1e293b; // Màu đậm hơn cho sang
     font-weight: 700;
-    color: #2d261d;
-    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  }
+}
+
+.profileBtn {
+  margin-top: auto; // Đẩy nút xuống dưới cùng của card
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  background: #f1f5f9; // Màu nền mặc định nhẹ nhàng
+  color: #475569;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-decoration: none;
+  
+  padding: 10px 16px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+
+  &:hover {
+    background: var(--primary); // Hoặc màu chủ đạo của mày
+    color: #fff;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+  }
+
+  // Thêm icon mũi tên nhỏ nếu muốn (giả lập bằng pseudo-element)
+  &::after {
+    content: '→';
+    font-family: serif;
+    transition: transform 0.2s;
+  }
+
+  &:hover::after {
+    transform: translateX(4px);
   }
 }
 

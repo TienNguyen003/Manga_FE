@@ -1,111 +1,144 @@
 import React, { useEffect, useState } from 'react';
-import { userService } from '~/services/userService';
 import classNames from 'classnames/bind';
+import { 
+    Box, Typography, TextField, Button, Stack, Alert, 
+    Avatar, IconButton, CircularProgress, Badge 
+} from '@mui/material';
+import { PhotoCameraRounded, SaveRounded, AccountCircleRounded, EmailRounded, InfoRounded } from '@mui/icons-material';
 import styles from './Profile.module.scss';
+import { userService } from '~/services/userService';
 
 const cx = classNames.bind(styles);
 
 export default function Profile() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [avatar, setAvatar] = useState(null);
-  const [bio, setBio] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [bio, setBio] = useState('');
+    const [status, setStatus] = useState({ type: '', msg: '' });
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    userService
-      .getProfile()
-      .then((res) => {
-        if (!mounted) return;
-        const data = res?.data || {};
-        setUsername(data.username || '');
-        setEmail(data.email || '');
-        setBio(data.bio || '');
-        // Avatar có thể là url hoặc null
-        setAvatar(null); // Chỉ xử lý upload mới, không load url cũ ở đây
-      })
-      .catch(() => {
-        if (mounted) setError('Không thể tải thông tin hồ sơ.');
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
-    return () => {
-      mounted = false;
+    useEffect(() => {
+        setLoading(true);
+        userService.getProfile()
+            .then((res) => {
+                const data = res?.data || {};
+                setUsername(data.username || '');
+                setEmail(data.email || '');
+                setBio(data.bio || '');
+                if (data.avatarUrl) setPreviewUrl(data.avatarUrl);
+            })
+            .catch(() => setStatus({ type: 'error', msg: 'Không thể tải hồ sơ.' }))
+            .finally(() => setLoading(false));
+    }, []);
+
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAvatarFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
     };
-  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess(false);
-    if (!username || !email) {
-      setError('Vui lòng nhập tên và email.');
-      return;
-    }
-    try {
-      const formData = new FormData();
-      formData.append('username', username);
-      formData.append('email', email);
-      formData.append('bio', bio);
-      if (avatar) formData.append('avatar', avatar);
-      const res = await userService.updateProfile(formData);
-      if (res?.data?.success) {
-        setSuccess(true);
-      } else {
-        setError('Cập nhật hồ sơ thất bại.');
-      }
-    } catch (err) {
-      setError('Cập nhật hồ sơ thất bại.');
-    }
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        try {
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('email', email);
+            formData.append('bio', bio);
+            if (avatarFile) formData.append('avatar', avatarFile);
+            
+            const res = await userService.updateProfile(formData);
+            if (res?.data?.success) setStatus({ type: 'success', msg: 'Cập nhật thành công!' });
+        } catch (err) {
+            setStatus({ type: 'error', msg: 'Cập nhật thất bại.' });
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
-  return (
-    <main className={cx('profilePage')}>
-      <div className={cx('container-fluid')}>
-        <section className={cx('hero')}>
-          <h1>Hồ sơ cá nhân</h1>
-          <p>Xem và chỉnh sửa thông tin tài khoản của bạn.</p>
-        </section>
-        {loading ? (
-          <div>Đang tải thông tin...</div>
-        ) : (
-          <form className={cx('form')} onSubmit={handleSubmit}>
-            <div className={cx('avatarWrap')}>
-              <label htmlFor="avatar-upload" className={cx('avatarLabel')}>
-                <div className={cx('avatar')}>{avatar ? <img src={URL.createObjectURL(avatar)} alt="avatar" /> : <span>🧑</span>}</div>
-                <input id="avatar-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => setAvatar(e.target.files[0])} />
-                <span className={cx('avatarEdit')}>Đổi ảnh đại diện</span>
-              </label>
+    if (loading) return (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+            <CircularProgress color="inherit" />
+        </Box>
+    );
+
+    return (
+        <main className={cx('profilePage')}>
+            <div className={cx('content')}>
+                <Typography variant="h2" className={cx('pageTitle')}>Hồ Sơ Của Bạn</Typography>
+
+                <form className={cx('form')} onSubmit={handleSubmit}>
+                    <Box className={cx('avatarSection')}>
+                        <Badge
+                            overlap="circular"
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            badgeContent={
+                                <label htmlFor="avatar-upload" className={cx('uploadBtn')}>
+                                    <PhotoCameraRounded />
+                                    <input id="avatar-upload" type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+                                </label>
+                            }
+                        >
+                            <Avatar src={previewUrl} className={cx('mainAvatar')}>
+                                {!previewUrl && username.charAt(0).toUpperCase()}
+                            </Avatar>
+                        </Badge>
+                        <Typography className={cx('avatarHint')}>Nhấp vào máy ảnh để đổi ảnh đại diện</Typography>
+                    </Box>
+
+                    <Stack spacing={4}>
+                        <TextField
+                            fullWidth
+                            label="Tên người dùng"
+                            variant="outlined"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            InputProps={{
+                                startAdornment: <AccountCircleRounded sx={{ mr: 1, color: '#999' }} />,
+                            }}
+                        />
+
+                        <TextField
+                            fullWidth
+                            label="Email"
+                            variant="outlined"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            InputProps={{
+                                startAdornment: <EmailRounded sx={{ mr: 1, color: '#999' }} />,
+                            }}
+                        />
+
+                        <TextField
+                            fullWidth
+                            label="Giới thiệu bản thân"
+                            variant="outlined"
+                            multiline
+                            rows={4}
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            placeholder="Chia sẻ một chút về bạn..."
+                        />
+
+                        {status.msg && <Alert severity={status.type} sx={{ fontSize: '1.4rem' }}>{status.msg}</Alert>}
+
+                        <Button 
+                            className={cx('submitBtn')} 
+                            type="submit" 
+                            disabled={submitting}
+                            startIcon={submitting ? <CircularProgress size={24} color="inherit" /> : <SaveRounded />}
+                        >
+                            {submitting ? 'ĐANG LƯU...' : 'LƯU THÔNG TIN'}
+                        </Button>
+                    </Stack>
+                </form>
             </div>
-            <div className={cx('formGroup')}>
-              <label>
-                Tên người dùng <span style={{ color: 'red' }}>*</span>
-              </label>
-              <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Tên hiển thị" />
-            </div>
-            <div className={cx('formGroup')}>
-              <label>
-                Email <span style={{ color: 'red' }}>*</span>
-              </label>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" type="email" />
-            </div>
-            <div className={cx('formGroup')}>
-              <label>Giới thiệu</label>
-              <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Giới thiệu ngắn về bạn" rows={3} />
-            </div>
-            {error && <div className={cx('error')}>{error}</div>}
-            {success && <div className={cx('success')}>Cập nhật hồ sơ thành công!</div>}
-            <button type="submit" className={cx('submitBtn')}>
-              Lưu thay đổi
-            </button>
-          </form>
-        )}
-      </div>
-    </main>
-  );
+        </main>
+    );
 }

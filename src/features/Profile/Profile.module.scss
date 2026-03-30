@@ -1,115 +1,118 @@
+$primary-orange: #ea982b;
+$text-black: #000000;
+$border-light: #eeeeee;
+
 .profilePage {
-  color: var(--ink);
-  padding: 22px 0 36px;
-}
-
-.hero {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
-  padding: 20px;
-  margin-bottom: 18px;
-  h1 {
-    font-size: clamp(2.2rem, 4vw, 3.2rem);
-    margin-bottom: 7px;
-    color: #2c394a;
-  }
-  p {
-    color: var(--muted-ink);
-    font-size: 1.2rem;
-  }
-}
-
-.form {
-  max-width: 480px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(44, 57, 74, 0.06);
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.avatarWrap {
+  background-color: #ffffff;
   display: flex;
   justify-content: center;
-  margin-bottom: 18px;
+  padding: 80px 20px;
 }
-.avatarLabel {
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: #f4e5d3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  overflow: hidden;
-  margin-bottom: 6px;
-  border: 2px solid #e4c9a3;
-}
-.avatar img {
+
+.content {
+  max-width: 600px;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.avatarEdit {
-  color: #a86b2d;
-  font-size: 0.95rem;
-  text-decoration: underline;
 }
 
-.formGroup {
+.pageTitle {
+  font-size: 4rem !important;
+  font-weight: 900 !important;
+  color: $text-black;
+  margin-bottom: 50px !important;
+  text-align: center;
+  letter-spacing: -1.5px;
+}
+
+.avatarSection {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  margin-bottom: 50px;
 }
 
-input,
-textarea {
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 7px 12px;
-  font-size: 1rem;
-  background: #f9f6f2;
+.mainAvatar {
+  width: 150px !important;
+  height: 150px !important;
+  object-fit: cover !important;
+  font-size: 4rem !important;
+  background-color: #f0f0f0 !important;
+  color: $primary-orange !important;
+  border: 4px solid #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-.error {
-  color: #d32f2f;
-  background: #fff0f0;
-  border-radius: 6px;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+.uploadBtn {
+  background: $text-black;
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+  border: 3px solid #fff;
+  &:hover {
+    background: $primary-orange;
+    transform: scale(1.1);
+  }
+  svg {
+    font-size: 2.2rem;
+  }
 }
 
-.success {
-  color: #388e3c;
-  background: #e8f5e9;
-  border-radius: 6px;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+.avatarHint {
+  margin-top: 15px !important;
+  color: #999;
+  font-size: 1.3rem !important;
+}
+
+// --- ĐỊNH NGHĨA HIGHLIGHT KHI FOCUS (ĐỒNG BỘ CÁC TRANG) ---
+:global(.MuiTextField-root) {
+  :global(.MuiInputLabel-root) {
+    font-size: 1.6rem !important;
+  }
+
+  :global(.MuiOutlinedInput-root) {
+    font-size: 1.7rem !important;
+    border-radius: 12px !important;
+    background: #fafafa;
+    transition: all 0.2s ease;
+
+    :global(.MuiOutlinedInput-notchedOutline) {
+      border: 2px solid $border-light !important;
+    }
+
+    &:hover :global(.MuiOutlinedInput-notchedOutline) {
+      border-color: #ccc !important;
+    }
+
+    &.Mui-focused {
+      background-color: #fff !important;
+      box-shadow: 0 0 0 5px rgba(234, 152, 43, 0.2); // HIGHLIGHT CAM RỰC RỠ
+
+      :global(.MuiOutlinedInput-notchedOutline) {
+        border-color: $primary-orange !important;
+        border-width: 2px !important;
+      }
+    }
+  }
 }
 
 .submitBtn {
-  background: #f4e5d3;
-  color: #a86b2d;
-  border: 1px solid #e4c9a3;
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 10px 0;
-  font-size: 1.1rem;
-  margin-top: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.submitBtn:hover {
-  background: #ffe3b0;
+  background-color: $text-black !important;
+  color: #fff !important;
+  padding: 15px !important;
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  margin-top: 20px !important;
+  transition: 0.3s !important;
+
+  &:hover {
+    background-color: $primary-orange !important;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(234, 152, 43, 0.25);
+  }
 }

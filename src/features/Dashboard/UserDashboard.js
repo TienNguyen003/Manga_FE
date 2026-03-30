@@ -246,7 +246,8 @@ export default function UserDashboard() {
                 {data.recentReadingHistory.map((item, idx) => (
                   <Link to={`${paths.mangaDetail}?slug=${item.mangaPath}`} key={idx} className={cx('historyItem')}>
                     <img
-                      src={item.thumbnailUrl || ''}
+                      loading="lazy"
+                      src={item.thumbnailUrl ? `https://sv1.otruyencdn.com/${item.thumbnailUrl}` : ''}
                       alt={item.mangaName}
                       className={cx('historyImg')}
                       onError={(e) => {
@@ -275,7 +276,7 @@ export default function UserDashboard() {
                   <div key={c.id} className={cx('commentItem')}>
                     <div className={cx('commentMeta')}>
                       <span className={cx('commentManga')}>{c.mangaName}</span>
-                      {c.chapterName && <span className={cx('commentChapter')}>• {c.chapterName}</span>}
+                      {c.chapterName && <span className={cx('commentChapter')}>• Chaper - {c.chapterName}</span>}
                       <span className={cx('commentTime')}>{timeAgo(c.createdAt)}</span>
                     </div>
                     <div className={cx('commentContent')}>{c.content}</div>
