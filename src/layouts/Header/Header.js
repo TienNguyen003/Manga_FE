@@ -174,7 +174,7 @@ export default function Header() {
               </div>
             </>
           ) : (
-            <a href={process.env.REACT_APP_LOGIN_URL || '#'} className={cx('login-btn')}>
+            <a href={paths.login} className={cx('login-btn')}>
               Đăng nhập
             </a>
           )}
