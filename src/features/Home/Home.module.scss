@@ -7,7 +7,6 @@
   grid-template-columns: 1.2fr 0.8fr;
   gap: 16px;
   align-items: stretch;
-  margin-bottom: 22px;
 }
 
 .introCol,
@@ -172,10 +171,7 @@
 }
 
 .section {
-  margin-bottom: 38px;
   border-radius: 18px;
-  //   background: rgba(28, 26, 38, 0.92);
-  //   box-shadow: 0 6px 32px 0 rgba(30, 20, 60, 0.1);
   padding: 28px 0 24px 0;
 }
 
@@ -185,7 +181,6 @@
   align-items: flex-end;
   gap: 18px;
   margin-bottom: 18px;
-  padding: 0 32px;
 
   h2 {
     font-size: clamp(2.3rem, 3.8vw, 3.6rem);
@@ -209,9 +204,7 @@
 
 .continueRail {
   display: flex;
-  //   overflow-x: auto;
   gap: 16px;
-  padding: 0 32px 8px 32px;
   scroll-snap-type: x mandatory;
 }
 
@@ -235,7 +228,7 @@
   }
 
   span {
-    color: #fff;
+    color: var(--white);
     font-size: 1.34rem;
     font-weight: 700;
     line-height: 1.35;
@@ -253,7 +246,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 22px 18px;
-  padding: 0 32px;
   margin-bottom: 8px;
 }
 

@@ -10,7 +10,6 @@ export default function MangaCard({ manga, badge, rank }) {
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || '';
   if (!manga) return null;
 
-  // normalize data (hỗ trợ cả 2 kiểu)
   const name = manga.mangaName || manga.name || '';
   const slug = manga.mangaPath || manga.slug || '';
   const thumb = manga.thumbnailUrl || manga.thumb_url || '';

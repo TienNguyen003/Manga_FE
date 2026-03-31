@@ -1,19 +1,23 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { ExploreRounded, FilterListRounded, SearchRounded, SortRounded } from '@mui/icons-material';
+import { Pagination, Skeleton, Stack } from '@mui/material';
 import classNames from 'classnames/bind';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './AdvancedSearch.module.scss';
+
 import paths from '~/routes/paths';
-import MangaCard from '~/components/common/MangaCard';
 import { getCategories, getMangasByCategory, searchMangas } from '~/services/mangaService';
+import styles from './AdvancedSearch.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function AdvancedSearch() {
+  const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
   const [categories, setCategories] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [category, setCategory] = useState('');
-  const [sortBy, setSortBy] = useState('score');
-  const [results, setResults] = useState([]);
+  const [sortBy, setSortBy] = useState('latest');
+  const [mangas, setMangas] = useState(null);
+  const [activePage, setActivePage] = useState(1);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -22,82 +26,153 @@ export default function AdvancedSearch() {
       .catch(() => setCategories([]));
   }, []);
 
-  const handleSearch = async () => {
-    setLoading(true);
-    try {
-      let list = [];
-      if (keyword.trim()) {
-        const res = await searchMangas({ keyword: keyword.trim(), page: 1 });
-        list = res?.result || [];
-      } else if (category) {
-        const res = await getMangasByCategory({ path: category, page: 1 });
-        list = res?.result || [];
+  const handleSearch = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      try {
+        let res;
+        if (keyword.trim()) {
+          res = await searchMangas({ keyword: keyword.trim(), page });
+        } else if (category) {
+          res = await getMangasByCategory({ path: category, page });
+        } else {
+          res = await getMangasByCategory({ path: 'tat-ca', page });
+        }
+        setMangas(res);
+        setActivePage(page);
+      } catch {
+        setMangas(null);
+      } finally {
+        setLoading(false);
       }
-      setResults(list);
-    } catch {
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [keyword, category],
+  );
+
+  useEffect(() => {
+    handleSearch(activePage);
+  }, [category, activePage]);
 
   const sortedResults = useMemo(() => {
-    const clone = [...results];
-    if (sortBy === 'name') {
-      return clone.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
-    }
-    if (sortBy === 'latest') {
-      return clone.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
-    }
-    return clone.sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
-  }, [results, sortBy]);
+    if (!mangas?.result) return [];
+    const clone = [...mangas.result];
+    if (sortBy === 'name') return clone.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    if (sortBy === 'latest') return clone.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
+    return clone;
+  }, [mangas, sortBy]);
 
   return (
-    <main className={cx('searchPage')}>
-      <div className={cx('container-fluid')}>
+    <main className={cx('searchPage', 'container-fluid')}>
+      <div className={cx('container')}>
         <section className={cx('hero')}>
-          <h1>Tìm kiếm nâng cao</h1>
-          <p>Trang mới với bộ lọc nhiều tiêu chí để chuẩn bị cho backend search engine.</p>
+          <h1>
+            Tìm kiếm <span>Nâng cao</span>
+          </h1>
+          <p>Khám phá kho truyện khổng lồ với bộ lọc thông minh.</p>
         </section>
 
         <section className={cx('filterBar')}>
-          <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Từ khóa truyện..." />
-
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">Chọn thể loại</option>
-            {categories.map((item) => (
-              <option key={item.slug || item.id} value={item.slug}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="score">Sắp xếp: Điểm cao</option>
-            <option value="latest">Sắp xếp: Mới cập nhật</option>
-            <option value="name">Sắp xếp: A-Z</option>
-          </select>
-
-          <button type="button" onClick={handleSearch}>
-            Tìm kiếm
+          <div className={cx('input-group')}>
+            <SearchRounded className={cx('icon')} />
+            <input value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch(1)} placeholder="Nhập tên truyện..." />
+          </div>
+          <div className={cx('select-group')}>
+            <FilterListRounded className={cx('icon')} />
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setActivePage(1);
+              }}
+            >
+              <option value="">Tất cả thể loại</option>
+              {categories.map((item) => (
+                <option key={item.slug} value={item.slug}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={cx('select-group')}>
+            <SortRounded className={cx('icon')} />
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="latest">Mới cập nhật</option>
+              <option value="name">Tên A - Z</option>
+            </select>
+          </div>
+          <button className={cx('search-btn')} onClick={() => handleSearch(1)}>
+            TÌM KIẾM
           </button>
         </section>
 
-        {loading && <div className={cx('state')}>Đang tìm truyện...</div>}
+        <div className={cx('results-wrapper')}>
+          {loading ? (
+            <div className={cx('grid')}>
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} variant="rounded" height={320} sx={{ borderRadius: '16px' }} />
+              ))}
+            </div>
+          ) : sortedResults.length > 0 ? (
+            <>
+              <div className={cx('grid')}>
+                {sortedResults.map((manga, idx) => (
+                  <Link key={idx} to={`${paths.mangaDetail}?slug=${manga.slug}`} className={cx('card-link')}>
+                    <div className={cx('manga-card')}>
+                      <div className={cx('image-wrapper')}>
+                        <div className={cx('badge', manga.status?.toLowerCase())}>{manga.status}</div>
+                        <img src={`${IMG_BASE_URL}${manga.thumb_url}`} alt={manga.name} className={cx('img')} loading='lazy' />
+                      </div>
+                      <div className={cx('info')}>
+                        <div className={cx('manga-name')}>{manga.name}</div>
+                        <div className={cx('meta')}>
+                          {manga.chaptersLatest?.[0] ? (
+                            <span className={cx('latest-chapter')}>Chương {manga.chaptersLatest[0].chapter_name}</span>
+                          ) : (
+                            <span className={cx('status-text')}>Updating</span>
+                          )}
+                          <span className={cx('update-time')}>{new Date(manga.updatedAt).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
 
-        {!loading && sortedResults.length === 0 && (
-          <div className={cx('state')}>
-            Chưa có kết quả. Bạn có thể thử <Link to={paths.discover}>trang khám phá</Link>.
-          </div>
-        )}
-
-        {!loading && sortedResults.length > 0 && (
-          <section className={cx('grid')}>
-            {sortedResults.slice(0, 20).map((manga, idx) => (
-              <MangaCard key={`${manga.slug || manga.name}-${idx}`} manga={manga} />
-            ))}
-          </section>
-        )}
+              {/* --- PAGINATION TO VẬT VÃ --- */}
+              {mangas?.page && Number(mangas.page.totalItems) > Number(mangas.page.totalItemsPerPage) && (
+                <Stack alignItems="center" sx={{ mt: 8, mb: 4 }}>
+                  <Pagination
+                    page={activePage}
+                    count={Math.ceil(Number(mangas.page.totalItems) / Number(mangas.page.totalItemsPerPage))}
+                    color="primary"
+                    onChange={(e, v) => setActivePage(v)}
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        fontWeight: 700,
+                        borderRadius: '12px',
+                        height: '45px',
+                        minWidth: '45px',
+                        fontSize: '1.5rem',
+                      },
+                      '& .Mui-selected': {
+                        backgroundColor: '#EA982B !important',
+                        boxShadow: '0 4px 12px rgba(234, 152, 43, 0.3)',
+                      },
+                      '& .MuiPaginationItem-icon': {
+                        fontSize: '2.4rem',
+                      },
+                    }}
+                  />
+                </Stack>
+              )}
+            </>
+          ) : (
+            <div className={cx('empty')}>
+              <ExploreRounded className={cx('empty-icon')} />
+              <p>Không tìm thấy truyện nào!</p>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

@@ -1,152 +1,205 @@
-.category {
-  color: var(--ink);
-  padding: 20px 0 40px;
-  max-width: var(--default-layout-width);
-  margin-left: auto;
-  margin-right: auto;
+.category-container {
+  // max-width: 1200px;
+  margin: 0 auto;
+  // padding: 40px 20px;
 
-  .mangaList{
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 22px 18px;
-  }
-
-  .title {
-    font-size: clamp(2.2rem, 5vw, 3.6rem);
-    font-weight: 800;
-    margin: 8px 0 24px;
-    line-height: 1.1;
-    color: var(--ink);
-  }
-
-  .row {
-    gap: 16px;
-
-    @media (max-width: 768px) {
+  .header-section {
+    margin-bottom: 40px;
+    .title {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
       gap: 12px;
+      text-transform: capitalize;
+
+      .icon-title {
+        color: #ea982b;
+        font-size: 2.8rem;
+      }
+    }
+    .divider {
+      width: 60px;
+      height: 4px;
+      background: #ea982b;
+      border-radius: 2px;
+      margin-top: 10px;
     }
   }
 
-  .card {
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    position: relative;
-    transition: all var(--transition-base);
-    border: 1px solid var(--line);
-    background: var(--card);
-    box-shadow: var(--shadow-md);
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 30px 20px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: repeat(2, 1fr); // Mobile hiển thị 2 cột cho dễ nhìn
+      gap: 20px 15px;
+    }
+  }
+
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .manga-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     &:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-xl);
-      border-color: var(--primary-light);
+      transform: translateY(-10px);
+      .image-wrapper {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        .overlay {
+          opacity: 1;
+        }
+        .img {
+          transform: scale(1.05);
+        }
+      }
+      .manga-name {
+        color: #ea982b;
+      }
+    }
+
+    .image-wrapper {
+      position: relative;
+      aspect-ratio: 2/3;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #f0f0f0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: 0.3s;
 
       .img {
-        transform: scale(1.1);
-      }
-    }
-
-    .img {
-      width: 100%;
-      aspect-ratio: 2 / 3;
-      object-fit: cover;
-      display: block;
-      transition: transform var(--transition-base);
-      background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
-    }
-
-    .badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      min-width: 80px;
-      text-align: center;
-      height: 28px;
-      line-height: 28px;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 800;
-      border-radius: 999px;
-      z-index: 2;
-      padding: 0 12px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      border: none;
-      backdrop-filter: blur(4px);
-
-      &.ongoing {
-        background: rgba(59, 130, 246, 0.15);
-        color: var(--info);
-        border: 1px solid rgba(59, 130, 246, 0.3);
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: 0.5s ease;
       }
 
-      &.completed {
-        background: rgba(16, 185, 129, 0.15);
-        color: var(--success);
-        border: 1px solid rgba(16, 185, 129, 0.3);
+      .badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+        &.ongoing {
+          background: #3b82f6;
+        }
+        &.completed {
+          background: #10b981;
+        }
+        &:not(.ongoing):not(.completed) {
+          background: #ea982b;
+        }
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.3s;
+        backdrop-filter: blur(2px);
+
+        .view-btn {
+          background: #fff;
+          color: #000;
+          padding: 8px 20px;
+          border-radius: 99px;
+          font-weight: 700;
+          font-size: 1.2rem;
+        }
       }
     }
 
     .info {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.95) 100%);
-      padding: 18px 14px;
-      z-index: 1;
+      padding: 12px 4px;
 
-      .score {
-        font-size: 1.2rem;
-        color: var(--warning);
-        margin-bottom: 6px;
-        font-weight: 700;
-      }
-
-      .mangaTitle {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
+      .manga-name {
+        font-size: 1.6rem !important;
+        font-weight: 800; 
+        height: 42px;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+        line-height: 1.3;
         display: -webkit-box;
         -webkit-line-clamp: 2;
-        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        line-height: 1.3;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #888;
+        font-weight: 600;
+
+        .latest-chapter {
+          font-size: 1.3rem !important;
+          font-weight: 800;
+          color: #ea982b;
+          background: rgba(234, 152, 43, 0.1);
+          padding: 2px 8px;
+          border-radius: 6px;
+        }
+
+        .update-time {
+          font-size: 1.1rem;
+          color: #aaa;
+        }
       }
     }
   }
 
-  .notFoundWrapper {
+  .not-found {
+    grid-column: 1 / -1;
+    padding: 80px 20px;
     text-align: center;
-    width: 100%;
-    padding: 40px 20px;
-    color: var(--muted-ink);
-    border: 2px dashed var(--line);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    display: flex;
-    justify-content: center;
+    background: #fcfcfc;
+    border-radius: 24px;
+    border: 2px dashed #eee;
+
+    .empty-icon {
+      font-size: 4rem;
+      color: #ccc;
+      margin-bottom: 15px;
+    }
+    p {
+      font-size: 1.2rem;
+      color: #999;
+      font-weight: 600;
+    }
+  }
+
+  :global(.MuiPagination-ul) {
     align-items: center;
-  }
 
-  .notFoundImage {
-    max-width: 120px;
-    width: 100%;
-    margin-bottom: 16px;
-    opacity: 0.6;
-  }
-
-  .notFoundMessage {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--muted-ink);
-  }
-
-  @media (max-width: 640px) {
-    padding: 16px 0 32px;
-
-    .title {
-      margin: 6px 0 18px;
+    :global(.MuiPaginationItem-ellipsis) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      margin: 0 4px;
+      color: #ea982b;
+      font-weight: 800;
+      font-size: 1.6rem;
+      line-height: 1;
+      padding-bottom: 8px;
     }
   }
 }

@@ -207,7 +207,6 @@ export default function Home() {
       {!feedLoading &&
         mergedSections.map((section) => (
           <section key={section.title} className={cx('section', 'container-fluid')}>
-            {console.log('Rendering section:', section)}
             <header className={cx('sectionHead')}>
               <div>
                 <h2>{section.title}</h2>

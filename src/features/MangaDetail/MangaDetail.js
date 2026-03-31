@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { Pagination, Stack, Menu, MenuItem, Tooltip, CircularProgress, Typography } from '@mui/material';
@@ -26,7 +26,6 @@ import styles from './MangaDetail.module.scss';
 const cx = classNames.bind(styles);
 
 const MangaDetail = () => {
-  const sliderRef = useRef();
   const [mangas, setManga] = useState({});
   const [activePage, setActivePage] = useState(1);
   const { userId } = useUser();
@@ -243,7 +242,6 @@ const MangaDetail = () => {
                     fontSize: '1.4rem',
                   },
                   '& .MuiPaginationItem-previousNext': {
-                    // icon trái/phải
                     '& svg': {
                       fontSize: '1.4rem',
                       width: '2rem',
@@ -258,30 +256,13 @@ const MangaDetail = () => {
         </div>
       </div>
 
-      {/* Carousel Gợi ý (Giữ nguyên logic kéo chuột của mày) */}
+      {/* Gợi ý */}
       <div className={cx('recommend-section')}>
         <h3 className={cx('section-label')}>Gợi ý cho bạn</h3>
         <div
           className={cx('carousel')}
-          ref={sliderRef}
-          onMouseDown={(e) => {
-            const s = sliderRef.current;
-            s.isDown = true;
-            s.startX = e.pageX - s.offsetLeft;
-            s.scrollLeftInit = s.scrollLeft;
-          }}
-          onMouseLeave={() => (sliderRef.current.isDown = false)}
-          onMouseUp={() => (sliderRef.current.isDown = false)}
-          onMouseMove={(e) => {
-            const s = sliderRef.current;
-            if (!s.isDown) return;
-            e.preventDefault();
-            const x = e.pageX - s.offsetLeft;
-            const walk = (x - s.startX) * 2;
-            s.scrollLeft = s.scrollLeftInit - walk;
-          }}
         >
-          {recommendationItems.map((item, idx) => (
+          {recommendationItems.slice(0, 6).map((item, idx) => (
             <Link key={idx} to={`${paths.mangaDetail}?slug=${item.slug || item.mangaPath}`} className={cx('rec-card')}>
               <img src={`${IMG_BASE_URL}${item.thumbnailUrl}`} alt="" />
               <div className={cx('rec-name')}>{item.name || item.mangaName}</div>
