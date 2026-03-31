@@ -34,7 +34,7 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await authLogin({ username, password });
-      login(response.result?.id, response.result?.username);
+      login(response.result?.id, response.result?.username, response.result?.urlImage);
       toast.success('Đăng nhập thành công!');
       navigate(paths.home);
     } catch (err) {

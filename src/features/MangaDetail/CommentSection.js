@@ -28,18 +28,33 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
   const [showReplies, setShowReplies] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    const client = connectStomp({
+      onConnect: () => {
+        wsSubscribe(WS_TOPICS.commentReaction(comment.id), (msg) => {
+          console.log('Received reaction message for comment', comment.id, msg);
+          if (msg.type === 'LIKE') {
+            setLikesCount((c) => c + 1);
+            if (msg.userId === userId) setLiked(true);
+          } else if (msg.type === 'UNLIKE') {
+            setLikesCount((c) => c - 1);
+            if (msg.userId === userId) setLiked(false);
+          }
+        });
+      },
+    });
+    return () => {
+      if (client) disconnectStomp();
+    };
+  }, [comment.id, userId]);
+
   const handleLike = async () => {
     if (!userId) return;
     const wasLiked = liked;
-    setLiked(!wasLiked);
-    setLikesCount((c) => (wasLiked ? c - 1 : c + 1));
     try {
       if (wasLiked) await unlikeComment({ commentId: comment.id, userId });
       else await likeComment({ commentId: comment.id, userId });
-    } catch {
-      setLiked(wasLiked);
-      setLikesCount((c) => (wasLiked ? c + 1 : c - 1));
-    }
+    } catch {}
   };
 
   const toggleReplies = async () => {
@@ -161,7 +176,7 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
 }
 
 export default function CommentSection({ mangaPath, chapterName, mangaName, title = 'Bình luận' }) {
-  const { userId, username } = useUser();
+  const { userId, username, userAvatar } = useUser();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -178,14 +193,12 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
     }
   }, [mangaPath, chapterName, userId]);
 
+  // Websocket để tự động cập nhật khi có bình luận mới hoặc bình luận bị xóa (do mình xóa hoặc do admin/xóa hộ)
   useEffect(() => {
     loadComments();
     const client = connectStomp({
       onConnect: () => {
         wsSubscribe(WS_TOPICS.comments(mangaPath), () => {
-          loadComments();
-        });
-        wsSubscribe(WS_TOPICS.commentReaction(), () => {
           loadComments();
         });
       },
@@ -201,8 +214,8 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
     const client = connectStomp({
       onConnect: () => {
         const subs = comments.map((c) =>
-          wsSubscribe(WS_TOPICS.commentReaction(c.id), (msg) => { 
-            setComments((prev) => prev.filter((comment) => comment.id !== msg.commentId));
+          wsSubscribe(WS_TOPICS.commentReaction(c.id), (msg) => {
+            if (msg.type === 'DELETE') setComments((prev) => prev.filter((comment) => comment.id !== msg.commentId));
           }),
         );
 
@@ -214,6 +227,7 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
       client?.deactivate();
     };
   }, [comments]);
+  // End Websocket
 
   const handlePost = async () => {
     if (!newComment.trim() || !userId || submitting) return;
@@ -247,7 +261,7 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
       <h3 className={cx('sectionTitle')}>Bình luận {comments.length > 0 && <span className={cx('count')}>{comments.length}</span>}</h3>
       {userId ? (
         <div className={cx('inputRow')}>
-          <div className={cx('inputAvatar')}>{(username || '?').charAt(0).toUpperCase()}</div>
+          <img className={cx('inputAvatar')} src={userAvatar} alt={username} />
           <div className={cx('inputWrap')}>
             <textarea className={cx('textarea')} rows={2} value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Nhận xét của bạn..." />
             <button className={cx('postBtn')} onClick={handlePost} disabled={!newComment.trim() || submitting}>

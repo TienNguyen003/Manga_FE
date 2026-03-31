@@ -122,7 +122,7 @@
 
   &.active {
     background: linear-gradient(90deg, var(--primary), var(--primary-light));
-    color: #2b241a;
+    color: var(--white);
     border-color: transparent;
   }
 }
@@ -185,7 +185,7 @@
   gap: 6px;
 
   &.active {
-    color: #2d261f;
+    color: var(--white);
     background: linear-gradient(90deg, var(--primary), var(--primary-light));
     border-color: transparent;
     font-weight: 700;

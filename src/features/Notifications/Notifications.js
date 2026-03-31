@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
 import classNames from 'classnames/bind';
-import styles from './Notifications.module.scss';
-import { useUser } from '~/providers/UserContext';
-import { getNotifications, markRead, markAllRead, deleteNotification, deleteAllNotifications } from '~/services/notificationService';
-import { LoadingSpinner, EmptyState, ErrorState } from '~/components/common/AsyncState';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+import { EmptyState, ErrorState, LoadingSpinner } from '~/components/common/AsyncState';
+import { connectStomp, disconnectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
+import { deleteAllNotifications, deleteNotification, getNotifications, markAllRead, markRead } from '~/services/notificationService';
+import styles from './Notifications.module.scss';
 
 const cx = classNames.bind(styles);
 
@@ -67,11 +69,24 @@ export default function Notifications() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, filter]);
 
+  useEffect(() => {
+    const client = connectStomp({
+      onConnect: () => {
+        wsSubscribe(WS_TOPICS.notifications(userId), (msg) => {
+          if(msg.type === 'READ-ALL')
+            setUnreadCount(msg.count);
+        });
+      },
+    });
+    return () => {
+      if (client) disconnectStomp();
+    };
+  }, []);
+
   const handleMarkRead = async (notif) => {
     if (notif.isRead) return;
     // Optimistic update
-    setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)));
-    setUnreadCount((c) => Math.max(0, c - 1));
+    setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)));    
     try {
       await markRead(userId, notif.id);
     } catch {

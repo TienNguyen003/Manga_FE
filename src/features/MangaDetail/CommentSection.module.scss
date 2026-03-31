@@ -32,6 +32,7 @@
 .inputAvatar {
   width: 40px;
   height: 40px;
+  object-fit: cover;
   border-radius: 50%;
   background: var(--primary, #fe2c55);
   color: #fff;

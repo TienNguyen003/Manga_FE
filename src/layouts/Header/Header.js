@@ -20,7 +20,9 @@ export default function Header() {
   const refreshUnreadCount = useCallback(() => {
     if (!userId) return;
     getUnreadCount(userId)
-      .then((res) => setUnreadCount(res?.result ?? 0))
+      .then((res) => {
+        return setUnreadCount(res?.result ?? 0)
+      })
       .catch(() => {});
   }, [userId, setUnreadCount]);
 
