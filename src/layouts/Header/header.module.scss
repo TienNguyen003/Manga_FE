@@ -59,7 +59,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--white);
   font-weight: 800;
   font-size: 2rem;
   background: linear-gradient(135deg, var(--primary), #f67f4e);
@@ -101,7 +101,7 @@
     border: none;
     font-size: 1.25rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--white);
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
   }
 }
@@ -129,7 +129,7 @@
 .notif-badge,
 .menu-badge {
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: #fff;
+  color: var(--white);
   border-radius: 999px;
   font-size: 1rem;
   font-weight: 800;
@@ -190,7 +190,7 @@
   align-items: center;
   font-size: 1.3rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--white);
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
 }
 
@@ -271,13 +271,13 @@
     transition: all .2s ease;
 
     &:hover {
-      color: #fff;
+      color: var(--white);
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
     }
   }
 
   a.active {
-    color: #fff;
+    color: var(--white);
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
   }
 }
