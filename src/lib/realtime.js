@@ -4,6 +4,7 @@ import SockJS from 'sockjs-client';
 export const WS_TOPICS = {
   comments: (mangaPath) => `/topic/comments/${mangaPath}`,
   commentReaction: (commentId) => `/topic/comments/reaction/${commentId}`,
+  commentPost: (id) => `/topic/comments/post/${id}`,
   notifications: (userId) => `/topic/notifications/${userId}`,
   login: '/topic/login',
   updateStatus: '/topic/updateStt',

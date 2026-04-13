@@ -14,14 +14,14 @@ export default function Header() {
   const menuRef = useRef();
   const navigate = useNavigate();
   const location = useLocation();
-  const { userId, username, unreadCount, setUnreadCount, logout } = useUser();
+  const { userId, unreadCount, setUnreadCount, logout, userData } = useUser();
   const [categories, setCategories] = useState([]);
 
   const refreshUnreadCount = useCallback(() => {
     if (!userId) return;
     getUnreadCount(userId)
       .then((res) => {
-        return setUnreadCount(res?.result ?? 0)
+        return setUnreadCount(res?.result ?? 0);
       })
       .catch(() => {});
   }, [userId, setUnreadCount]);
@@ -101,9 +101,6 @@ export default function Header() {
     return location.pathname.startsWith(targetPath);
   };
 
-  const shortName = (username || 'Khách').trim();
-  const avatarText = shortName.charAt(0).toUpperCase();
-
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const handleDropdownEnter = () => setDropdownOpen(true);
@@ -140,13 +137,19 @@ export default function Header() {
           {userId ? (
             <>
               <button type="button" className={cx('profile')} onClick={handleToggleMenu}>
-                <span className={cx('avatar-circle')}>{avatarText}</span>
-                <span className={cx('name')}>{shortName}</span>
+                <img className={cx('avatar-circle')} src={userData?.urlImage || 'https://via.placeholder.com/40'} alt="Avatar" />
+                <span className={cx('name')}>{userData?.name || 'Khách'}</span>
                 <i className="fa-solid fa-chevron-down"></i>
               </button>
 
               <div className={cx('menu')} ref={menuRef}>
                 <ul>
+                  <li>
+                    <Link to={paths.profile}>
+                      <i className="fa-solid fa-user"></i>
+                      Hồ sơ của tôi
+                    </Link>
+                  </li>
                   <li>
                     <Link to={paths.dashboard}>
                       <i className="fa-solid fa-chart-pie"></i>

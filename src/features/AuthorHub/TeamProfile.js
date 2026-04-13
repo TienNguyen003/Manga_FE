@@ -61,13 +61,15 @@ export default function TeamProfile() {
               <h2>Thành viên cốt cán</h2>
               <div className={cx('memberGrid')}>
                 {team.members?.map((m) => (
-                  <div key={m.id} className={cx('memberCard')}>
-                    <img src={m.avatar} alt={m.displayName || m.username} className={cx('userAva')} />
-                    <div className={cx('userMeta')}>
-                      <span className={cx('name')}>{m.displayName || m.username}</span>
-                      <span className={cx('role')}>{m.role || 'Thành viên'}</span>
+                  <Link key={m.id} to={paths.publicProfile.replace(':id', m.id)}>
+                    <div key={m.id} className={cx('memberCard')}>
+                      <img src={m.avatar} alt={m.name} className={cx('userAva')} />
+                      <div className={cx('userMeta')}>
+                        <span className={cx('name')}>{m.name}</span>
+                        <span className={cx('role')}>{m.role || 'Thành viên'}</span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>

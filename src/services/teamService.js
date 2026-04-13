@@ -1,4 +1,4 @@
-import httpRequest, { get } from '~/lib/httpRequest';
+import httpRequest from '~/lib/httpRequest';
 
 const url = '/teams';
 

@@ -110,7 +110,7 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
         <img src={userAvatar || 'https://via.placeholder.com/40'} className={cx('commentAvatar')} />
         <div className={cx('commentContentSection')}>
           <div className={cx('commentHeader')}>
-            <span className={cx('commentUser')}>{comment.userDisplayName || comment.username}</span>
+            <span className={cx('commentUser')}>{comment.userDisplayName || comment.name}</span>
             <span className={cx('commentTime')}>{timeAgo(comment.createdAt)}</span>
             {userId === String(comment.userId) && (
               <button className={cx('deleteBtn')} onClick={() => onDelete(comment.id)} title="Xóa">

@@ -310,7 +310,7 @@ const MangaDetail = () => {
               <div key={idx} className={cx('review-item')}>
                 <div className={cx('review-user-info')}>
                   <div className={cx('user-meta')}>
-                    <span className={cx('username')}>{r.userDisplayName || r.username}</span>
+                    <span className={cx('username')}>{r.userDisplayName || r.name}</span>
                     <div className={cx('user-stars')}>
                       {[1, 2, 3, 4, 5].map((s) => (
                         <StarRounded key={s} sx={{ fontSize: '1.4rem', color: s <= r.score ? '#ea982b' : '#eee' }} />

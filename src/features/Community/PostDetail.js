@@ -5,8 +5,10 @@ import classNames from 'classnames/bind';
 import { communityService } from '~/services/communityService';
 import { getRecommendationPosts } from '~/services/recommendationService';
 import { useUser } from '~/providers/UserContext';
+import { connectStomp, disconnectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
 import paths from '~/routes/paths';
 import styles from './PostDetail.module.scss';
+import { Tooltip } from '@mui/material';
 
 const cx = classNames.bind(styles);
 
@@ -22,9 +24,8 @@ export default function PostDetail() {
   const [error, setError] = useState('');
   const [recommendations, setRecommendations] = useState([]);
 
-  useEffect(() => {
+  const loadComments = () => {
     let mounted = true;
-    setLoading(true);
     communityService
       .getPostComments(id)
       .then((res) => {
@@ -41,6 +42,11 @@ export default function PostDetail() {
     return () => {
       mounted = false;
     };
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    loadComments();
   }, [id]);
 
   useEffect(() => {
@@ -57,6 +63,22 @@ export default function PostDetail() {
       mounted = false;
     };
   }, [userId]);
+
+  useEffect(() => {
+    const client = connectStomp({
+      onConnect: () => {
+        wsSubscribe(WS_TOPICS.commentPost(id), (msg) => {
+          if (msg.type === 'comment_post') {
+            msg.postID === Number(id) && loadComments();
+          }
+        });
+      },
+    });
+
+    return () => {
+      client?.deactivate();
+    };
+  });
 
   const isLiked = post?.reactions?.some((r) => r.username === userId);
 
@@ -116,7 +138,7 @@ export default function PostDetail() {
                 <header className={cx('cardHeader')}>
                   <img className={cx('avatarLarge')} src={post.author?.urlImage} alt="avatar" />
                   <div className={cx('postMeta')}>
-                    <span className={cx('authorName')}>{post.author?.username}</span>
+                    <span className={cx('authorName')}>{post.author?.name}</span>
                     <span className={cx('postDate')}>{new Date(post.createdAt).toLocaleDateString()}</span>
                   </div>
                 </header>
@@ -142,13 +164,17 @@ export default function PostDetail() {
                 <h2 className={cx('commentsTitle')}>Thảo luận ({comments.length})</h2>
 
                 {/* Ô NHẬP BÌNH LUẬN MỚI */}
-                <div className={cx('commentInputWrapper')}>
-                  <img className={cx('myAvatar')} src={userAvatar || post.author?.urlImage} alt="my_avatar" />
-                  <textarea ref={commentRef} placeholder="Bạn đang nghĩ gì về bài viết này?" className={cx('commentTextarea')} />
-                  <button className={cx('submitBtn')} onClick={handleSubmitComment}>
-                    Gửi
-                  </button>
-                </div>
+                {userId ? (
+                  <div className={cx('commentInputWrapper')}>
+                    <img className={cx('myAvatar')} src={userAvatar} alt="my_avatar" />
+                    <textarea ref={commentRef} placeholder="Bạn đang nghĩ gì về bài viết này?" className={cx('commentTextarea')} />
+                    <button className={cx('submitBtn')} onClick={handleSubmitComment}>
+                      Gửi
+                    </button>
+                  </div>
+                ) : (
+                  <div className={cx('notLogin')}>Vui lòng đăng nhập để bình luận</div>
+                )}
 
                 <div className={cx('timeline')}>
                   {comments.map((c, idx) => (
@@ -157,11 +183,55 @@ export default function PostDetail() {
                         <img className={cx('timelineAvatar')} src={c.author?.urlImage} alt="avatar" />
                         {idx !== comments.length - 1 && <span className={cx('timelineLine')}></span>}
                       </div>
-                      <div className={cx('timelineContent')}>
+                      <div className={cx('timelineContent')} style={{ backgroundImage: `url(${c.author?.bgComment})` }}>
                         <div className={cx('timelineInfo')}>
-                          <span className={cx('commentAuthor')}>{c.author?.username}</span>
-                          <span className={cx('commentDate')}>{new Date(c.createdAt).toLocaleString('vi-VN')}</span>
+                          <div className={cx('authorSection')}>
+                            <div className={cx('d-flex flex-column')}>
+                              <span className={cx('commentAuthor')}>{c.author?.name}</span>
+                              <span className={cx('commentDate')}>{new Date(c.createdAt).toLocaleString('vi-VN')}</span>
+                            </div>
+
+                            {c.badge && (
+                              <div className={cx('commentBadges')}>
+                                {c.badge.map((badge, index) => (
+                                  <Tooltip
+                                    key={index}
+                                    arrow
+                                    placement="top"
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          bgcolor: '#000',
+                                          borderRadius: 2,
+                                          p: 1.5,
+                                          textAlign: 'center',
+                                          userSelect: 'none',
+                                        },
+                                      },
+                                    }}
+                                    title={
+                                      <div style={{ maxWidth: 150 }}>
+                                        <img
+                                          src={badge.iconUrl}
+                                          alt={badge.name}
+                                          style={{
+                                            maxWidth: 150,
+                                            marginBottom: 8,
+                                            pointerEvents: 'none',
+                                          }}
+                                        />
+                                        <div style={{ color: '#fff', fontWeight: 600, fontSize: '1.2rem' }}>{badge.name}</div>
+                                      </div>
+                                    }
+                                  >
+                                    <img src={badge.iconUrl} alt={badge.name} className={cx('badgeIcon')} style={{ cursor: 'pointer' }} />
+                                  </Tooltip>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
+
                         <div className={cx('commentText')}>{c.content}</div>
                       </div>
                     </div>
@@ -180,7 +250,7 @@ export default function PostDetail() {
                   <div className={cx('authorInfoBody')}>
                     <img className={cx('avatarInfo')} src={post.author?.urlImage} alt="avatar" />
                     <div className={cx('authorInfoDetails')}>
-                      <strong>{post.author?.username}</strong>
+                      <strong>{post.author?.name}</strong>
                       <p>Đã đăng {post.author?.postsCount || 10} bài viết</p>
                     </div>
                   </div>

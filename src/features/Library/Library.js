@@ -1,36 +1,33 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import classNames from 'classnames/bind';
-import { Link } from 'react-router-dom';
 import {
-  Bookmark,
-  History as HistoryIcon,
-  Collections,
-  PlayCircleFilled,
   AutoAwesome,
-  DeleteSweep,
-  AddCircleOutline,
-  EditRounded,
+  Bookmark,
+  Collections,
   DeleteOutline,
-  ChevronRight,
-  StickyNote2,
+  DeleteSweep,
+  History as HistoryIcon,
+  PlayCircleFilled,
+  StickyNote2
 } from '@mui/icons-material';
+import classNames from 'classnames/bind';
+import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import styles from './Library.module.scss';
+import { EmptyState, ErrorState, LoadingSpinner } from '~/components/common/AsyncState';
 import { useUser } from '~/providers/UserContext';
-import { getFollows } from '~/services/followService';
-import { getContinueReading, getHistory, deleteHistory } from '~/services/historyService';
+import paths from '~/routes/paths';
+import { getBookmarks } from '~/services/bookmarkService';
 import {
-  getCollections,
   createCollection,
-  updateCollection,
   deleteCollection,
-  getCollectionDetail,
   deleteCollectionItem,
+  getCollectionDetail,
+  getCollections,
+  updateCollection,
   updateCollectionItemNote,
 } from '~/services/collectionService';
-import { getBookmarks } from '~/services/bookmarkService';
-import paths from '~/routes/paths';
-import { LoadingSpinner, EmptyState, ErrorState } from '~/components/common/AsyncState';
+import { getFollows } from '~/services/followService';
+import { deleteHistory, getContinueReading, getHistory } from '~/services/historyService';
+import styles from './Library.module.scss';
 
 const cx = classNames.bind(styles);
 

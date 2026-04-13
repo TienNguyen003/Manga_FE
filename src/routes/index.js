@@ -26,6 +26,7 @@ import MyComics from '~/features/MyComics/MyComics';
 import Login from '~/features/Login/Login';
 import Register from '~/features/Register/Register';
 import ForgotPassword from '~/features/ForgotPassword/ForgotPassword';
+import PublicProfile from '~/features/Profile/PublicProfile';
 
 // Public routes
 const publicRoutes = [
@@ -48,6 +49,7 @@ const publicRoutes = [
   { path: paths.upload, component: Upload },
   { path: paths.report, component: Report },
   { path: paths.profile, component: Profile },
+  { path: paths.publicProfile, component: PublicProfile },
   { path: paths.recommendations, component: Recommendations },
   { path: paths.changePassword, component: ChangePassword },
   { path: paths.myComics, component: MyComics },

@@ -168,7 +168,7 @@ export default function CommunityTopic() {
                     <div className={cx('userInfo')}>
                       <img className={cx('avatar')} src={post.author?.urlImage || 'https://via.placeholder.com/40'} alt="avatar" />
                       <div className={cx('userMeta')}>
-                        <span className={cx('userName')}>Tác giả: <span style={{color: '#ff4757'}}>{post.author?.username}</span></span>
+                        <span className={cx('userName')}>Tác giả: <span style={{color: '#ff4757'}}>{post.author?.name}</span></span>
                         <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>

@@ -19,6 +19,7 @@ const paths = {
   upload: '/dang-truyen',
   report: '/bao-cao',
   profile: '/ho-so',
+  publicProfile: '/user/:id',
   recommendations: '/goi-y',
   changePassword: '/doi-mat-khau',
   myComics: '/truyen-cua-toi',

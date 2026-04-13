@@ -166,6 +166,7 @@
 .avatar-circle {
   width: 28px;
   height: 28px;
+  object-fit: cover;
   border-radius: 8px;
   background: linear-gradient(135deg, #3b2f28, #5c4131);
   color: #ffe9cc;

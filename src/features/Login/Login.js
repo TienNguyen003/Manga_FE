@@ -34,7 +34,8 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await authLogin({ username, password });
-      login(response.result?.id, response.result?.username, response.result?.urlImage);
+      localStorage.setItem('token', response.result?.token || '');
+      login(response.result?.id, response.result?.username, response.result?.urlImage, response.result);
       toast.success('Đăng nhập thành công!');
       navigate(paths.home);
     } catch (err) {

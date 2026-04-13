@@ -1,0 +1,414 @@
+$primary: #ea982b;
+$bg-body: #f4f7fa;
+$white: #ffffff;
+$text-dark: #0f172a;
+$text-muted: #64748b;
+$border: #e2e8f0;
+$shadow-pro:
+  0 15px 35px -5px rgba(0, 0, 0, 0.05),
+  0 5px 15px -5px rgba(0, 0, 0, 0.02);
+
+.profileWrapper {
+  background: $bg-body;
+  padding: 60px 0;
+  color: $text-dark;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+}
+
+// --- IDENTITY CARD ---
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  margin-bottom: 24px;
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mainCard {
+  background: $white;
+  border-radius: 28px;
+  padding: 35px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: $shadow-pro;
+  border: 1px solid rgba($white, 0.5);
+}
+
+.userBrief {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  .avatarSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .avatarWrapper {
+      position: relative;
+      padding: 12px; // Tạo khoảng trống để khung không bị đè sát vào avatar
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .mainAvatar {
+        width: 100px !important; // Chỉnh size tùy ý mày
+        height: 100px !important;
+        border: 3px solid #fff;
+        z-index: 1;
+      }
+
+      .avatarFrame {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 130%; // Khung thường to hơn avatar một chút
+        height: 130%;
+        z-index: 2; // Đè lên trên avatar
+        pointer-events: none; // Tránh việc click vào khung làm mất click vào avatar
+        object-fit: contain;
+        max-width: unset;
+      }
+    }
+  }
+  .nameBadge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    h2 {
+      font-weight: 900 !important;
+      font-size: 2.4rem !important;
+    }
+    .vIcon {
+      color: #3b82f6;
+      font-size: 2rem;
+    }
+  }
+  .lvlChip {
+    background: rgba($primary, 0.1) !important;
+    color: $primary !important;
+    font-weight: 900 !important;
+    font-size: 1.2rem;
+  }
+  .bio {
+    color: $text-muted;
+    font-size: 1.4rem;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+}
+
+.headerActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  .btnFollow {
+    background: $text-dark !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+    font-size: 1.2em;
+    padding: 12px 28px !important;
+    border-radius: 14px !important;
+    text-transform: none !important;
+  }
+  .btnMessage {
+    border: 1px solid $border !important;
+    color: $text-dark !important;
+    font-size: 1.2em;
+    font-weight: 800 !important;
+    padding: 12px 28px !important;
+    border-radius: 14px !important;
+    text-transform: none !important;
+  }
+}
+
+.statsRow {
+  display: flex;
+  gap: 24px;
+  margin: 15px 0;
+
+  .miniStat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: rgba($primary, 0.05); // Nền màu cam nhạt trong suốt
+    border: 1px solid rgba($primary, 0.1);
+    border-radius: 16px;
+    transition: 0.3s;
+
+    &:hover {
+      background: rgba($primary, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .iconWrapper {
+      background: $primary;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba($primary, 0.3);
+
+      svg {
+        font-size: 1.6rem;
+      }
+    }
+
+    .val {
+      font-size: 1.2rem !important;
+      font-weight: 900 !important;
+      color: $text-dark;
+      line-height: 1;
+    }
+
+    .lbl {
+      font-size: 1rem !important;
+      font-weight: 700 !important;
+      color: $text-muted;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.heroGrid {
+  display: block !important;
+  margin-bottom: 30px;
+}
+
+.mainCard {
+  width: 100%;
+  position: relative;
+  // overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba($primary, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+}
+
+// --- BENTO TILES & PERSONAL INFO ---
+.whiteTile {
+  background: $white;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: $shadow-pro;
+  border: 1px solid rgba($white, 0.5);
+  margin-bottom: 24px;
+  .tileTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: $text-dark;
+    margin-bottom: 15px;
+    svg {
+      color: $primary;
+      font-size: 1.8rem;
+    }
+  }
+}
+
+.personalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  .infoRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: $text-muted;
+    font-size: 1.3rem;
+    font-weight: 500;
+    svg {
+      font-size: 1.6rem;
+      color: #94a3b8;
+    }
+    b {
+      color: $text-dark;
+    }
+    .link {
+      color: $primary;
+      text-decoration: none;
+      font-weight: 700;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.badgeShelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  .badgeItem {
+    // width: 50px;
+    height: 50px;
+    transition: 0.3s;
+    &:hover {
+      transform: translateY(-5px);
+      border-color: $primary;
+    }
+  }
+  .badgeMore {
+    display: flex;
+    align-items: center;
+    font-weight: 900;
+    color: $text-muted;
+  }
+}
+
+.divider {
+  height: 1px;
+  background: $border;
+  margin: 20px 0;
+}
+.miniStats p {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  color: $text-muted;
+  b {
+    color: $text-dark;
+  }
+}
+
+// --- ACTIVITY & FEED ---
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: $primary;
+    border-radius: 50%;
+  }
+  p {
+    font-size: 1.2rem;
+    flex-grow: 1;
+  }
+  .time {
+    font-size: 1.1rem;
+    color: $text-muted;
+  }
+}
+
+.collectionCard {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border-radius: 18px;
+  background: #f8fafc;
+  transition: 0.2s;
+  &:hover {
+    background: #fff;
+    transform: translateX(8px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  .collThumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    background: #e2e8f0;
+    border-radius: 12px;
+  }
+  .collName {
+    font-weight: 800;
+    font-size: 1.3rem;
+  }
+  .collMeta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.1rem;
+    color: $text-muted;
+    svg {
+      font-size: 1.2rem;
+      color: #fbbf24;
+    }
+  }
+}
+
+.postCard {
+  padding: 24px;
+  border-radius: 24px;
+  background: #f8fafc;
+  margin-bottom: 20px;
+  .postHead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    .postTime {
+      flex-grow: 1;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+    span,
+    button {
+      font-size: 1.3rem;
+    }
+    svg {
+      font-size: 1.8rem;
+    }
+  }
+  .postContent {
+    font-size: 1.4rem !important;
+    line-height: 1.6 !important;
+    margin-bottom: 12px !important;
+  }
+  .postImage {
+    width: 100%;
+    border-radius: 16px;
+    // overflow: hidden;
+    margin-bottom: 12px;
+    img {
+      width: 100%;
+    }
+  }
+  .postActions {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid $border;
+    padding-top: 10px;
+    button {
+      color: $text-muted !important;
+      font-weight: 800 !important;
+      text-transform: none !important;
+      font-size: 1.2rem;
+
+      svg {
+        font-size: 1.6rem;
+      }
+    }
+  }
+}
+
+.loader {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

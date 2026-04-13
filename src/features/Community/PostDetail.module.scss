@@ -221,6 +221,15 @@ $shadow-md: 0 10px 40px rgba(0, 0, 0, 0.08);
   }
 }
 
+.notLogin {
+  margin-bottom: 10px;
+  text-align: center;
+  padding: 20px;
+  border-radius: 16px;
+  color: $muted-ink;
+  font-size: 1.4rem;
+}
+
 // Timeline Bình luận
 .timeline {
   display: flex;
@@ -258,38 +267,83 @@ $shadow-md: 0 10px 40px rgba(0, 0, 0, 0.08);
 
     .timelineContent {
       flex: 1;
-      background: #fafbfc;
-      padding: 18px 24px;
-      border-radius: 20px;
-      border: 1px solid transparent;
-      transition: $transition;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-height: 150px;
 
-      &:hover {
-        background: #f1f4f7;
-        border-color: #dddfe2;
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
+        // backdrop-filter: blur(1px);
+        z-index: 0;
+      }
+
+      & > * {
+        position: relative;
+        z-index: 1;
       }
 
       .timelineInfo {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 8px;
+        align-items: center;
+        margin-bottom: 10px;
 
-        .commentAuthor {
-          font-weight: 800;
-          color: #2c394a;
-          font-size: 1.15rem;
+        .authorSection {
+          display: flex;
+          align-items: start;
+          gap: 10px;
+
+          .commentAuthor {
+            font-weight: 800;
+            color: #fff;
+            font-size: 1.4rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+          }
+
+          .commentBadges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+
+            .badgeIcon {
+              height: 36px;
+              width: auto;
+              object-fit: contain;
+              filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+              cursor: pointer;
+            }
+          }
         }
 
         .commentDate {
           font-size: 1.2rem;
-          color: $muted-ink;
+          color: rgba(255, 255, 255, 0.7);
+          font-style: italic;
         }
       }
 
       .commentText {
-        font-size: 1.4rem;
-        line-height: 1.6;
-        color: $ink;
+        font-size: 1.3rem;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.95);
+        word-break: break-word;
+      }
+
+      &:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        &::before {
+          background: rgba(0, 0, 0, 0.6); // Sáng hơn chút khi hover
+        }
       }
     }
   }
