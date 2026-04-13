@@ -1,0 +1,164 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$text-sub: #64748b;
+$border: #f1f5f9;
+
+.pageContainer {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+  margin-bottom: 32px;
+  .title {
+    font-size: 2.6rem;
+    font-weight: 950;
+    color: $dark;
+  }
+  .subtitle {
+    font-size: 1.4rem;
+    color: $text-sub;
+    font-weight: 500;
+  }
+}
+
+.settingsTile {
+  padding: 40px;
+  border-radius: 32px;
+  border: 1px solid $border;
+  background: #fff;
+}
+
+.section {
+  margin-bottom: 32px;
+
+  .sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .icon {
+      color: $primary;
+      font-size: 2.2rem;
+    }
+    .sectionTitle {
+      font-size: 1.8rem;
+      font-weight: 850;
+      color: $dark;
+    }
+  }
+}
+
+.customInput {
+  :global(.MuiOutlinedInput-root) {
+    border-radius: 14px;
+    background: #f8fafc;
+    fieldset {
+      border-color: $border;
+    }
+    &:hover fieldset {
+      border-color: $primary;
+    }
+    &.Mui-focused fieldset {
+      border-color: $primary;
+      border-width: 2px;
+    }
+  }
+  :global(.MuiInputLabel-root) {
+    font-weight: 600;
+    color: $text-sub;
+  }
+}
+
+.switchGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.switchItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid $border;
+  transition: 0.3s;
+
+  &:hover {
+    border-color: $primary;
+    background: rgba($primary, 0.02);
+  }
+
+  .switchLabel {
+    font-weight: 800;
+    color: $dark;
+    font-size: 1.4rem;
+  }
+  .switchDesc {
+    font-size: 1.2rem;
+    color: $text-sub;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+}
+
+.customSwitch {
+  :global(.MuiSwitch-switchBase.Mui-checked) {
+    color: $primary;
+    &:hover {
+      background-color: rgba($primary, 0.08);
+    }
+  }
+  :global(.MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track) {
+    background-color: $primary;
+  }
+}
+
+.divider {
+  margin: 40px 0 !important;
+  border-color: $border !important;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 2px solid $border;
+
+  .lastUpdate {
+    color: #cbd5e1;
+    font-size: 1.2rem;
+    font-style: italic;
+  }
+
+  .saveBtn {
+    background: $dark;
+    border-radius: 14px;
+    text-transform: none;
+    padding: 12px 36px;
+    font-weight: 700;
+    font-size: 1.5rem;
+    &:hover {
+      background: $primary;
+      box-shadow: 0 10px 20px rgba($primary, 0.3);
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

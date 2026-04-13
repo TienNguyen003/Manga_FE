@@ -1,0 +1,220 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$text-sub: #64748b;
+$border: #f1f5f9;
+
+.mangaWrapper {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+
+  .titleSection {
+    .title {
+      font-size: 2.6rem;
+      font-weight: 950;
+      color: $dark;
+    }
+    .statsBadge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 12px;
+      background: #f1f5f9;
+      color: $text-sub;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 16px;
+
+    .searchGroup {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      padding: 0 15px;
+      border-radius: 14px;
+      border: 1px solid $border;
+      transition: 0.3s;
+      &:focus-within {
+        border-color: $primary;
+        box-shadow: 0 0 0 4px rgba($primary, 0.1);
+      }
+      .searchIcon {
+        color: $text-sub;
+        font-size: 2rem;
+      }
+      .customInput {
+        border: none;
+        outline: none;
+        padding: 12px;
+        width: 220px;
+        font-weight: 500;
+        color: $dark;
+        &::placeholder {
+          color: #cbd5e1;
+        }
+      }
+    }
+
+    .addBtn {
+      background: $dark;
+      border-radius: 14px;
+      text-transform: none;
+      padding: 10px 24px;
+      font-weight: 700;
+      font-size: 1.4rem;
+      &:hover {
+        background: $primary;
+        box-shadow: 0 10px 20px rgba($primary, 0.2);
+      }
+    }
+  }
+}
+
+.tableWrapper {
+  border-radius: 28px;
+  border: 1px solid $border;
+  background: #fff;
+  overflow: hidden;
+  :global(.MuiTableHead-root) {
+    background: #f8fafc;
+    :global(.MuiTableCell-root) {
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: $text-sub;
+      border-bottom: 1px solid $border;
+    }
+  }
+}
+
+.tableRow {
+  transition: 0.2s;
+  &:hover {
+    background: #fbfcfd;
+  }
+  :global(.MuiTableCell-root) {
+    padding: 16px;
+    border-bottom: 1px solid $border;
+  }
+}
+
+.mangaInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  .mangaThumb {
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  .mangaTitle {
+    font-weight: 850;
+    color: $dark;
+    font-size: 1.55rem;
+    line-height: 1.2;
+  }
+  .mangaAuthor {
+    font-size: 1.25rem;
+    color: $text-sub;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+}
+
+.contentCell {
+  .dataItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.3rem;
+    color: $text-sub;
+    margin: 4px 0;
+    svg {
+      font-size: 1.6rem;
+      opacity: 0.6;
+    }
+    b {
+      color: $dark;
+    }
+  }
+}
+
+.statusTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  padding: 6px 14px;
+  border-radius: 100px;
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  &.ongoing {
+    color: #10b981;
+    background: #f0fdf4;
+    .dot {
+      background: #10b981;
+    }
+  }
+  &.hiatus {
+    color: #f59e0b;
+    background: #fffbeb;
+    .dot {
+      background: #f59e0b;
+    }
+  }
+}
+
+.ratingBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: $primary;
+  font-weight: 900;
+  font-size: 1.4rem;
+  svg {
+    font-size: 1.8rem;
+  }
+}
+
+.actionGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  .btn {
+    background: #f8fafc;
+    &:hover {
+      background: #eef2ff;
+      color: #3b82f6;
+    }
+    &.delete:hover {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

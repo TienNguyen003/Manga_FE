@@ -1,0 +1,137 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$text-sub: #64748b;
+$border: #f1f5f9;
+
+.pageContainer {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+
+  .title {
+    font-size: 2.6rem;
+    font-weight: 950;
+    color: $dark;
+    letter-spacing: -1px;
+  }
+  .subtitle {
+    font-size: 1.4rem;
+    color: $text-sub;
+    font-weight: 500;
+  }
+
+  .addBtn {
+    background: $dark;
+    border-radius: 14px;
+    text-transform: none;
+    padding: 10px 24px;
+    font-weight: 700;
+    &:hover {
+      background: $primary;
+      box-shadow: 0 10px 20px rgba($primary, 0.2);
+    }
+  }
+}
+
+.tableWrapper {
+  border-radius: 28px;
+  border: 1px solid $border;
+  background: #fff;
+  overflow: hidden;
+
+  :global(.MuiTableHead-root) {
+    background: #f8fafc;
+    :global(.MuiTableCell-root) {
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: $text-sub;
+      border-bottom: 1px solid $border;
+    }
+  }
+}
+
+.tableRow {
+  transition: background 0.2s;
+  &:hover {
+    background: #fbfcfd;
+  }
+  :global(.MuiTableCell-root) {
+    padding: 20px 16px;
+    border-bottom: 1px solid $border;
+  }
+}
+
+.badgeInfoCell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .imageBox {
+    width: 48px;
+    height: 48px;
+    background: #fef3c7;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+  }
+
+  .badgeName {
+    font-weight: 800;
+    color: $dark;
+    font-size: 1.5rem;
+  }
+}
+
+.idText {
+  font-weight: 600;
+  color: $text-sub;
+}
+.countText {
+  font-size: 1.4rem;
+  color: $dark;
+}
+.dateText {
+  font-size: 1.3rem;
+  color: $text-sub;
+  font-weight: 500;
+}
+
+.actionGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+  button {
+    background: #f8fafc;
+    &.editIcon:hover {
+      color: $primary;
+      background: #fff7ed;
+    }
+    &.deleteIcon:hover {
+      color: #ef4444;
+      background: #fef2f2;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,150 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$text-sub: #64748b;
+$border: #f1f5f9;
+
+.pageContainer {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+
+  .title {
+    font-size: 2.6rem;
+    font-weight: 950;
+    color: $dark;
+  }
+  .subtitle {
+    font-size: 1.4rem;
+    color: $text-sub;
+    font-weight: 500;
+  }
+
+  .addBtn {
+    background: $dark;
+    border-radius: 14px;
+    text-transform: none;
+    padding: 10px 24px;
+    font-weight: 700;
+    &:hover {
+      background: $primary;
+      box-shadow: 0 10px 20px rgba($primary, 0.2);
+    }
+  }
+}
+
+.tableWrapper {
+  border-radius: 28px;
+  border: 1px solid $border;
+  background: #fff;
+  overflow: hidden;
+  :global(.MuiTableHead-root) {
+    background: #f8fafc;
+    :global(.MuiTableCell-root) {
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: $text-sub;
+      border-bottom: 1px solid $border;
+    }
+  }
+}
+
+.tableRow {
+  transition: 0.2s;
+  &:hover {
+    background: #fbfcfd;
+  }
+  :global(.MuiTableCell-root) {
+    padding: 20px 16px;
+    border-bottom: 1px solid $border;
+  }
+}
+
+.teamInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  .teamAvatar {
+    width: 42px;
+    height: 42px;
+    font-weight: 800;
+    border-radius: 14px;
+  }
+  .teamName {
+    font-weight: 850;
+    color: $dark;
+    font-size: 1.5rem;
+  }
+}
+
+.leaderChip {
+  background: #fff !important;
+  border: 1px solid $border !important;
+  font-weight: 700 !important;
+  color: $dark !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+}
+
+.memberBox,
+.projectBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $text-sub;
+  .icon {
+    font-size: 1.8rem;
+    opacity: 0.5;
+  }
+  b {
+    color: $dark;
+    font-size: 1.4rem;
+  }
+}
+
+.actionGroup {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+
+  .manageBtn {
+    background: #f1f5f9;
+    color: $dark;
+    border-radius: 10px;
+    text-transform: none;
+    font-weight: 700;
+    padding: 6px 16px;
+    &:hover {
+      background: $dark;
+      color: #fff;
+    }
+  }
+
+  .iconBtn {
+    background: #f8fafc;
+    &:hover {
+      background: #eef2ff;
+      color: #3b82f6;
+    }
+    &.delete:hover {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

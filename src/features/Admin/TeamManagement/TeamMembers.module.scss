@@ -1,0 +1,206 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$text-sub: #64748b;
+$border: #f1f5f9;
+
+.memberWrapper {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+
+    .backBtn {
+      background: #fff;
+      border: 1px solid $border;
+      border-radius: 12px;
+      &:hover {
+        background: $border;
+      }
+    }
+
+    .mainTitle {
+      font-size: 2.4rem;
+      font-weight: 950;
+      color: $dark;
+      letter-spacing: -1px;
+    }
+    .subTitle {
+      font-size: 1.4rem;
+      color: $text-sub;
+      font-weight: 500;
+    }
+
+    .addBtn {
+      background: $dark;
+      border-radius: 14px;
+      text-transform: none;
+      padding: 10px 24px;
+      font-weight: 700;
+      font-size: 1.4rem;
+      &:hover {
+        background: $primary;
+        box-shadow: 0 10px 20px rgba($primary, 0.2);
+      }
+    }
+  }
+}
+
+.memberCard {
+  padding: 24px;
+  border-radius: 30px;
+  border: 1px solid $border;
+  background: #fff;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: rgba($primary, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .statusIndicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+
+      &.online {
+        background: #dcfce7;
+        color: #15803d;
+        .dot {
+          background: #15803d;
+        }
+      }
+      &.offline {
+        background: #f1f5f9;
+        color: $text-sub;
+        .dot {
+          background: #94a3b8;
+        }
+      }
+    }
+  }
+
+  .cardBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+
+    .avatarWrapper {
+      position: relative;
+      margin-bottom: 16px;
+      .avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 2.4rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, $primary 0%, #f59e0b 100%);
+        box-shadow: 0 8px 16px rgba($primary, 0.2);
+      }
+      .badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: #3b82f6;
+        color: #fff;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid #fff;
+        svg {
+          font-size: 1.4rem;
+        }
+      }
+    }
+
+    .memberName {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: $dark;
+      margin-bottom: 6px;
+    }
+
+    .roleChip {
+      background: rgba($primary, 0.1);
+      color: $primary;
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      border: 1px solid rgba($primary, 0.2);
+    }
+
+    .joinText {
+      font-size: 1.2rem;
+      color: $text-sub;
+      b {
+        color: $dark;
+      }
+    }
+  }
+
+  .cardFooter {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .contactBtn {
+      background: #f8fafc;
+      border-radius: 12px;
+      color: $text-sub;
+      &:hover {
+        background: #eff6ff;
+        color: #3b82f6;
+      }
+    }
+
+    .profileBtn {
+      margin-left: auto;
+      text-transform: none;
+      font-weight: 800;
+      color: $dark;
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 6px 16px;
+      &:hover {
+        background: $dark;
+        color: #fff;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

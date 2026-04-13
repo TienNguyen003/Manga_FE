@@ -1,0 +1,141 @@
+$sidebar-width: 280px;
+$primary: #ea982b;
+$dark-sidebar: #ffffff;
+$bg-admin: #f1f5f9;
+
+.adminWrapper {
+  display: flex;
+  min-height: 100vh;
+  background: $bg-admin;
+}
+
+// --- SIDEBAR ---
+.sidebar {
+  width: $sidebar-width;
+  background: $dark-sidebar;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+
+  .sidebarHeader {
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    .logoIcon {
+      font-size: 3rem;
+      color: $primary;
+    }
+    .logoText {
+      font-weight: 900;
+      letter-spacing: 1px;
+      font-size: 1.8rem;
+    }
+  }
+
+  .adminProfile {
+    padding: 0 30px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    .adminInfo {
+      .name {
+        font-weight: 700;
+        font-size: 1.4rem;
+      }
+      .role {
+        font-size: 1.2rem;
+        color: #94a3b8;
+      }
+    }
+  }
+
+  .menu {
+    flex-grow: 1;
+    padding: 0 15px;
+    .menuItem {
+      border-radius: 12px;
+      margin-bottom: 5px;
+      color: #94a3b8;
+      transition: 0.3s;
+
+      .menuIcon {
+        color: inherit;
+        min-width: 45px;
+        svg {
+          font-size: 2.2rem;
+        }
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: $primary;
+      }
+
+      &.active {
+        background: $primary !important;
+        color: #fff !important;
+        box-shadow: 0 10px 20px rgba($primary, 0.3);
+      }
+    }
+  }
+
+  .sidebarFooter {
+    padding: 20px 15px;
+    .logoutBtn {
+      border-radius: 12px;
+      color: #ff4d4d;
+      &:hover {
+        background: rgba(255, 77, 77, 0.1);
+      }
+    }
+  }
+}
+
+// --- CONTENT AREA ---
+.mainContent {
+  flex-grow: 1;
+  margin-left: $sidebar-width; // Đẩy content sang phải bằng chiều rộng sidebar
+  display: flex;
+  flex-direction: column;
+
+  .topBar {
+    background: #fff;
+    padding: 20px 40px;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+  }
+
+  .pageBody {
+    padding: 40px;
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 80px;
+    .logoText,
+    .adminInfo,
+    .menuItem span,
+    .logoutBtn span {
+      display: none;
+    }
+    .sidebarHeader,
+    .adminProfile {
+      justify-content: center;
+      padding: 20px 0;
+    }
+  }
+  .mainContent {
+    margin-left: 80px;
+  }
+}

@@ -1,0 +1,96 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$text-sub: #64748b;
+$border: #f1f5f9;
+
+.statsWrapper {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chartTile {
+  padding: 30px;
+  border-radius: 28px;
+  border: 1px solid $border;
+  background: #fff;
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba($primary, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02);
+  }
+}
+
+.tileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+
+  .title { font-size: 2rem; font-weight: 900; color: $dark; letter-spacing: -0.5px; }
+  .subtitle { font-size: 1.3rem; color: $text-sub; font-weight: 500; }
+
+  .iconBox {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    background: #fef3c7; color: $primary;
+    svg { font-size: 2.4rem; }
+    &.pie { background: #e0f2fe; color: #3b82f6; }
+  }
+}
+
+.chartPlaceholder {
+  flex: 1;
+  background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #e2e8f0;
+  gap: 15px;
+
+  .visualIcon {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    display: flex; align-items: center; justify-content: center;
+    color: #cbd5e1;
+    svg { font-size: 3rem; }
+  }
+}
+
+.progressList {
+  .progressItem {
+    margin-bottom: 24px;
+    &:last-child { margin-bottom: 0; }
+
+    .labelRow {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 10px;
+      .roleName { font-size: 1.4rem; font-weight: 700; color: $dark; }
+      .roleVal { font-size: 1.3rem; font-weight: 800; color: $text-sub; }
+    }
+  }
+}
+
+.progBar {
+  height: 10px;
+  border-radius: 100px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.infoBox {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid $border;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

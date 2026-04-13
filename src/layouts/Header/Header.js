@@ -93,6 +93,7 @@ export default function Header() {
     { to: paths.discover, label: 'Khám phá' },
     { to: paths.rankings, label: 'Bảng xếp hạng' },
     { to: paths.community, label: 'Cộng đồng' },
+    { to: paths.authorHub, label: 'Nhóm dịch' },
     { to: paths.library, label: 'Thư viện' },
   ];
 

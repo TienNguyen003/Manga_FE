@@ -26,7 +26,21 @@ const paths = {
   login: '/dang-nhap',
   register: '/dang-ky',
   forgotPassword: '/quen-mat-khau',
-  admin: '/admin',
+
+  // admin
+  adminDashboard: '/admin/dashboard',
+  userManagement: '/admin/users',
+  badgeManagement: '/admin/badges',
+  systemStats: '/admin/stats',
+  adminSettings: '/admin/settings',
+  adManagement: '/admin/ads',
+  mangaManagement: '/admin/manga',
+  mangaReview: '/admin/manga/:id/reviews',
+  mangaComment: '/admin/manga/:id/comments',
+  teamManagement: '/admin/teams',
+  teamMember: '/admin/teams-members/:id',
+  topicManagement: '/admin/topics',
+  postManagement: '/admin/posts/:id',
 };
 
 export default paths;

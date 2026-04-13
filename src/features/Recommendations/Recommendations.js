@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { comicService } from '~/services/comicService';
+import { getRecommendationsMangas } from '~/services/recommendationService';
 import classNames from 'classnames/bind';
 import styles from './Recommendations.module.scss';
 
@@ -14,8 +14,7 @@ export default function Recommendations() {
     let mounted = true;
     setLoading(true);
     setError('');
-    comicService
-      .getRecommendations()
+    getRecommendationsMangas()
       .then((res) => {
         if (!mounted) return;
         setList(res?.data || []);

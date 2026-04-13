@@ -1,0 +1,294 @@
+/* --- VARIABLES --- */
+$primary: #ea982b;
+$dark: #0f172a;
+$bg: #f4f7fa;
+$text-main: #1e293b;
+$text-sub: #64748b;
+$white: #ffffff;
+$radius: 24px;
+$shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+$slate-400: #94a3b8;
+
+.wrapper {
+  background: $bg;
+  min-height: 100vh;
+  padding: 0 40px 40px;
+}
+
+/* --- NAVBAR --- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  margin-bottom: 30px;
+
+  .searchWrapper {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 10px 18px;
+    border-radius: 14px;
+    box-shadow: $shadow;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+
+    .searchIcon {
+      color: $text-sub;
+      font-size: 2rem;
+    }
+    .searchInput {
+      border: none;
+      outline: none;
+      margin-left: 10px;
+      font-weight: 500;
+      color: $text-main;
+      width: 250px;
+      &::placeholder {
+        color: #cbd5e1;
+      }
+    }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    .divider {
+      width: 1px;
+      height: 30px;
+      background: #e2e8f0;
+    }
+    .userProfile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .userName {
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: $text-main;
+        line-height: 1.2;
+      }
+      .userRole {
+        font-size: 1.2rem;
+        color: $text-sub;
+      }
+    }
+  }
+}
+
+/* --- HEADER --- */
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+
+  .title {
+    font-weight: 950;
+    letter-spacing: -2px;
+    color: $dark;
+    .orangeText {
+      color: $primary;
+    }
+  }
+
+  .statusTag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    color: $text-sub;
+    font-weight: 600;
+    font-size: 1.4rem;
+    .pulseDot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+      animation: pulse 2s infinite;
+    }
+  }
+
+  .primaryBtn {
+    background: $dark;
+    color: #fff;
+    text-transform: none;
+    padding: 12px 28px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.4rem;
+    &:hover {
+      background: $primary;
+      box-shadow: 0 10px 20px rgba(234, 152, 43, 0.3);
+    }
+  }
+}
+
+/* --- MAIN GRID --- */
+.mainGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  .bentoBox {
+    background: $white;
+    border-radius: $radius;
+    padding: 30px;
+    box-shadow: $shadow;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  .mainCard {
+    grid-column: span 2;
+    .cardHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .boxTitle {
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: $text-main;
+    }
+    .period {
+      background: #f1f5f9;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: $text-sub;
+    }
+
+    .statsGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      .statItem {
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 20px;
+        .statIcon {
+          color: $primary;
+          background: #fff;
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+          margin-bottom: 15px;
+        }
+        .statLabel {
+          color: $text-sub;
+          font-weight: 600;
+          font-size: 1.3rem;
+        }
+        .statValue {
+          font-size: 2.8rem;
+          font-weight: 900;
+          color: $dark;
+          margin: 4px 0;
+        }
+        .statChange {
+          display: flex;
+          align-items: center;
+          color: #10b981;
+          font-weight: 700;
+          font-size: 1.2rem;
+          svg {
+            font-size: 1.4rem;
+          }
+        }
+      }
+    }
+  }
+
+  .sideCard {
+    grid-column: span 1;
+    .teamList {
+      margin-top: 20px;
+      .teamItem {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        &:last-child {
+          border: none;
+        }
+        .tName {
+          font-weight: 700;
+          font-size: 1.4rem;
+          color: $text-main;
+        }
+        .tDetail {
+          font-size: 1.2rem;
+          color: $text-sub;
+        }
+        button {
+          margin-left: auto;
+          color: $slate-400;
+          &:hover {
+            color: $primary;
+          }
+        }
+      }
+    }
+  }
+
+  .badgeCard {
+    grid-column: span 3;
+    background: linear-gradient(135deg, $primary 0%, #ffb347 100%);
+    color: #fff;
+    .badgeContent {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      .iconFloating {
+        font-size: 6rem;
+        opacity: 0.3;
+        position: absolute;
+        right: 40px;
+        top: 40px;
+      }
+      .desc {
+        font-size: 1.6rem;
+        margin: 10px 0 25px;
+        opacity: 0.9;
+        max-width: 400px;
+      }
+      .whiteBtn {
+        background: #fff;
+        color: $primary;
+        font-weight: 800;
+        border-radius: 14px;
+        padding: 10px 24px;
+        text-transform: none;
+        &:hover {
+          background: $dark;
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}

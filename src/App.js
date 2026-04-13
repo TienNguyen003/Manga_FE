@@ -1,16 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { ToastContainer } from 'react-toastify';
-import { publicRoutes, privateRoutesNoHeader } from '~/routes';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'; // <-- thêm
 import classNames from 'classnames/bind';
-import { createTheme, ThemeProvider, CssBaseline } from '@mui/material'; // <-- thêm
+import React, { useEffect, useState } from 'react';
+import { Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import { adminRoutes, privateRoutesNoHeader, publicRoutes } from '~/routes';
 
 import '~/components/LibaralyLayout/grid.css';
-import styles from './App.module.scss';
-import Header from './layouts/Header/Header';
-import Footer from './layouts/Footer/footer';
-import Error from './components/404/404';
 import { UserProvider } from '~/providers/UserContext';
+import styles from './App.module.scss';
+import Error from './components/404/404';
+import AdminLayout from './layouts/AdminLayout/AdminLayout';
+import DefaultLayout from './layouts/DefaultLayout/DefaultLayout';
 
 const cx = classNames.bind(styles);
 
@@ -18,7 +18,7 @@ const cx = classNames.bind(styles);
 const theme = createTheme({
   typography: {
     fontFamily: '"Be Vietnam Pro", "Barlow", "Segoe UI", sans-serif',
-    fontSize: '1.4rem'
+    fontSize: '1.4rem',
   },
 });
 
@@ -35,9 +35,6 @@ function AppContent() {
     return () => clearTimeout(timer);
   }, [location.pathname, location.search]);
 
-  const noHeaderPaths = privateRoutesNoHeader.map((route) => route.path);
-  const showLayout = !noHeaderPaths.includes(location.pathname);
-
   return (
     <>
       {routeLoading && (
@@ -50,19 +47,33 @@ function AppContent() {
         </div>
       )}
 
-      {showLayout && <Header />}
-
       <div className="App">
         <Routes>
-          {[...publicRoutes, ...privateRoutesNoHeader].map((route, index) => {
+          {[...publicRoutes, ...privateRoutesNoHeader, ...adminRoutes].map((route, index) => {
             const Page = route.component;
-            return <Route key={index} path={route.path} element={<Page />} />;
+            
+            let Layout = React.Fragment; 
+            if (route.layout === 'admin') {
+               Layout = AdminLayout;
+            } else if (route.layout === 'default') {
+               Layout = DefaultLayout;
+            }
+
+            return (
+              <Route 
+                key={index} 
+                path={route.path} 
+                element={
+                  <Layout>
+                    <Page />
+                  </Layout>
+                } 
+              />
+            );
           })}
           <Route path="*" element={<Error />} />
         </Routes>
       </div>
-
-      {showLayout && <Footer />}
     </>
   );
 }

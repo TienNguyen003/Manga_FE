@@ -27,39 +27,68 @@ import Login from '~/features/Login/Login';
 import Register from '~/features/Register/Register';
 import ForgotPassword from '~/features/ForgotPassword/ForgotPassword';
 import PublicProfile from '~/features/Profile/PublicProfile';
+import Dashboard from '~/features/Admin/Dashboard/Dashboard';
+import UserManagement from '~/features/Admin/UserManagement/UserManagement';
+import BadgeManager from '~/features/Admin/BadgeManager/BadgeManager';
+import AdminStats from '~/features/Admin/Stats/Stats';
+import AdminSettings from '~/features/Admin/Settings/Settings';
+import AdsManagement from '~/features/Admin/AdsManagement/AdsManagement';
+import MangaManagement from '~/features/Admin/MangaManagement/MangaManagement';
+import TeamManagement from '~/features/Admin/TeamManagement/Teams';
+import TopicManagement from '~/features/Admin/TopicsManagement/Topics';
+import PostManagement from '~/features/Admin/TopicsManagement/Posts';
+import TeamMembers from '~/features/Admin/TeamManagement/TeamMembers';
+import MangaReviews from '~/features/Admin/MangaManagement/MangaReviews';
+import CommentManagement from '~/features/Admin/MangaManagement/CommentManagement';
 
 // Public routes
 const publicRoutes = [
-  { path: paths.home, component: Home },
-  { path: paths.category, component: CategorySection },
-  { path: paths.mangaDetail, component: MangaDetail },
-  { path: paths.chapterDetail, component: ChapterReader },
-  { path: paths.discover, component: Discover },
-  { path: paths.rankings, component: Rankings },
-  { path: paths.community, component: Community },
-  { path: paths.communityTopic, component: CommunityTopic },
-  { path: paths.postDetail, component: PostDetail },
-  { path: paths.authorHub, component: AuthorHub },
-  { path: paths.teamProfile, component: TeamProfile },
-  { path: paths.releaseCalendar, component: ReleaseCalendar },
-  { path: paths.advancedSearch, component: AdvancedSearch },
-  { path: paths.library, component: Library },
-  { path: paths.notifications, component: Notifications },
-  { path: paths.dashboard, component: UserDashboard },
-  { path: paths.upload, component: Upload },
-  { path: paths.report, component: Report },
-  { path: paths.profile, component: Profile },
-  { path: paths.publicProfile, component: PublicProfile },
-  { path: paths.recommendations, component: Recommendations },
-  { path: paths.changePassword, component: ChangePassword },
-  { path: paths.myComics, component: MyComics },
-  { path: paths.login, component: Login },
-  { path: paths.register, component: Register },
-  { path: paths.forgotPassword, component: ForgotPassword },
+  { path: paths.home, component: Home, layout: 'default' },
+  { path: paths.category, component: CategorySection, layout: 'default' },
+  { path: paths.mangaDetail, component: MangaDetail, layout: 'default' },
+  { path: paths.chapterDetail, component: ChapterReader, layout: 'default' },
+  { path: paths.discover, component: Discover, layout: 'default' },
+  { path: paths.rankings, component: Rankings, layout: 'default' },
+  { path: paths.community, component: Community, layout: 'default' },
+  { path: paths.communityTopic, component: CommunityTopic, layout: 'default' },
+  { path: paths.postDetail, component: PostDetail, layout: 'default' },
+  { path: paths.authorHub, component: AuthorHub, layout: 'default' },
+  { path: paths.teamProfile, component: TeamProfile, layout: 'default' },
+  { path: paths.releaseCalendar, component: ReleaseCalendar, layout: 'default' },
+  { path: paths.advancedSearch, component: AdvancedSearch, layout: 'default' },
+  { path: paths.library, component: Library, layout: 'default' },
+  { path: paths.notifications, component: Notifications, layout: 'default' },
+  { path: paths.dashboard, component: UserDashboard, layout: 'default' },
+  { path: paths.upload, component: Upload, layout: 'default' },
+  { path: paths.report, component: Report, layout: 'default' },
+  { path: paths.profile, component: Profile, layout: 'default' },
+  { path: paths.publicProfile, component: PublicProfile, layout: 'default' },
+  { path: paths.recommendations, component: Recommendations, layout: 'default' },
+  { path: paths.changePassword, component: ChangePassword, layout: 'default' },
+  { path: paths.myComics, component: MyComics, layout: 'default' },
+  { path: paths.login, component: Login, layout: 'default' },
+  { path: paths.register, component: Register, layout: 'default' },
+  { path: paths.forgotPassword, component: ForgotPassword, layout: 'default' },
 ];
 
 const privateRoutesNoHeader = [];
 
 const privateRoutes = [];
 
-export { publicRoutes, privateRoutes, privateRoutesNoHeader };
+const adminRoutes = [
+  { path: paths.adminDashboard, component: Dashboard, layout: 'admin' },
+  { path: paths.userManagement, component: UserManagement, layout: 'admin' },
+  { path: paths.badgeManagement, component: BadgeManager, layout: 'admin' },
+  { path: paths.systemStats, component: AdminStats, layout: 'admin' },
+  { path: paths.adminSettings, component: AdminSettings, layout: 'admin' },
+  { path: paths.adManagement, component: AdsManagement, layout: 'admin' },
+  { path: paths.mangaManagement, component: MangaManagement, layout: 'admin' },
+  { path: paths.mangaReview, component: MangaReviews, layout: 'admin' },
+  { path: paths.mangaComment, component: CommentManagement, layout: 'admin' },
+  { path: paths.teamManagement, component: TeamManagement, layout: 'admin' },
+  { path: paths.teamMember, component: TeamMembers, layout: 'admin' },
+  { path: paths.topicManagement, component: TopicManagement, layout: 'admin' },
+  { path: paths.postManagement, component: PostManagement, layout: 'admin' },
+];
+
+export { publicRoutes, privateRoutes, privateRoutesNoHeader, adminRoutes };

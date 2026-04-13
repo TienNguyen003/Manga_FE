@@ -102,7 +102,6 @@
   // Thêm icon mũi tên nhỏ nếu muốn (giả lập bằng pseudo-element)
   &::after {
     content: '→';
-    font-family: serif;
     transition: transform 0.2s;
   }
 

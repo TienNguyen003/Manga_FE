@@ -1,0 +1,187 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$text-sub: #64748b;
+$border: #f1f5f9;
+
+.postWrapper {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+
+    .mainTitle {
+      font-size: 2.6rem;
+      font-weight: 950;
+      color: $dark;
+    }
+    .subTitle {
+      font-size: 1.4rem;
+      color: $text-sub;
+      font-weight: 500;
+    }
+
+    .createBtn {
+      background: $dark;
+      border-radius: 14px;
+      text-transform: none;
+      padding: 12px 28px;
+      font-weight: 700;
+      font-size: 1.4rem;
+      &:hover {
+        background: $primary;
+        box-shadow: 0 10px 20px rgba($primary, 0.2);
+      }
+    }
+  }
+}
+
+.filterCard {
+  padding: 20px;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid $border;
+  margin-bottom: 24px;
+
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+
+    .searchBar {
+      flex: 1;
+      :global(.MuiOutlinedInput-root) {
+        border-radius: 14px;
+        background: #f8fafc;
+        fieldset {
+          border-color: transparent;
+        }
+        &:hover fieldset {
+          border-color: $primary;
+        }
+      }
+    }
+
+    .filterBtn {
+      border-radius: 12px;
+      border-color: $border;
+      color: $dark;
+      font-weight: 700;
+      text-transform: none;
+      padding: 0 20px;
+      &:hover {
+        border-color: $primary;
+        background: rgba($primary, 0.05);
+      }
+    }
+  }
+}
+
+.tableContainer {
+  border-radius: 24px;
+  border: 1px solid $border;
+  background: #fff;
+  overflow: hidden;
+
+  .headCell {
+    background: #f8fafc;
+    color: $text-sub;
+    font-weight: 800;
+    font-size: 1.2rem;
+    padding: 18px 24px;
+    border-bottom: 2px solid $border;
+  }
+
+  .tableRow {
+    transition: 0.2s;
+    &:hover {
+      background: rgba($primary, 0.02) !important;
+    }
+
+    .titleCell {
+      padding: 20px 24px;
+    }
+    .postTitle {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: $dark;
+    }
+    .authorName {
+      font-weight: 600;
+      color: $text-sub;
+    }
+    .viewCount {
+      font-weight: 850;
+      color: $dark;
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+    .dateCell {
+      color: $text-sub;
+      font-weight: 500;
+    }
+
+    .topicTag {
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: $text-sub;
+      text-transform: uppercase;
+
+      &.hành\ động {
+        background: #fff7ed;
+        color: #ea580c;
+      }
+      &.kinh\ dị {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      &.tin\ tức {
+        background: #eff6ff;
+        color: #2563eb;
+      }
+    }
+  }
+
+  .actionGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+
+    button {
+      border-radius: 10px;
+      border: 1px solid $border;
+      transition: 0.3s;
+    }
+    .viewBtn:hover {
+      color: #3b82f6;
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+    .editBtn:hover {
+      color: $primary;
+      background: #fffbeb;
+      border-color: $primary;
+    }
+    .deleteBtn:hover {
+      color: #ef4444;
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

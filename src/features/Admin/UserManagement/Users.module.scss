@@ -1,0 +1,132 @@
+$primary: #ea982b;
+$border-color: #f1f5f9;
+$text-main: #0f172a;
+$text-sub: #64748b;
+
+.pageContainer {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 20px 0;
+}
+
+.header {
+  margin-bottom: 30px;
+}
+
+.tableWrapper {
+  border-radius: 24px;
+  border: 1px solid $border-color;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+
+  :global(.MuiTableHead-root) {
+    background-color: #f8fafc;
+    :global(.MuiTableCell-root) {
+      color: $text-sub;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid $border-color;
+    }
+  }
+}
+
+.tableRow {
+  transition: all 0.2s ease;
+  &:hover {
+    background-color: #fbfcfd !important;
+  }
+}
+
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .userName {
+    font-weight: 800;
+    color: $text-main;
+    font-size: 1.45rem;
+  }
+
+  .userEmail {
+    color: $text-sub;
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+}
+
+.roleChip {
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  height: 28px !important;
+  font-size: 1.2rem !important;
+  
+  &.admin {
+    background: #fff8ed !important;
+    color: $primary !important;
+    border: 1px solid rgba($primary, 0.2);
+    svg { color: $primary; font-size: 1.6rem; }
+  }
+}
+
+.statusIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.3rem;
+  padding: 6px 12px;
+  border-radius: 100px;
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  &.active {
+    color: #10b981;
+    background: #f0fdf4;
+    .dot { background: #10b981; }
+  }
+
+  &.banned {
+    color: #ef4444;
+    background: #fef2f2;
+    .dot { background: #ef4444; }
+  }
+}
+
+.actionBtns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    
+    &.editBtn:hover {
+      background: #eef2ff;
+      color: #3b82f6;
+    }
+    
+    &.deleteBtn:hover {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
