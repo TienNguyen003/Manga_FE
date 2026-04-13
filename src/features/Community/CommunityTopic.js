@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import classNames from 'classnames/bind';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Popper, Paper, Stack, IconButton, Fade, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Box } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -165,13 +165,17 @@ export default function CommunityTopic() {
               return (
                 <article key={post.id} className={cx('postCard')}>
                   <div className={cx('postHeader')}>
-                    <div className={cx('userInfo')}>
-                      <img className={cx('avatar')} src={post.author?.urlImage || 'https://via.placeholder.com/40'} alt="avatar" />
-                      <div className={cx('userMeta')}>
-                        <span className={cx('userName')}>Tác giả: <span style={{color: '#ff4757'}}>{post.author?.name}</span></span>
-                        <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleDateString()}</span>
+                    <Link to={paths.publicProfile.replace(':id', post.author?.id)}>
+                      <div className={cx('userInfo')}>
+                        <img className={cx('avatar')} src={post.author?.urlImage || 'https://via.placeholder.com/40'} alt="avatar" />
+                        <div className={cx('userMeta')}>
+                          <span className={cx('userName')}>
+                            Tác giả: <span style={{ color: '#ff4757' }}>{post.author?.name}</span>
+                          </span>
+                          <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleDateString()}</span>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
 
                     <h3 className={cx('postTitle')}>{post.title}</h3>
                   </div>

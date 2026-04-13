@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
 import { communityService } from '~/services/communityService';
@@ -180,7 +180,9 @@ export default function PostDetail() {
                   {comments.map((c, idx) => (
                     <div key={c.id} className={cx('timelineItem')}>
                       <div className={cx('timelineDotWrap')}>
-                        <img className={cx('timelineAvatar')} src={c.author?.urlImage} alt="avatar" />
+                        <Link to={paths.publicProfile.replace(':id', c.author?.id)} className={cx('timelineAvatarLink')}>
+                          <img className={cx('timelineAvatar')} src={c.author?.urlImage} alt={c.author?.name} />
+                        </Link>
                         {idx !== comments.length - 1 && <span className={cx('timelineLine')}></span>}
                       </div>
                       <div className={cx('timelineContent')} style={{ backgroundImage: `url(${c.author?.bgComment})` }}>

@@ -276,6 +276,12 @@ $shadow-pro:
     font-weight: 900;
     color: $text-muted;
   }
+
+  .noBadge {
+    color: $text-muted;
+    font-style: italic;
+    font-size: 1.2rem;
+  }
 }
 
 .divider {
@@ -311,43 +317,6 @@ $shadow-pro:
   .time {
     font-size: 1.1rem;
     color: $text-muted;
-  }
-}
-
-.collectionCard {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px;
-  border-radius: 18px;
-  background: #f8fafc;
-  transition: 0.2s;
-  &:hover {
-    background: #fff;
-    transform: translateX(8px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  }
-  .collThumb {
-    width: 56px;
-    height: 56px;
-    object-fit: cover;
-    background: #e2e8f0;
-    border-radius: 12px;
-  }
-  .collName {
-    font-weight: 800;
-    font-size: 1.3rem;
-  }
-  .collMeta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 1.1rem;
-    color: $text-muted;
-    svg {
-      font-size: 1.2rem;
-      color: #fbbf24;
-    }
   }
 }
 

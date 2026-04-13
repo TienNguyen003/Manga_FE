@@ -1,22 +1,27 @@
 import httpRequest from '~/lib/httpRequest';
 
+const url = '/community';
+
 export const communityService = {
   getTopics: async () => {
-    return httpRequest.get('/community/topics');
+    return httpRequest.get(`${url}/topics`);
   },
   getPosts: async (topicId) => {
-    return httpRequest.get(`/community/topics/${topicId}`);
+    return httpRequest.get(`${url}/topics/${topicId}`);
   },
   getPostComments: async (postId) => {
-    return httpRequest.get(`/community/posts/${postId}/comments`);
+    return httpRequest.get(`${url}/posts/${postId}/comments`);
   },
-  async createPost(userID, data) {
-    return httpRequest.post(`/community/posts?id=${userID}`, data);
+  getPostByAuthor: async (user_id) => {
+    return httpRequest.get(`${url}/post/${user_id}`);
   },
-  async commentPost(userID, data) {
-    return httpRequest.post(`/community/comments?id=${userID}`, data);
+  createPost: async(userID, data) => {
+    return httpRequest.post(`${url}/posts?id=${userID}`, data);
   },
-  async reactPost(data, userId) {
-    return httpRequest.post(`/community/reactions?id=${userId}`, data);
+  commentPost: async(userID, data) => {
+    return httpRequest.post(`${url}/comments?id=${userID}`, data);
+  },
+  reactPost: async(data, userId) => {
+    return httpRequest.post(`${url}/reactions?id=${userId}`, data);
   },
 };

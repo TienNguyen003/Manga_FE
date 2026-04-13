@@ -1,35 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames/bind';
-import { Avatar, Typography, Box, Grid, Button, CircularProgress, Tooltip, Chip, IconButton } from '@mui/material';
 import {
-  VerifiedRounded,
-  PersonAddRounded,
-  MapsUgcRounded,
-  AutoGraphRounded,
-  WorkspacePremiumRounded,
-  AutoStoriesRounded,
-  StarRounded,
-  HistoryRounded,
-  ChatBubbleOutlineRounded,
-  ShareRounded,
-  FavoriteBorderRounded,
-  MoreHorizRounded,
-  InsightsRounded,
-  LocationOnRounded,
-  CakeRounded,
-  LinkRounded,
   AutoAwesomeRounded,
+  AutoGraphRounded,
+  AutoStoriesRounded,
+  CakeRounded,
+  ChatBubbleOutlineRounded,
+  FavoriteBorderRounded,
+  HistoryRounded,
+  InsightsRounded,
+  LinkRounded,
+  LocationOnRounded,
+  MapsUgcRounded,
+  MoreHorizRounded,
+  PersonAddRounded,
+  ShareRounded,
+  StarRounded,
+  VerifiedRounded,
+  WorkspacePremiumRounded,
 } from '@mui/icons-material';
-import { userService } from '~/services/userService';
-import styles from './PublicProfile.module.scss';
-import { toast } from 'react-toastify';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import { Avatar, Button, Chip, Grid, IconButton, Tooltip, Typography } from '@mui/material';
+import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { userService } from '~/services/userService';
+import { communityService } from '~/services/communityService';
+import styles from './PublicProfile.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function PublicProfile() {
   const { id } = useParams();
   const [userData, setUserData] = useState(null);
+  const [userPosts, setUserPosts] = useState([]);
 
   const fetchUserData = async () => {
     try {
@@ -40,8 +44,18 @@ export default function PublicProfile() {
     }
   };
 
+  const fetchUserPosts = async () => {
+    try {
+      const response = await communityService.getPostByAuthor(id);
+      setUserPosts(response.result);
+    } catch (error) {
+      toast.error('Không thể tải bài viết của người dùng. Vui lòng thử lại sau.');
+    }
+  };
+
   useEffect(() => {
     fetchUserData();
+    fetchUserPosts();
   }, []);
 
   return (
@@ -67,19 +81,10 @@ export default function PublicProfile() {
                 <div className={cx('statsRow')}>
                   <div className={cx('miniStat')}>
                     <div className={cx('iconWrapper')}>
-                      <AutoGraphRounded />
-                    </div>
-                    <div>
-                      <Typography className={cx('val')}>12.4k</Typography>
-                      <Typography className={cx('lbl')}>Uy tín</Typography>
-                    </div>
-                  </div>
-                  <div className={cx('miniStat')}>
-                    <div className={cx('iconWrapper')}>
                       <PersonAddRounded />
                     </div>
                     <div>
-                      <Typography className={cx('val')}>156</Typography>
+                      <Typography className={cx('val')}>{userData?.followCount?.followingCount}</Typography>
                       <Typography className={cx('lbl')}>Đang theo dõi</Typography>
                     </div>
                   </div>
@@ -88,7 +93,7 @@ export default function PublicProfile() {
                       <PersonAddRounded />
                     </div>
                     <div>
-                      <Typography className={cx('val')}>999</Typography>
+                      <Typography className={cx('val')}>{userData?.followCount?.followerCount}</Typography>
                       <Typography className={cx('lbl')}>Người theo dõi</Typography>
                     </div>
                   </div>
@@ -111,7 +116,7 @@ export default function PublicProfile() {
         {/* --- SECTION 2: BENTO CONTENT --- */}
         <Grid container spacing={3}>
           {/* Cột trái: About & Badges */}
-          <Grid item xs={12} md={4} sx={{ maxWidth: '40%' }}>
+          <Grid item xs={12} md={4} sx={{ maxWidth: '30%' }}>
             {/* Mục Thông tin cá nhân cơ bản */}
             <div className={cx('whiteTile')}>
               <Typography className={cx('tileTitle')}>
@@ -121,20 +126,30 @@ export default function PublicProfile() {
                 <div className={cx('infoRow')}>
                   <LocationOnRounded />
                   <span>
-                    Đến từ: <b>Hà Nội, Việt Nam</b>
+                    Đến từ: <b>{userData?.address}</b>
                   </span>
                 </div>
                 <div className={cx('infoRow')}>
                   <CakeRounded />
                   <span>
-                    Tham gia: <b>Tháng 3, 2024</b>
+                    Tham gia: <b>{new Date(userData?.createdAt).toLocaleDateString('vi-VN')}</b>
                   </span>
                 </div>
-                <div className={cx('infoRow')}>
-                  <LinkRounded />
-                  <a href="#" className={cx('link')}>
-                    facebook.com/duynguyen
-                  </a>
+                <div className={cx('infoRow')} style={{ flexDirection: 'column', alignItems: 'start' }}>
+                  {Object.entries(userData?.link || {}).map(([type, url], index) => {
+                    const icons = {
+                      facebook: <FacebookIcon />,
+                      discord: <SportsEsportsIcon />,
+                    };
+                    return (
+                      <div key={index} className={cx('infoRow')}>
+                        {icons[type] || <LinkRounded />}
+                        <a href={url} className={cx('link')} target="_blank" rel="noopener noreferrer">
+                          {url.replace(/https?:\/\/(www\.)?/, '')}
+                        </a>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -144,40 +159,44 @@ export default function PublicProfile() {
                 <WorkspacePremiumRounded /> Huy hiệu danh dự
               </Typography>
               <div className={cx('badgeShelf')}>
-                {userData?.badges.map((badge, index) => (
-                  <Tooltip
-                    key={index}
-                    arrow
-                    placement="top"
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          bgcolor: '#000',
-                          borderRadius: 2,
-                          p: 1.5,
-                          textAlign: 'center',
-                          userSelect: 'none',
+                {userData?.badges?.length > 0 ? (
+                  userData?.badges.map((badge, index) => (
+                    <Tooltip
+                      key={index}
+                      arrow
+                      placement="top"
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            bgcolor: '#000',
+                            borderRadius: 2,
+                            p: 1.5,
+                            textAlign: 'center',
+                            userSelect: 'none',
+                          },
                         },
-                      },
-                    }}
-                    title={
-                      <div style={{ maxWidth: 150 }}>
-                        <img
-                          src={badge.iconUrl}
-                          alt={badge.name}
-                          style={{
-                            maxWidth: 150,
-                            marginBottom: 8,
-                            pointerEvents: 'none',
-                          }}
-                        />
-                        <div style={{ color: '#fff', fontWeight: 600, fontSize: '1.2rem' }}>{badge.name}</div>
-                      </div>
-                    }
-                  >
-                    <img src={badge.iconUrl} alt={badge.name} className={cx('badgeItem')} style={{ cursor: 'pointer' }} />
-                  </Tooltip>
-                ))}
+                      }}
+                      title={
+                        <div style={{ maxWidth: 150 }}>
+                          <img
+                            src={badge.iconUrl}
+                            alt={badge.name}
+                            style={{
+                              maxWidth: 150,
+                              marginBottom: 8,
+                              pointerEvents: 'none',
+                            }}
+                          />
+                          <div style={{ color: '#fff', fontWeight: 600, fontSize: '1.2rem' }}>{badge.name}</div>
+                        </div>
+                      }
+                    >
+                      <img src={badge.iconUrl} alt={badge.name} className={cx('badgeItem')} style={{ cursor: 'pointer' }} />
+                    </Tooltip>
+                  ))
+                ) : (
+                  <Typography className={cx('noBadge')}>Người dùng chưa có huy hiệu nào.</Typography>
+                )}
               </div>
 
               <div className={cx('divider')} />
@@ -221,37 +240,6 @@ export default function PublicProfile() {
 
           {/* Cột phải: Library & Posts */}
           <Grid item xs={12} md={7} sx={{ flex: 1 }}>
-            {/* Thư viện công khai */}
-            <div className={cx('whiteTile')}>
-              <div className={cx('tileHeader')}>
-                <Typography className={cx('tileTitle')}>
-                  <AutoStoriesRounded /> Thư viện công khai
-                </Typography>
-                <Button sx={{ fontSize: '1.2rem', marginBottom: '8px' }}>Xem tất cả</Button>
-              </div>
-
-              <div className={cx('collectionList')}>
-                {[
-                  { title: 'Siêu phẩm Dark Fantasy', image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?fm=jpg&q=100', likes: '1.2k', items: 45 },
-                  { title: 'Manga Isekai chọn lọc', image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?fm=jpg&q=100', likes: '850', items: 12 },
-                ].map((item, idx) => (
-                  <div key={idx} className={cx('collectionCard')}>
-                    <img src={item.image} className={cx('collThumb')} />
-                    <div className={cx('collDetail')}>
-                      <Typography className={cx('collName')}>{item.title}</Typography>
-                      <div className={cx('collMeta')}>
-                        <span>
-                          <StarRounded /> {item.likes}
-                        </span>
-                        <span className={cx('dotSeparator')}>•</span>
-                        <span>{item.items} đầu truyện</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Bài viết Feed */}
             <div className={cx('whiteTile', 'feedSection')}>
               <div className={cx('tileHeader')}>
@@ -260,51 +248,43 @@ export default function PublicProfile() {
                 </Typography>
               </div>
 
-              <div className={cx('postList')}>
-                {[
-                  {
-                    id: 1,
-                    tag: 'Review',
-                    time: '12 giờ trước',
-                    content: 'Vừa cày xong bộ "Berserk" bản Deluxe. Thực sự là một kiệt tác về nghệ thuật và tâm lý nhân vật.',
-                    image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?fm=jpg&q=100',
-                    stats: { likes: 124, comments: 18 },
-                  },
-                  {
-                    id: 2,
-                    tag: 'Thảo luận',
-                    time: '1 ngày trước',
-                    content: 'Dự đoán về chap mới của One Piece tuần này: Liệu Joyboy có thực sự xuất hiện?',
-                    image: null,
-                    stats: { likes: 89, comments: 42 },
-                  },
-                ].map((post) => (
+              {userPosts?.map((item) => {
+                const post = item.post;
+
+                return (
                   <div key={post.id} className={cx('postCard')}>
                     <div className={cx('postHead')}>
-                      <Chip label={post.tag} className={cx('postTag')} size="small" />
-                      <span className={cx('postTime')}>{post.time}</span>
+                      <Chip label={post.title} className={cx('postTag')} size="small" />
+                      <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleString('vi-VN')}</span>
+
                       <IconButton size="small">
                         <MoreHorizRounded />
                       </IconButton>
                     </div>
+
                     <Typography className={cx('postContent')}>{post.content}</Typography>
+
+                    {/* nếu sau này có image thì bật */}
                     {post.image && (
                       <div className={cx('postImage')}>
                         <img src={post.image} alt="Post content" />
                       </div>
                     )}
+
                     <div className={cx('postActions')}>
                       <div className={cx('leftActions')}>
-                        <Button startIcon={<FavoriteBorderRounded />}>{post.stats.likes}</Button>
-                        <Button startIcon={<ChatBubbleOutlineRounded />}>{post.stats.comments}</Button>
+                        <Button startIcon={<FavoriteBorderRounded />}>{post.reactions?.length || 0}</Button>
+
+                        <Button startIcon={<ChatBubbleOutlineRounded />}>{post.comments?.length || 0}</Button>
                       </div>
+
                       <IconButton>
                         <ShareRounded />
                       </IconButton>
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
               <Button fullWidth className={cx('btnLoadMore')} sx={{ fontSize: '1.2rem' }}>
                 Khám phá thêm bài viết
               </Button>
