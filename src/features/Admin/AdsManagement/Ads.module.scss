@@ -82,6 +82,7 @@ $border: #f1f5f9;
   border: 1px solid $border;
   background: #fff;
   overflow: hidden;
+  margin-top: 20px;
   :global(.MuiTableHead-root) {
     background: #f8fafc;
     :global(.MuiTableCell-root) {

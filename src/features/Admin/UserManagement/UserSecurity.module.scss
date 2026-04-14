@@ -1,0 +1,159 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$danger: #ef4444;
+$border: #f1f5f9;
+
+.securityWrapper {
+  animation: fadeIn 0.4s ease-out;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    .mainTitle {
+      font-size: 2.6rem;
+      font-weight: 950;
+      color: $dark;
+    }
+    .subTitle {
+      font-size: 1.4rem;
+      color: #64748b;
+    }
+    .actionBtn {
+      background: $dark;
+      border-radius: 12px;
+      text-transform: none;
+      font-weight: 700;
+      &:hover {
+        background: #1e293b;
+      }
+    }
+  }
+}
+
+.mainPaper {
+  border-radius: 24px;
+  border: 1px solid $border;
+  overflow: hidden;
+  .paperHeader {
+    padding: 20px 24px;
+    border-bottom: 1px solid $border;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    .paperTitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      color: $dark;
+      font-size: 1.6rem;
+    }
+    .countChip {
+      font-weight: 800;
+      background: #f1f5f9;
+      color: $primary;
+    }
+  }
+}
+
+.tableRow {
+  &:hover {
+    background: #f8fafc;
+  }
+  .riskChip {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1rem;
+    &.cao {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    &.trung-bình {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+    &.thấp {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+  }
+}
+
+.logoutBtn {
+  background: #f8fafc;
+  border: 1px solid $border;
+  &:hover {
+    background: #fee2e2;
+    color: $danger;
+    border-color: #fecaca;
+  }
+}
+
+.sidePaper {
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid $border;
+  .sideHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  &.flagBoard {
+    border-left: 5px solid $danger;
+    .flagItem {
+      padding: 16px;
+      background: #fff;
+      border: 1px solid $border;
+      border-radius: 16px;
+      .patternText {
+        font-size: 1.25rem;
+        color: #64748b;
+        margin: 6px 0;
+        font-weight: 500;
+      }
+      .resolveBtn {
+        text-transform: none;
+        font-weight: 800;
+        color: $danger;
+        &:hover {
+          background: #fef2f2;
+        }
+      }
+      .sevChip.high {
+        background: $danger;
+        color: #fff;
+        font-weight: 900;
+      }
+    }
+  }
+
+  &.cleanupCard {
+    background: $dark;
+    color: #fff;
+    .clearBtn {
+      background: #ef4444;
+      border-radius: 12px;
+      font-weight: 800;
+      text-transform: none;
+      &:hover {
+        background: #dc2626;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

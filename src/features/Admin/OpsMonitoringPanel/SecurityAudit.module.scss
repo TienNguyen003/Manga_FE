@@ -1,0 +1,147 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$danger: #ef4444;
+$warning: #f59e0b;
+$border: #f1f5f9;
+
+.auditWrapper {
+  animation: fadeIn 0.4s ease-out;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    .mainTitle {
+      font-size: 2.6rem;
+      font-weight: 950;
+      color: $dark;
+    }
+    .subTitle {
+      font-size: 1.4rem;
+      color: #64748b;
+    }
+    .primaryBtn {
+      border-radius: 12px;
+      font-weight: 700;
+      text-transform: none;
+    }
+    .secondaryBtn {
+      border-radius: 12px;
+      font-weight: 700;
+      text-transform: none;
+      color: $dark;
+      border-color: $border;
+    }
+  }
+}
+
+.mainPaper {
+  border-radius: 24px;
+  border: 1px solid $border;
+  overflow: hidden;
+  .paperHeader {
+    padding: 16px 24px;
+    background: #fafafa;
+    border-bottom: 1px solid $border;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #475569;
+    .radarIcon {
+      color: $danger;
+      animation: pulse 2s infinite;
+    }
+  }
+}
+
+.tableRow {
+  &:hover {
+    background: #f8fafc;
+  }
+  .logId {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    color: $dark;
+  }
+  .logIp {
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  .eventBox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #334155;
+  }
+
+  .sourceCode {
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: #1e293b;
+  }
+
+  .levelChip {
+    font-weight: 900;
+    text-transform: uppercase;
+    &.critical {
+      background: $danger;
+      color: #fff;
+    }
+    &.high {
+      background: #fff1f2;
+      color: $danger;
+      border: 1px solid #fecaca;
+    }
+    &.warning {
+      background: #fffbeb;
+      color: $warning;
+    }
+  }
+}
+
+.actionBtn {
+  border: 1px solid $border;
+  border-radius: 10px;
+  &:hover {
+    background: #fff;
+    transform: translateY(-2px);
+  }
+}
+
+.footerInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

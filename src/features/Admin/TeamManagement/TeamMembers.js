@@ -33,7 +33,7 @@ export default function TeamMembers() {
       {/* --- GRID LIST --- */}
       <Grid container spacing={3}>
         {members.map((member) => (
-          <Grid item size={3} key={member.id}>
+          <Grid item size={{ xs: 12, sm: 6, md: 3 }} key={member.id}>
             <Paper className={cx('memberCard')} elevation={0}>
               <div className={cx('cardHeader')}>
                 <div className={cx('statusIndicator', member.status.toLowerCase())}>

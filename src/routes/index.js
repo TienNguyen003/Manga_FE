@@ -40,6 +40,13 @@ import PostManagement from '~/features/Admin/TopicsManagement/Posts';
 import TeamMembers from '~/features/Admin/TeamManagement/TeamMembers';
 import MangaReviews from '~/features/Admin/MangaManagement/MangaReviews';
 import CommentManagement from '~/features/Admin/MangaManagement/CommentManagement';
+import RecommendationControlPanel from '~/features/Admin/Recommendation/RecommendationControlPanel';
+import CommunityModerationPanel from '~/features/Admin/TopicsManagement/CommunityModerationPanel';
+import UserSecurityPanel from '~/features/Admin/UserManagement/UserSecurityPanel';
+import RbacPanel from '~/features/Admin/RbacPanel/RbacPanel';
+import CollectionAuditPanel from '~/features/Admin/CollecionAuditPanel/CollectionAuditPanel';
+import OpsMonitoringPanel from '~/features/Admin/OpsMonitoringPanel/OpsMonitoringPanel';
+import SecurityAuditPanel from '~/features/Admin/OpsMonitoringPanel/SecurityAuditPanel';
 
 // Public routes
 const publicRoutes = [
@@ -89,6 +96,13 @@ const adminRoutes = [
   { path: paths.teamMember, component: TeamMembers, layout: 'admin' },
   { path: paths.topicManagement, component: TopicManagement, layout: 'admin' },
   { path: paths.postManagement, component: PostManagement, layout: 'admin' },
+  { path: paths.recommendationControl, component: RecommendationControlPanel, layout: 'admin' },
+  { path: paths.communityModeration, component: CommunityModerationPanel, layout: 'admin' },
+  { path: paths.userSecurity, component: UserSecurityPanel, layout: 'admin' },
+  { path: paths.rbacManagement, component: RbacPanel, layout: 'admin' },
+  { path: paths.collectionAudit, component: CollectionAuditPanel, layout: 'admin' },
+  { path: paths.opsMonitoring, component: OpsMonitoringPanel, layout: 'admin' },
+  { path: paths.securityAudit, component: SecurityAuditPanel, layout: 'admin' },
 ];
 
 export { publicRoutes, privateRoutes, privateRoutesNoHeader, adminRoutes };

@@ -17,7 +17,7 @@ export default function AdminStats() {
     <div className={cx('statsWrapper')}>
       <Grid container spacing={3}>
         {/* --- BIG CHART AREA --- */}
-        <Grid item xs={12} md={8} sx={{flex: 1}}>
+        <Grid item size={{ xs: 12, md: 8 }}>
           <Paper className={cx('chartTile')} elevation={0}>
             <header className={cx('tileHeader')}>
               <Box>
@@ -41,7 +41,7 @@ export default function AdminStats() {
         </Grid>
 
         {/* --- USER DISTRIBUTION AREA --- */}
-        <Grid item xs={12} md={4}>
+        <Grid item size={{ xs: 12, md: 4 }}>
           <Paper className={cx('chartTile')} elevation={0}>
             <header className={cx('tileHeader')}>
               <Box>

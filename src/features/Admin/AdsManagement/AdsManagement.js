@@ -36,7 +36,7 @@ export default function AdsManagement() {
           { lbl: 'Hiển thị', val: '120.4k', icon: <VisibilityRounded />, color: '#10b981' },
           { lbl: 'CTR Trung bình', val: '4.8%', icon: <TrendingUpRounded />, color: '#ea982b' }
         ].map((s, i) => (
-          <Grid item xs={12} sm={4} key={i}>
+          <Grid item size={{ xs: 12, sm: 4 }} key={i}>
             <Paper className={cx('statCard')} elevation={0}>
               <div className={cx('iconBox')} style={{ color: s.color, backgroundColor: `${s.color}15` }}>{s.icon}</div>
               <Box>

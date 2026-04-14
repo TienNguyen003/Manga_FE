@@ -25,7 +25,7 @@ export default function AdminSettings() {
           </div>
           
           <Grid container spacing={3} sx={{ display: 'flex', flexWrap: 'wrap !important' }} className={cx('formGroup')}>
-            <Grid item size={6}>
+            <Grid item size={{ xs: 12, sm: 6 }}>
               <TextField 
                 fullWidth 
                 label="Tên Website" 
@@ -34,7 +34,7 @@ export default function AdminSettings() {
                 className={cx('customInput')}
               />
             </Grid>
-            <Grid item size={6}>
+            <Grid item size={{ xs: 12, sm: 6 }}>
               <TextField 
                 fullWidth 
                 label="Email hệ thống" 

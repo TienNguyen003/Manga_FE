@@ -1,0 +1,129 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$danger: #ef4444;
+$border: #f1f5f9;
+
+.mangaOpsWrapper {
+  animation: fadeIn 0.4s ease;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    .mainTitle {
+      font-size: 2.6rem;
+      font-weight: 950;
+      color: $dark;
+      letter-spacing: -1.5px;
+    }
+    .subTitle {
+      font-size: 1.4rem;
+      color: #64748b;
+    }
+    .aiBtn {
+      background: linear-gradient(45deg, $dark, #334155);
+      border-radius: 12px;
+      font-weight: 700;
+      text-transform: none;
+    }
+  }
+}
+
+.filterPaper {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid $border;
+  margin-bottom: 24px;
+  .searchField {
+    :global(.MuiOutlinedInput-root) {
+      border-radius: 10px;
+      background: #fff;
+    }
+  }
+  .statChip {
+    font-weight: 800;
+    border-radius: 8px;
+  }
+}
+
+.contentPaper {
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid $border;
+  .paperTitle {
+    font-weight: 900;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $dark;
+    margin-bottom: 16px;
+  }
+  .headCell {
+    font-weight: 800;
+    color: #94a3b8;
+    border-bottom: 2px solid $border;
+  }
+}
+
+.mangaRow {
+  &:hover {
+    background: #fcfcfc;
+  }
+  .statusChip {
+    font-weight: 800;
+    &.pending {
+      background: #fff7ed;
+      color: #ea580c;
+    }
+    &.approved {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+  }
+}
+
+.actionIcon {
+  border: 1px solid $border;
+  &:hover {
+    background: #fff;
+    transform: translateY(-2px);
+  }
+}
+
+.categoryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.reviewCard {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid $border;
+  &.toxic {
+    border: 2px solid #fee2e2;
+    background: #fffafb;
+  }
+  .hideBtn {
+    border-radius: 8px;
+    font-weight: 800;
+    text-transform: none;
+    box-shadow: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

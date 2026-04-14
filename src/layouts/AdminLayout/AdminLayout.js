@@ -1,6 +1,19 @@
 import { useState } from 'react';
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Avatar, Divider } from '@mui/material';
-import { DashboardRounded, PeopleRounded, WorkspacePremiumRounded, SettingsRounded, BarChartRounded, LogoutRounded, AdminPanelSettingsRounded, AutoStoriesRounded, GroupWorkRounded, CategoryRounded, CampaignRounded } from '@mui/icons-material';
+import {
+  DashboardRounded,
+  PeopleRounded,
+  WorkspacePremiumRounded,
+  SettingsRounded,
+  BarChartRounded,
+  LogoutRounded,
+  AdminPanelSettingsRounded,
+  AutoStoriesRounded,
+  GroupWorkRounded,
+  CategoryRounded,
+  CampaignRounded,
+  TrendingUpRounded,
+} from '@mui/icons-material';
 import classNames from 'classnames/bind';
 import styles from './Admin.module.scss';
 import paths from '~/routes/paths';
@@ -13,11 +26,18 @@ const menuItems = [
   { text: 'Người dùng', icon: <PeopleRounded />, path: paths.userManagement },
   { text: 'Quản lý Huy hiệu', icon: <WorkspacePremiumRounded />, path: paths.badgeManagement },
   { text: 'Quản lý quảng cáo', icon: <CampaignRounded />, path: paths.adManagement },
-  { text: 'Quản lý truyện', icon: <AutoStoriesRounded />, path: paths.mangaManagement },
+  { text: 'Quản lý manga', icon: <AutoStoriesRounded />, path: paths.mangaManagement },
   { text: 'Quản lý nhóm dịch', icon: <GroupWorkRounded />, path: paths.teamManagement },
   { text: 'Quản lý chủ đề', icon: <CategoryRounded />, path: paths.topicManagement },
   { text: 'Thống kê hệ thống', icon: <BarChartRounded />, path: paths.systemStats },
   { text: 'Cài đặt', icon: <SettingsRounded />, path: paths.adminSettings },
+  { text: 'Điều khiển gợi ý', icon: <TrendingUpRounded />, path: paths.recommendationControl },
+  { text: 'Trung tâm kiểm duyệt', icon: <CategoryRounded />, path: paths.communityModeration },
+  { text: 'Bảo mật người dùng', icon: <PeopleRounded />, path: paths.userSecurity },
+  { text: 'RBAC', icon: <AdminPanelSettingsRounded />, path: paths.rbacManagement },
+  { text: 'Kiểm toán bộ sưu tập', icon: <AutoStoriesRounded />, path: paths.collectionAudit },
+  { text: 'Giám sát vận hành', icon: <BarChartRounded />, path: paths.opsMonitoring },
+  { text: 'Kiểm toán bảo mật', icon: <SettingsRounded />, path: paths.securityAudit },
 ];
 
 export default function AdminLayout({ children }) {

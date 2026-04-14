@@ -106,7 +106,7 @@ function App() {
             pauseOnHover
             theme="colored"
           />
-          {loading && (
+          {/* {loading && (
             <div className={cx('preloader')}>
               <div id="preloader">
                 <div className={cx('loader')}>
@@ -116,7 +116,7 @@ function App() {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
           <AppContent />
         </Router>
       </ThemeProvider>

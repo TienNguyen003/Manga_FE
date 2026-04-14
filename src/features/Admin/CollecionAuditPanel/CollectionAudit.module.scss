@@ -1,0 +1,173 @@
+$primary: #ea982b;
+$dark: #0f172a;
+$danger: #ef4444;
+$warning: #f59e0b;
+$border: #f1f5f9;
+
+.auditWrapper {
+  animation: fadeIn 0.5s ease;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    .mainTitle {
+      font-size: 2.6rem;
+      font-weight: 950;
+      color: $dark;
+    }
+    .subTitle {
+      font-size: 1.4rem;
+      color: #64748b;
+    }
+    .statsBtn {
+      background: #fff;
+      color: $dark;
+      border: 1px solid $border;
+      border-radius: 12px;
+      text-transform: none;
+      font-weight: 700;
+      &:hover {
+        background: $border;
+      }
+    }
+  }
+}
+
+.caseCard {
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid $border;
+  background: #fff;
+  transition: 0.3s;
+
+  &:hover {
+    transform: translateX(5px);
+    border-color: $primary;
+  }
+
+  &.high {
+    border-left: 6px solid $danger;
+  }
+  &.medium {
+    border-left: 6px solid $warning;
+  }
+
+  .idTag {
+    font-weight: 800;
+    color: $primary;
+    background: #fffbeb;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .timeTag {
+    font-size: 1.2rem;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  .levelChip {
+    font-weight: 900;
+    &.high {
+      background: #fef2f2;
+      color: $danger;
+    }
+    &.medium {
+      background: #fffbeb;
+      color: $warning;
+    }
+  }
+
+  .content {
+    margin: 16px 0;
+    .userInfo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: $dark;
+      margin-bottom: 8px;
+    }
+    .issueText {
+      font-size: 1.5rem;
+      color: #334155;
+      font-weight: 500;
+    }
+  }
+
+  .divider {
+    margin: 16px 0;
+    border-color: #f8fafc;
+  }
+
+  .restoreBtn {
+    background: $dark;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: none;
+    &:hover {
+      background: $primary;
+    }
+  }
+  .resolveBtn {
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: none;
+    color: #64748b;
+    border-color: $border;
+  }
+}
+
+.sidePaper {
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid $border;
+  .sideTitle {
+    font-weight: 900;
+    color: $dark;
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+  .sideDesc {
+    font-size: 1.3rem;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  .statRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #475569;
+  }
+  .autoBtn {
+    margin-top: 20px;
+    border-radius: 12px;
+    text-transform: none;
+    font-weight: 800;
+    border-color: $border;
+    color: $dark;
+  }
+
+  &.helpCard {
+    background: #f8fafc;
+    .helpText {
+      font-size: 1.25rem;
+      color: #475569;
+      line-height: 1.6;
+      b {
+        color: $dark;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

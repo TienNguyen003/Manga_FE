@@ -116,7 +116,7 @@ export default function PublicProfile() {
         {/* --- SECTION 2: BENTO CONTENT --- */}
         <Grid container spacing={3}>
           {/* Cột trái: About & Badges */}
-          <Grid item size={4}>
+          <Grid item size={{ xs: 12, md: 4 }}>
             {/* Mục Thông tin cá nhân cơ bản */}
             <div className={cx('whiteTile')}>
               <Typography className={cx('tileTitle')}>
@@ -239,7 +239,7 @@ export default function PublicProfile() {
           </Grid>
 
           {/* Cột phải: Library & Posts */}
-          <Grid item size={8}>
+          <Grid item size={{ xs: 12, md: 8 }}>
             {/* Bài viết Feed */}
             <div className={cx('whiteTile', 'feedSection')}>
               <div className={cx('tileHeader')}>

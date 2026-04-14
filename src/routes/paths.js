@@ -41,6 +41,13 @@ const paths = {
   teamMember: '/admin/teams-members/:id',
   topicManagement: '/admin/topics',
   postManagement: '/admin/posts/:id',
+  recommendationControl: '/admin/recommendations-control',
+  communityModeration: '/admin/community-moderation',
+  userSecurity: '/admin/user-security',
+  rbacManagement: '/admin/rbac',
+  collectionAudit: '/admin/collection-audit',
+  opsMonitoring: '/admin/ops-monitoring',
+  securityAudit: '/admin/security-audit',
 };
 
 export default paths;
