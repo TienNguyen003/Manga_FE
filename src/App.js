@@ -3,14 +3,15 @@ import classNames from 'classnames/bind';
 import React, { useEffect, useState } from 'react';
 import { Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { adminRoutes, privateRoutesNoHeader, publicRoutes } from '~/routes';
+import { adminRoutes, privateRoutes, privateRoutesNoHeader, publicRoutes, publicRoutesNoHeader } from '~/routes';
 
 import '~/components/LibaralyLayout/grid.css';
 import { UserProvider } from '~/providers/UserContext';
 import styles from './App.module.scss';
-import Error from './components/404/404';
+import Error from './components/Errors/404';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
 import DefaultLayout from './layouts/DefaultLayout/DefaultLayout';
+import ProtectedRoute from './utils/ProtectedRoute';
 
 const cx = classNames.bind(styles);
 
@@ -49,25 +50,37 @@ function AppContent() {
 
       <div className="App">
         <Routes>
-          {[...publicRoutes, ...privateRoutesNoHeader, ...adminRoutes].map((route, index) => {
+          {[...publicRoutes, ...publicRoutesNoHeader, ...privateRoutesNoHeader, ...adminRoutes, ...privateRoutes].map((route, index) => {
             const Page = route.component;
-            
-            let Layout = React.Fragment; 
+
+            let Layout = React.Fragment;
             if (route.layout === 'admin') {
-               Layout = AdminLayout;
+              Layout = ({ children }) => (
+                <ProtectedRoute roles={route.roles}>
+                  <AdminLayout>{children}</AdminLayout>
+                </ProtectedRoute>
+              );
             } else if (route.layout === 'default') {
-               Layout = DefaultLayout;
+              Layout = DefaultLayout;
+            } else if (route.layout === 'private') {
+              Layout = ({ children }) => (
+                <ProtectedRoute>
+                  <DefaultLayout>{children}</DefaultLayout>
+                </ProtectedRoute>
+              );
+            } else if (route.layout === 'no_header') {
+              Layout = React.Fragment;
             }
 
             return (
-              <Route 
-                key={index} 
-                path={route.path} 
+              <Route
+                key={index}
+                path={route.path}
                 element={
                   <Layout>
                     <Page />
                   </Layout>
-                } 
+                }
               />
             );
           })}
@@ -91,7 +104,9 @@ function App() {
 
   return (
     <UserProvider>
-      <ThemeProvider theme={theme}> {/* <-- bọc toàn bộ App */}
+      <ThemeProvider theme={theme}>
+        {' '}
+        {/* <-- bọc toàn bộ App */}
         <CssBaseline /> {/* <-- reset CSS cơ bản + áp font global */}
         <Router>
           <ToastContainer

@@ -48,6 +48,10 @@ const paths = {
   collectionAudit: '/admin/collection-audit',
   opsMonitoring: '/admin/ops-monitoring',
   securityAudit: '/admin/security-audit',
+
+  // system
+  maintenance: '/maintenance',
+  unauthorized: '/unauthorized',
 };
 
 export default paths;

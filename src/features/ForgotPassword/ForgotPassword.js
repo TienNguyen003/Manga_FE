@@ -13,27 +13,31 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import paths from '~/routes/paths';
+import { userService } from '~/services/userService';
 import styles from './ForgotPassword.module.scss';
+import { toast } from 'react-toastify';
 
 const cx = classNames.bind(styles);
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState({ type: '', msg: '' });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email) {
-            setStatus({ type: 'error', msg: 'Vui lòng nhập email để lấy lại mật khẩu.' });
+            toast.error('Vui lòng nhập email của bạn!');
             return;
         }
         setLoading(true);
-        // Giả lập gửi mail
-        setTimeout(() => {
+        try {
+            await userService.resetPassword({ email });
+            toast.success('Yêu cầu đã được gửi! Vui lòng kiểm tra hộp thư.');
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+        } finally {
             setLoading(false);
-            setStatus({ type: 'success', msg: 'Yêu cầu đã được gửi! Vui lòng kiểm tra hộp thư.' });
-        }, 1500);
+        }
     };
 
     return (
@@ -64,12 +68,6 @@ export default function ForgotPassword() {
                                 ),
                             }}
                         />
-
-                        {status.msg && (
-                            <Alert severity={status.type} sx={{ fontSize: '1.4rem' }}>
-                                {status.msg}
-                            </Alert>
-                        )}
 
                         <Button 
                             className={cx('submitBtn')} 

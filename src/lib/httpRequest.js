@@ -24,7 +24,7 @@ httpRequest.interceptors.response.use(
   },
   (error) => {
     const errorMessage = error.message || 'Có lỗi xảy ra. Vui lòng thử lại!';
-    toast.error(errorMessage);
+    // toast.error(errorMessage);
 
     return Promise.reject(error);
   },

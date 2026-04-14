@@ -49,6 +49,7 @@ export function UserProvider({ children }) {
     localStorage.removeItem('username');
     localStorage.removeItem('userAvatar');
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     setUserId(null);
     setUsername('');
     setUnreadCount(0);

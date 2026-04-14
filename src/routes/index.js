@@ -47,6 +47,8 @@ import RbacPanel from '~/features/Admin/RbacPanel/RbacPanel';
 import CollectionAuditPanel from '~/features/Admin/CollecionAuditPanel/CollectionAuditPanel';
 import OpsMonitoringPanel from '~/features/Admin/OpsMonitoringPanel/OpsMonitoringPanel';
 import SecurityAuditPanel from '~/features/Admin/OpsMonitoringPanel/SecurityAuditPanel';
+import Maintenance from '~/components/Errors/Maintenance';
+import NoAccess from '~/components/Errors/NoAccess';
 
 // Public routes
 const publicRoutes = [
@@ -63,46 +65,52 @@ const publicRoutes = [
   { path: paths.teamProfile, component: TeamProfile, layout: 'default' },
   { path: paths.releaseCalendar, component: ReleaseCalendar, layout: 'default' },
   { path: paths.advancedSearch, component: AdvancedSearch, layout: 'default' },
-  { path: paths.library, component: Library, layout: 'default' },
   { path: paths.notifications, component: Notifications, layout: 'default' },
-  { path: paths.dashboard, component: UserDashboard, layout: 'default' },
-  { path: paths.upload, component: Upload, layout: 'default' },
-  { path: paths.report, component: Report, layout: 'default' },
-  { path: paths.profile, component: Profile, layout: 'default' },
   { path: paths.publicProfile, component: PublicProfile, layout: 'default' },
-  { path: paths.recommendations, component: Recommendations, layout: 'default' },
-  { path: paths.changePassword, component: ChangePassword, layout: 'default' },
-  { path: paths.myComics, component: MyComics, layout: 'default' },
   { path: paths.login, component: Login, layout: 'default' },
   { path: paths.register, component: Register, layout: 'default' },
   { path: paths.forgotPassword, component: ForgotPassword, layout: 'default' },
 ];
 
-const privateRoutesNoHeader = [];
-
-const privateRoutes = [];
-
-const adminRoutes = [
-  { path: paths.adminDashboard, component: Dashboard, layout: 'admin' },
-  { path: paths.userManagement, component: UserManagement, layout: 'admin' },
-  { path: paths.badgeManagement, component: BadgeManager, layout: 'admin' },
-  { path: paths.systemStats, component: AdminStats, layout: 'admin' },
-  { path: paths.adminSettings, component: AdminSettings, layout: 'admin' },
-  { path: paths.adManagement, component: AdsManagement, layout: 'admin' },
-  { path: paths.mangaManagement, component: MangaManagement, layout: 'admin' },
-  { path: paths.mangaReview, component: MangaReviews, layout: 'admin' },
-  { path: paths.mangaComment, component: CommentManagement, layout: 'admin' },
-  { path: paths.teamManagement, component: TeamManagement, layout: 'admin' },
-  { path: paths.teamMember, component: TeamMembers, layout: 'admin' },
-  { path: paths.topicManagement, component: TopicManagement, layout: 'admin' },
-  { path: paths.postManagement, component: PostManagement, layout: 'admin' },
-  { path: paths.recommendationControl, component: RecommendationControlPanel, layout: 'admin' },
-  { path: paths.communityModeration, component: CommunityModerationPanel, layout: 'admin' },
-  { path: paths.userSecurity, component: UserSecurityPanel, layout: 'admin' },
-  { path: paths.rbacManagement, component: RbacPanel, layout: 'admin' },
-  { path: paths.collectionAudit, component: CollectionAuditPanel, layout: 'admin' },
-  { path: paths.opsMonitoring, component: OpsMonitoringPanel, layout: 'admin' },
-  { path: paths.securityAudit, component: SecurityAuditPanel, layout: 'admin' },
+const publicRoutesNoHeader = [
+  { path: paths.maintenance, component: Maintenance, layout: 'no_header' },
+  { path: paths.unauthorized, component: NoAccess, layout: 'no_header' },
 ];
 
-export { publicRoutes, privateRoutes, privateRoutesNoHeader, adminRoutes };
+const privateRoutesNoHeader = [];
+
+const privateRoutes = [
+  { path: paths.profile, component: Profile, layout: 'private' },
+  { path: paths.library, component: Library, layout: 'private' },
+  { path: paths.dashboard, component: UserDashboard, layout: 'private' },
+  { path: paths.upload, component: Upload, layout: 'private' },
+  { path: paths.report, component: Report, layout: 'private' },
+  { path: paths.changePassword, component: ChangePassword, layout: 'private' },
+  { path: paths.myComics, component: MyComics, layout: 'private' },
+  { path: paths.recommendations, component: Recommendations, layout: 'private' },
+];
+
+const adminRoutes = [
+  { path: paths.adminDashboard, component: Dashboard, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.userManagement, component: UserManagement, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.badgeManagement, component: BadgeManager, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.systemStats, component: AdminStats, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.adminSettings, component: AdminSettings, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.adManagement, component: AdsManagement, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.mangaManagement, component: MangaManagement, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.mangaReview, component: MangaReviews, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.mangaComment, component: CommentManagement, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.teamManagement, component: TeamManagement, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.teamMember, component: TeamMembers, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.topicManagement, component: TopicManagement, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.postManagement, component: PostManagement, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.recommendationControl, component: RecommendationControlPanel, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.communityModeration, component: CommunityModerationPanel, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.userSecurity, component: UserSecurityPanel, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.rbacManagement, component: RbacPanel, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.collectionAudit, component: CollectionAuditPanel, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.opsMonitoring, component: OpsMonitoringPanel, layout: 'admin', roles: ['ADMIN'] },
+  { path: paths.securityAudit, component: SecurityAuditPanel, layout: 'admin', roles: ['ADMIN'] },
+];
+
+export { publicRoutes, publicRoutesNoHeader, privateRoutes, privateRoutesNoHeader, adminRoutes };
