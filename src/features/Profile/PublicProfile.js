@@ -1,9 +1,9 @@
 import {
   AutoAwesomeRounded,
   AutoGraphRounded,
-  AutoStoriesRounded,
   CakeRounded,
   ChatBubbleOutlineRounded,
+  Check,
   FavoriteBorderRounded,
   HistoryRounded,
   InsightsRounded,
@@ -13,7 +13,6 @@ import {
   MoreHorizRounded,
   PersonAddRounded,
   ShareRounded,
-  StarRounded,
   VerifiedRounded,
   WorkspacePremiumRounded,
 } from '@mui/icons-material';
@@ -24,14 +23,19 @@ import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { userService } from '~/services/userService';
+
 import { communityService } from '~/services/communityService';
+import { userService } from '~/services/userService';
+import { userFollowService } from '~/services/userFollowService';
 import styles from './PublicProfile.module.scss';
+import { useUser } from '~/providers/UserContext';
 
 const cx = classNames.bind(styles);
 
 export default function PublicProfile() {
   const { id } = useParams();
+  const { userId } = useUser();
+  const [isFollow, setIsFollow] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
 
@@ -39,6 +43,7 @@ export default function PublicProfile() {
     try {
       const data = await userService.getUserProfile(id);
       setUserData(data.result);
+      return data.result || null;
     } catch (error) {
       toast.error('Không thể tải dữ liệu người dùng. Vui lòng thử lại sau.');
     }
@@ -53,10 +58,38 @@ export default function PublicProfile() {
     }
   };
 
+  const isFollowing = async (followerId, followingId) => {
+    try {
+      const isFollow = await userFollowService.isFollow({ followerId, followingId });
+      setIsFollow(isFollow);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể kiểm tra trạng thái theo dõi. Vui lòng thử lại.');
+    }
+  };
+
   useEffect(() => {
-    fetchUserData();
-    fetchUserPosts();
+    const run = async () => {
+      const res = await fetchUserData();
+      if (res?.id) await isFollowing(userId, res.id);
+      fetchUserPosts();
+    };
+    run();
   }, []);
+
+  const handleFollowUser = async () => {
+    try {
+      if (isFollow) {
+        await userFollowService.unfollowUser({ followerId: userId, followingId: userData.id });
+        toast.success('Đã bỏ theo dõi người dùng.');
+      } else {
+        await userFollowService.followUser({ followerId: userId, followingId: userData.id });
+        toast.success('Đã theo dõi người dùng.');
+      }
+      setIsFollow(!isFollow);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể theo dõi người dùng. Vui lòng thử lại.');
+    }
+  };
 
   return (
     <main className={cx('profileWrapper')}>
@@ -103,8 +136,8 @@ export default function PublicProfile() {
               </div>
             </div>
             <div className={cx('headerActions')}>
-              <Button className={cx('btnFollow')} variant="contained" startIcon={<PersonAddRounded />}>
-                Theo dõi
+              <Button className={cx('btnFollow')} variant="contained" startIcon={isFollow ? <Check /> : <PersonAddRounded />} onClick={handleFollowUser}>
+                {isFollow ? 'Đang theo dõi' : 'Theo dõi'}
               </Button>
               <Button className={cx('btnMessage')} variant="outlined" startIcon={<MapsUgcRounded />}>
                 Nhắn tin
@@ -248,46 +281,52 @@ export default function PublicProfile() {
                 </Typography>
               </div>
 
-              {userPosts?.map((item) => {
-                const post = item.post;
+              {userPosts.length > 0 ? (
+                userPosts?.map((item) => {
+                  const post = item.post;
 
-                return (
-                  <div key={post.id} className={cx('postCard')}>
-                    <div className={cx('postHead')}>
-                      <Chip label={post.title} className={cx('postTag')} size="small" />
-                      <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleString('vi-VN')}</span>
+                  return (
+                    <>
+                      <div key={post.id} className={cx('postCard')}>
+                        <div className={cx('postHead')}>
+                          <Chip label={post.title} className={cx('postTag')} size="small" />
+                          <span className={cx('postTime')}>{new Date(post.createdAt).toLocaleString('vi-VN')}</span>
 
-                      <IconButton size="small">
-                        <MoreHorizRounded />
-                      </IconButton>
-                    </div>
+                          <IconButton size="small">
+                            <MoreHorizRounded />
+                          </IconButton>
+                        </div>
 
-                    <Typography className={cx('postContent')}>{post.content}</Typography>
+                        <Typography className={cx('postContent')}>{post.content}</Typography>
 
-                    {/* nếu sau này có image thì bật */}
-                    {post.image && (
-                      <div className={cx('postImage')}>
-                        <img src={post.image} alt="Post content" />
+                        {/* nếu sau này có image thì bật */}
+                        {post.image && (
+                          <div className={cx('postImage')}>
+                            <img src={post.image} alt="Post content" />
+                          </div>
+                        )}
+
+                        <div className={cx('postActions')}>
+                          <div className={cx('leftActions')}>
+                            <Button startIcon={<FavoriteBorderRounded />}>{post.reactions?.length || 0}</Button>
+
+                            <Button startIcon={<ChatBubbleOutlineRounded />}>{post.comments?.length || 0}</Button>
+                          </div>
+
+                          <IconButton>
+                            <ShareRounded />
+                          </IconButton>
+                        </div>
                       </div>
-                    )}
-
-                    <div className={cx('postActions')}>
-                      <div className={cx('leftActions')}>
-                        <Button startIcon={<FavoriteBorderRounded />}>{post.reactions?.length || 0}</Button>
-
-                        <Button startIcon={<ChatBubbleOutlineRounded />}>{post.comments?.length || 0}</Button>
-                      </div>
-
-                      <IconButton>
-                        <ShareRounded />
-                      </IconButton>
-                    </div>
-                  </div>
-                );
-              })}
-              <Button fullWidth className={cx('btnLoadMore')} sx={{ fontSize: '1.2rem' }}>
-                Khám phá thêm bài viết
-              </Button>
+                      <Button fullWidth className={cx('btnLoadMore')} sx={{ fontSize: '1.2rem' }}>
+                        Khám phá thêm bài viết
+                      </Button>
+                    </>
+                  );
+                })
+              ) : (
+                <Typography className={cx('noPosts')}>Người dùng chưa có bài viết nào.</Typography>
+              )}
             </div>
           </Grid>
         </Grid>

@@ -1,14 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import { Tooltip } from '@mui/material';
+import { toast } from 'react-toastify';
+import { connectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { useUser } from '~/providers/UserContext';
+import paths from '~/routes/paths';
 import { communityService } from '~/services/communityService';
 import { getRecommendationPosts } from '~/services/recommendationService';
-import { useUser } from '~/providers/UserContext';
-import { connectStomp, disconnectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
-import paths from '~/routes/paths';
+import { userFollowService } from '~/services/userFollowService';
 import styles from './PostDetail.module.scss';
-import { Tooltip } from '@mui/material';
 
 const cx = classNames.bind(styles);
 
@@ -21,47 +23,58 @@ export default function PostDetail() {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [isFollow, setIsFollow] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
 
-  const loadComments = () => {
-    let mounted = true;
-    communityService
-      .getPostComments(id)
-      .then((res) => {
-        if (!mounted) return;
-        setPost(res?.result?.post || null);
-        setComments(res?.result?.comments || []);
-      })
-      .catch(() => {
-        if (mounted) setError('Không thể tải chi tiết bài viết.');
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
-    return () => {
-      mounted = false;
-    };
+  const loadComments = async () => {
+    setLoading(true);
+    try {
+      const res = await communityService.getPostComments(id);
+      setPost(res?.result?.post || null);
+      setComments(res?.result?.comments || []);
+
+      return res?.result?.post || null;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể tải bài viết. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadRecommendations = async () => {
+    try {
+      const res = await getRecommendationPosts({ userId: userId || undefined, limit: 5 });
+      setRecommendations(res?.result || []);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể tải bài viết gợi ý. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isFollowing = async (followerId, followingId) => {
+    try {
+      const isFollow = await userFollowService.isFollow({ followerId, followingId });
+      setIsFollow(isFollow);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể kiểm tra trạng thái theo dõi. Vui lòng thử lại.');
+    }
   };
 
   useEffect(() => {
-    setLoading(true);
-    loadComments();
-  }, [id]);
+    const run = async () => {
+      const postData = await loadComments();
+
+      if (!postData?.author?.id) return;
+
+      await isFollowing(userId, postData.author.id);
+    };
+
+    run();
+  }, [id, userId]);
 
   useEffect(() => {
-    let mounted = true;
-    getRecommendationPosts({ userId: userId || undefined, limit: 5 })
-      .then((res) => {
-        if (!mounted) return;
-        setRecommendations(res?.result || []);
-      })
-      .catch(() => {
-        if (mounted) setError('Không thể tải bài viết gợi ý.');
-      });
-    return () => {
-      mounted = false;
-    };
+    loadRecommendations();
   }, [userId]);
 
   useEffect(() => {
@@ -101,7 +114,7 @@ export default function PostDetail() {
         return { ...prev, reactions: currentReactions };
       });
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || 'Không thể cập nhật trạng thái thích. Vui lòng thử lại.');
     }
   };
 
@@ -115,8 +128,24 @@ export default function PostDetail() {
       setComments((prev) => [newComment, ...prev]);
 
       commentRef.current.value = '';
+      toast.success('Bình luận đã được gửi!');
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || 'Không thể gửi bình luận. Vui lòng thử lại.');
+    }
+  };
+
+  const handleFollowUser = async () => {
+    try {
+      if (isFollow) {
+        await userFollowService.unfollowUser({ followerId: userId, followingId: post?.author?.id });
+        toast.success('Đã bỏ theo dõi người dùng.');
+      } else {
+        await userFollowService.followUser({ followerId: userId, followingId: post?.author?.id });
+        toast.success('Đã theo dõi người dùng.');
+      }
+      setIsFollow(!isFollow);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể theo dõi người dùng. Vui lòng thử lại.');
     }
   };
 
@@ -128,7 +157,6 @@ export default function PostDetail() {
         </button>
 
         {loading && <div className={cx('statusMsg')}>Đang tải nội dung bài viết...</div>}
-        {error && <div className={cx('statusMsg', 'error')}>{error}</div>}
 
         {!loading && post && (
           <div className={cx('contentWrapper')}>
@@ -256,7 +284,9 @@ export default function PostDetail() {
                       <p>Đã đăng {post.author?.postsCount || 10} bài viết</p>
                     </div>
                   </div>
-                  <button className={cx('followBtn')}>Theo dõi</button>
+                  <button className={cx('followBtn')} onClick={handleFollowUser}>
+                    {isFollow ? 'Đang theo dõi' : 'Theo dõi'}
+                  </button>
                 </div>
 
                 {/* Gợi ý bài viết (Chưa có API, demo UI) */}

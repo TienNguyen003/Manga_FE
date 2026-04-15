@@ -29,8 +29,7 @@ export default function Profile() {
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [status, setStatus] = useState({ type: '', msg: '' });
-  const {userData} = useUser();
+  const { userData } = useUser();
 
   // --- States mapping từ Database Entity ---
   const [username, setUsername] = useState('');
@@ -98,7 +97,6 @@ export default function Profile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setStatus({ type: '', msg: '' });
     try {
       const payload = {
         name: username,
@@ -121,9 +119,9 @@ export default function Profile() {
 
       await userService.updateProfile(payload, userData?.id);
       await userService.updateSettings(payload, userData?.id);
-      toast.success({ type: 'success', msg: 'Hồ sơ đã được cập nhật thành công!' });
+      toast.success('Hồ sơ đã được cập nhật thành công!');
     } catch (err) {
-      toast.error({ type: 'error', msg: 'Cập nhật thất bại. Thử lại sau.' });
+      toast.error('Cập nhật thất bại. Thử lại sau.');
     } finally {
       setSubmitting(false);
     }
@@ -396,12 +394,6 @@ export default function Profile() {
                 </Stack>
               )}
             </div>
-
-            {status.msg && (
-              <Alert severity={status.type} variant="filled" className={cx('statusAlert')}>
-                {status.msg}
-              </Alert>
-            )}
 
             <div className={cx('actionSection')}>
               <Button className={cx('submitBtn')} type="submit" disabled={submitting} startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <SaveRounded />}>
