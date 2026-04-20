@@ -1,69 +1,201 @@
-.myComicsPage {
-  color: var(--ink);
-  padding: 22px 0 36px;
+$dark: #020617;
+$gray-light: #f8fafc;
+$text-dim: #94a3b8;
+$accent: #ea982b;
+$border: #e2e8f0;
+
+.pageWrapper {
+  padding: 60px 0;
+  background-color: #fff;
 }
 
-.hero {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
-  padding: 20px;
-  margin-bottom: 18px;
-  h1 {
-    font-size: clamp(2.2rem, 4vw, 3.2rem);
-    margin-bottom: 7px;
-    color: #2c394a;
-  }
-  p {
-    color: var(--muted-ink);
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 50px;
+
+  .superTitle {
     font-size: 1.2rem;
+    font-weight: 700;
+    color: $text-dim;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .mainTitle {
+    font-size: 3.6rem;
+    font-weight: 900;
+    color: $dark;
+    letter-spacing: -2px;
+  }
+
+  .btnPrimary {
+    background: $dark !important;
+    border-radius: 14px !important;
+    padding: 10px 24px !important;
+    font-weight: 800 !important;
+    text-transform: none !important;
+    &:hover {
+      background: $accent !important;
+      transform: translateY(-2px);
+    }
   }
 }
 
-.listWrap {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  max-width: 600px;
-  margin: 0 auto;
+.listContainer {
+  .listHeader {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr;
+    padding: 12px 24px;
+    color: $text-dim;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid $gray-light;
+  }
 }
 
-.item {
+.comicRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr 1fr;
+  align-items: center;
+  padding: 20px 24px;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(44, 57, 74, 0.06);
-  padding: 18px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 10px;
+
+  &:hover {
+    background: #fdfdfd;
+    border-color: $border;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transform: scale(1.01);
+  }
 }
-.title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #a86b2d;
-}
-.meta {
-  color: #6b7280;
-  font-size: 1rem;
+
+.mainCol {
   display: flex;
+  align-items: center;
   gap: 16px;
+
+  .miniCover {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .itemTitle {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $dark;
+  }
+  .itemId {
+    font-size: 1.2rem;
+    color: $text-dim;
+    font-family: monospace;
+  }
+
+  .itemMeta,
+  .itemGenre {
+    margin-top: 4px;
+    font-size: 1.2rem;
+    color: #475569;
+  }
+
+  .itemDesc {
+    margin-top: 4px;
+    font-size: 1.2rem;
+    color: #64748b;
+    max-width: 44rem;
+    line-height: 1.5;
+  }
 }
-.actions {
+
+.emptyState {
+  padding: 28px 24px;
+  border: 1px dashed $border;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.emptyTitle {
+  font-size: 1.8rem !important;
+  font-weight: 800 !important;
+  color: $dark;
+}
+
+.emptyText {
+  margin-top: 8px !important;
+  font-size: 1.3rem !important;
+  color: $text-dim;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: 800;
+
+  &.published {
+    background: #f0fdf4;
+    color: #16a34a;
+    .dot {
+      background: #16a34a;
+    }
+  }
+  &.draft {
+    background: #f1f5f9;
+    color: $text-dim;
+    .dot {
+      background: $text-dim;
+    }
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+}
+
+.statBox {
   display: flex;
-  gap: 10px;
-  margin-top: 8px;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-weight: 700;
+  svg {
+    font-size: 18px;
+    color: $text-dim;
+  }
 }
-.actions button {
-  background: #f4e5d3;
-  color: #a86b2d;
-  border: 1px solid #e4c9a3;
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 7px 14px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
+
+.iconBtn {
+  border-radius: 12px !important;
+  color: $text-dim !important;
+  transition: 0.2s !important;
+  &:hover {
+    color: $dark !important;
+    background: $gray-light !important;
+  }
+  &.delete:hover {
+    color: #ef4444 !important;
+    background: #fef2f2 !important;
+  }
 }
-.actions button:hover {
-  background: #ffe3b0;
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

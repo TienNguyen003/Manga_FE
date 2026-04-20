@@ -1,193 +1,237 @@
-﻿.authorPage {
-  color: var(--ink);
-  padding: 22px 0 36px;
+﻿$primary: #ea982b;
+$dark: #0f172a;
+$slate: #64748b;
+$bg: #f8fafc;
+$radius: 24px;
+
+.authorPage {
+  padding: 40px 0;
 }
 
 .hero {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
-  padding: 20px;
-  margin-bottom: 12px;
+  position: relative;
+  background: $dark;
+  border-radius: $radius;
+  padding: 80px 60px;
+  overflow: hidden;
+  margin-bottom: 60px;
+  display: flex;
+  align-items: center;
 
-  h1 {
-    font-size: clamp(2.6rem, 4.2vw, 4.1rem);
-    line-height: 1.08;
-    margin-bottom: 7px;
-    max-width: 14ch;
-    color: #2d3a4b;
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(circle, rgba($primary, 0.2) 0%, transparent 70%);
+    transform: rotate(-15deg);
   }
 
-  p {
-    // color: var(--muted-ink);
-    font-size: 1.4rem;
-    max-width: 64ch;
+  .heroContent {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+
+    h1 {
+      font-size: 5.2rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .desc {
+      font-size: 1.8rem;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+  }
+
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba($primary, 0.15);
+    color: $primary;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    border: 1px solid rgba($primary, 0.2);
   }
 }
 
-.kicker {
-  display: inline-flex;
-  width: fit-content;
-  font-size: 1.1rem;
-  color: #fdf1df;
-  background: #364457;
-  border-radius: 999px;
-  padding: 5px 10px;
-  margin-bottom: 8px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+.section {
+  margin-bottom: 60px;
+
+  .sectionHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+
+    .titleGroup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .icon {
+        color: $primary;
+        font-size: 3.2rem;
+      }
+      h2 {
+        font-size: 2.8rem;
+        font-weight: 850;
+        color: $dark;
+        letter-spacing: -1px;
+      }
+    }
+
+    .viewMore {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: $slate;
+      font-weight: 700;
+      font-size: 1.4rem;
+      &:hover {
+        color: $primary;
+      }
+    }
+  }
 }
 
 .teamGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
-
-  @media (max-width: 860px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
 }
 
 .teamCard {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--card);
-  padding: 16px; // Tăng padding một chút cho thoáng
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: #fff;
+  border-radius: $radius;
+  padding: 30px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-    border-color: var(--primary);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+    border-color: $primary;
   }
 
-  h3 {
-    font-size: 1.8rem;
-    line-height: 1.2;
-    margin-bottom: 8px;
-    color: #1e293b; // Màu đậm hơn cho sang
-    font-weight: 700;
+  .cardTop {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+
+    .teamAvatar {
+      width: 64px;
+      height: 64px;
+      background: $dark;
+      color: #fff;
+      font-size: 2.4rem;
+      font-weight: 800;
+      border-radius: 18px;
+    }
+
+    h3 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: $dark;
+    }
+    .teamStats {
+      color: $slate;
+      font-size: 1.4rem;
+    }
   }
 }
 
 .profileBtn {
-  margin-top: auto; // Đẩy nút xuống dưới cùng của card
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  
-  background: #f1f5f9; // Màu nền mặc định nhẹ nhàng
-  color: #475569;
-  font-size: 1.3rem;
-  font-weight: 600;
-  text-decoration: none;
-  
-  padding: 10px 16px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
+  justify-content: space-between;
+  background: #f1f5f9;
+  color: $dark;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-weight: 700;
+  transition: 0.3s;
 
   &:hover {
-    background: var(--primary); // Hoặc màu chủ đạo của mày
+    background: $dark;
     color: #fff;
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
-  }
-
-  // Thêm icon mũi tên nhỏ nếu muốn (giả lập bằng pseudo-element)
-  &::after {
-    content: '→';
-    transition: transform 0.2s;
-  }
-
-  &:hover::after {
-    transform: translateX(4px);
   }
 }
 
-.meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-
-  span {
-    font-size: 1.15rem;
-    color: #72808f;
-    background: #fff2e1;
-    border: 1px solid #ebd1ad;
-    border-radius: 999px;
-    padding: 3px 8px;
-  }
-}
-
-.spotlight {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--card);
-  padding: 12px;
-}
-
-.head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-
-  h2 {
-    font-size: clamp(2rem, 3.2vw, 2.8rem);
-    line-height: 1.1;
-    color: #324051;
-  }
-
-  a {
-    color: var(--primary-dark);
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-}
-
-.works {
+.worksGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
 
-  @media (min-width: 760px) {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .workItem {
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  position: relative;
+  border-radius: 18px;
   overflow: hidden;
-  background: var(--surface);
+  background: #fff;
 
-  img {
-    width: 100%;
-    aspect-ratio: 2 / 3;
-    object-fit: cover;
-    display: block;
-    background: #f4e5d3;
+  &:hover {
+    .imageWrapper img {
+      transform: scale(1.1);
+    }
+    .workInfo {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
-  span {
-    display: block;
-    color: #5f6c7a;
-    font-size: 1.2rem;
-    line-height: 1.3;
-    padding: 6px;
-    display: -webkit-box;
-    line-clamp: 2;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+  .imageWrapper {
+    aspect-ratio: 2/3;
     overflow: hidden;
+    position: relative;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .imageOverlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba($dark, 0.8), transparent);
+    }
+  }
+
+  .workInfo {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    transition: 0.4s;
+    .mangaName {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.4rem;
+      line-height: 1.4;
+      display: block;
+    }
   }
 }
 
+.skeletonCard {
+  border-radius: $radius;
+  height: 180px;
+}

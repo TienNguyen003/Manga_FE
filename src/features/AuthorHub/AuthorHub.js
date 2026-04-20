@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';
+import { Box, Typography, Container, Stack, Skeleton, Avatar, AvatarGroup, Button } from '@mui/material';
+import { AutoAwesomeRounded, GroupsRounded, ArrowForwardRounded, StarsRounded, LeaderboardRounded } from '@mui/icons-material';
 import styles from './AuthorHub.module.scss';
 import paths from '~/routes/paths';
 import { getMangasByCategory } from '~/services/mangaService';
@@ -13,22 +15,18 @@ export default function AuthorHub() {
   const [spotlight, setSpotlight] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loadingTeams, setLoadingTeams] = useState(true);
-  const [errorTeams, setErrorTeams] = useState('');
 
   useEffect(() => {
     let mounted = true;
     setLoadingTeams(true);
-    setErrorTeams('');
+
     teamService
       .getTeamList()
       .then((res) => {
-        if (!mounted) return;
-        setTeams(res?.result || []);
+        if (mounted) setTeams(res?.result || []);
       })
       .catch(() => {
-        if (!mounted) return;
-        setErrorTeams('Không thể tải danh sách nhóm tác giả.');
-        setTeams([]);
+        if (mounted) setTeams([]);
       })
       .finally(() => {
         if (mounted) setLoadingTeams(false);
@@ -36,12 +34,10 @@ export default function AuthorHub() {
 
     getMangasByCategory({ path: 'manhwa', page: 1 })
       .then((res) => {
-        if (!mounted) return;
-        setSpotlight((res?.result || []).slice(0, 6));
+        if (mounted) setSpotlight((res?.result || []).slice(0, 6));
       })
       .catch(() => {
-        if (!mounted) return;
-        setSpotlight([]);
+        if (mounted) setSpotlight([]);
       });
 
     return () => {
@@ -50,48 +46,84 @@ export default function AuthorHub() {
   }, []);
 
   return (
-    <main className={cx('authorPage')}>
-      <div className={cx('container-fluid')}>
+    <main className={cx('authorPage', 'container-fluid')}>
+      <Container maxWidth="xl">
+        {/* Hero Section với phong cách Blur và Gradient */}
         <section className={cx('hero')}>
-          <p className={cx('kicker')}>Trang mới</p>
-          <h1>Trung tâm tác giả và nhóm dịch</h1>
-          <p>Không gian dành cho đội ngũ sáng tác, dịch truyện và quản lý dự án nội dung. Có thể nối backend quản trị nhóm sau.</p>
-        </section>
-
-        <section className={cx('teamGrid')}>
-          {loadingTeams && <div>Đang tải nhóm tác giả...</div>}
-          {errorTeams && <div className={cx('error')}>{errorTeams}</div>}
-          {!loadingTeams && !errorTeams && teams.length === 0 && <div>Chưa có nhóm tác giả nào.</div>}
-          {!loadingTeams &&
-            !errorTeams &&
-            teams.map((team) => (
-              <article key={team.id} className={cx('teamCard')}>
-                <h3>{team.name}</h3>
-                <div className={cx('meta')}>
-                  <span>{team.members?.length || 0} thành viên</span>
-                </div>
-                <Link to={paths.teamProfile.replace(':id', team.id)} className={cx('profileBtn')}>
-                  Xem hồ sơ nhóm
-                </Link>
-              </article>
-            ))}
-        </section>
-
-        <section className={cx('spotlight')}>
-          <div className={cx('head')}>
-            <h2>Tác phẩm nổi bật gần đây</h2>
-            <Link to={paths.rankings}>Mở bảng xếp hạng</Link>
+          <div className={cx('heroContent')}>
+            <span className={cx('kicker')}>
+              <AutoAwesomeRounded fontSize="small" /> Creative Hub
+            </span>
+            <Typography variant="h1">Nơi Hội Tụ Sức Mạnh Sáng Tạo</Typography>
+            <Typography variant="body1" className={cx('desc')}>
+              Kết nối những đội ngũ dịch thuật, tác giả và biên tập viên hàng đầu. Cùng nhau xây dựng cộng đồng truyện tranh bền vững.
+            </Typography>
           </div>
-          <div className={cx('works')}>
+          <div className={cx('heroArt')} />
+        </section>
+
+        {/* Section Nhóm Tác Giả */}
+        <section className={cx('section')}>
+          <div className={cx('sectionHead')}>
+            <div className={cx('titleGroup')}>
+              <GroupsRounded className={cx('icon')} />
+              <Typography variant="h2">Cộng đồng Editor & Dịch giả</Typography>
+            </div>
+          </div>
+
+          <div className={cx('teamGrid')}>
+            {loadingTeams
+              ? [1, 2, 3].map((i) => <Skeleton key={i} variant="rectangular" className={cx('skeletonCard')} />)
+              : teams.map((team) => (
+                  <article key={team.id} className={cx('teamCard')}>
+                    <div className={cx('cardTop')}>
+                      <Avatar className={cx('teamAvatar')}>{team.name.charAt(0)}</Avatar>
+                      <div className={cx('teamInfo')}>
+                        <h3>{team.name}</h3>
+                        <div className={cx('teamStats')}>
+                          <span>
+                            <b>{team.members?.length || 0}</b> Members
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Link to={paths.teamProfile.replace(':id', team.id)} className={cx('profileBtn')}>
+                      <span>Hồ sơ nhóm</span>
+                      <ArrowForwardRounded />
+                    </Link>
+                  </article>
+                ))}
+          </div>
+        </section>
+
+        {/* Section Tác Phẩm Nổi Bật */}
+        <section className={cx('section', 'spotlightSection')}>
+          <div className={cx('sectionHead')}>
+            <div className={cx('titleGroup')}>
+              <StarsRounded className={cx('icon')} />
+              <Typography variant="h2">Dự án Spotlight</Typography>
+            </div>
+            <Link to={paths.rankings} className={cx('viewMore')}>
+              Bảng xếp hạng <LeaderboardRounded fontSize="small" />
+            </Link>
+          </div>
+
+          <div className={cx('worksGrid')}>
             {spotlight.map((manga) => (
               <Link key={manga.slug} to={`${paths.mangaDetail}?slug=${manga.slug}`} className={cx('workItem')}>
-                <img src={manga.thumb_url ? `${IMG_BASE_URL}${manga.thumb_url}` : ''} alt={manga.name} />
-                <span>{manga.name}</span>
+                <div className={cx('imageWrapper')}>
+                  <img src={manga.thumb_url ? `${IMG_BASE_URL}${manga.thumb_url}` : ''} alt={manga.name} />
+                  <div className={cx('imageOverlay')} />
+                </div>
+                <div className={cx('workInfo')}>
+                  <span className={cx('mangaName')}>{manga.name}</span>
+                </div>
               </Link>
             ))}
           </div>
         </section>
-      </div>
+      </Container>
     </main>
   );
 }

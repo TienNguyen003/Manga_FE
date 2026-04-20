@@ -21,7 +21,7 @@ export default function Community() {
   }, []);
 
   return (
-    <main className={cx('communityPage')}>
+    <main className={cx('communityPage', 'container-fluid')}>
       <div className={cx('container')}>
         <header className={cx('header')}>
           <div className={cx('titleGroup')}>

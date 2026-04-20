@@ -17,7 +17,7 @@ import AuthorHub from '~/features/AuthorHub/AuthorHub';
 import TeamProfile from '~/features/AuthorHub/TeamProfile';
 import ReleaseCalendar from '~/features/ReleaseCalendar/ReleaseCalendar';
 import AdvancedSearch from '~/features/AdvancedSearch/AdvancedSearch';
-import Upload from '~/features/Upload/Upload';
+import Upload from '~/features/CreateStory/CreateStory';
 import Report from '~/features/Report/Report';
 import Profile from '~/features/Profile/Profile';
 import Recommendations from '~/features/Recommendations/Recommendations';

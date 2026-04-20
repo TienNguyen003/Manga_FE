@@ -45,7 +45,7 @@ export default function Discover() {
     }, []);
 
     return (
-        <main className={cx('discoverPage')}>
+        <main className={cx('discoverPage', 'container-fluid')}>
             <div className={cx('container')}>
                 <section className={cx('hero')}>
                     <div className={cx('hero-inner')}>

@@ -78,11 +78,28 @@ $border-glass: rgba(255, 255, 255, 0.1);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     font-size: 4rem !important;
   }
+  .avatarOuter {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .avatarUploadingOverlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+  }
   .avatarInfo {
     strong {
       display: block;
       font-size: 1.8rem;
-      color: #fff;
+      color: #fff !important;
       margin-bottom: 5px;
     }
     p {
@@ -93,8 +110,8 @@ $border-glass: rgba(255, 255, 255, 0.1);
   }
   .uploadTrigger {
     position: absolute;
-    bottom: -10px;
-    right: -10px;
+    bottom: -0px;
+    right: -0px;
     background: #fff;
     color: #000;
     width: 42px;

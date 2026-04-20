@@ -19,7 +19,7 @@ const cx = classNames.bind(styles);
 const theme = createTheme({
   typography: {
     fontFamily: '"Be Vietnam Pro", "Barlow", "Segoe UI", sans-serif',
-    fontSize: '1.4rem',
+    fontSize: 20,
   },
 });
 
@@ -94,20 +94,18 @@ function AppContent() {
 function App() {
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setLoading(false);
+  //   }, 1500);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   return (
     <UserProvider>
       <ThemeProvider theme={theme}>
-        {' '}
-        {/* <-- bọc toàn bộ App */}
-        <CssBaseline /> {/* <-- reset CSS cơ bản + áp font global */}
+        <CssBaseline />
         <Router>
           <ToastContainer
             position="top-right"

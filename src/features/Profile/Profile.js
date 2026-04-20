@@ -22,6 +22,7 @@ import { userService } from '~/services/userService';
 import styles from './Profile.module.scss';
 import { toast } from 'react-toastify';
 import { useUser } from '~/providers/UserContext';
+import { fileService } from '~/services/fileService';
 
 const cx = classNames.bind(styles);
 
@@ -29,6 +30,7 @@ export default function Profile() {
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const { userData } = useUser();
 
   // --- States mapping từ Database Entity ---
@@ -36,7 +38,6 @@ export default function Profile() {
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [avatarFile, setAvatarFile] = useState(null);
 
   // Advanced Settings
   const [displayName, setDisplayName] = useState('');
@@ -127,6 +128,19 @@ export default function Profile() {
     }
   };
 
+  const handleUploadAvatar = async (file) => {
+    if (!file) return;
+    setAvatarUploading(true);
+    try {
+      const res = await fileService.uploadSingleFile(file, `avatars-${username}`);
+      setPreviewUrl(res?.result);
+    } catch (err) {
+      toast.error('Tải lên ảnh đại diện thất bại. Vui lòng thử lại sau.');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   if (loading)
     return (
       <div className={cx('loading-wrapper')}>
@@ -152,6 +166,11 @@ export default function Profile() {
                   <Avatar src={previewUrl} className={cx('mainAvatar')}>
                     {!previewUrl && username.charAt(0).toUpperCase()}
                   </Avatar>
+                  {avatarUploading && (
+                    <div className={cx('avatarUploadingOverlay')}>
+                      <CircularProgress size={34} thickness={4.5} sx={{ color: '#fff' }} />
+                    </div>
+                  )}
                   <label htmlFor="avatar-upload" className={cx('uploadTrigger')}>
                     <PhotoCameraRounded />
                     <input
@@ -159,12 +178,10 @@ export default function Profile() {
                       type="file"
                       hidden
                       accept="image/*"
+                      disabled={avatarUploading}
                       onChange={(e) => {
                         const file = e.target.files[0];
-                        if (file) {
-                          setAvatarFile(file);
-                          setPreviewUrl(URL.createObjectURL(file));
-                        }
+                        handleUploadAvatar(file);
                       }}
                     />
                   </label>

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';
+import { Container, Typography, Stack, Skeleton, Box } from '@mui/material';
+import { EmojiEventsRounded, TrendingUpRounded, LocalFireDepartmentRounded, ArrowForwardIosRounded } from '@mui/icons-material';
 import styles from './Rankings.module.scss';
 import paths from '~/routes/paths';
 import { getMangasByCategory } from '~/services/mangaService';
@@ -14,21 +16,16 @@ export default function Rankings() {
 
   useEffect(() => {
     let mounted = true;
-
     getMangasByCategory({ path: 'trending', page: 1 })
       .then((res) => {
-        if (!mounted) return;
-        setMangas(res?.result || []);
+        if (mounted) setMangas(res?.result || []);
       })
       .catch(() => {
-        if (!mounted) return;
-        setMangas([]);
+        if (mounted) setMangas([]);
       })
       .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
+        if (mounted) setLoading(false);
       });
-
     return () => {
       mounted = false;
     };
@@ -37,36 +34,56 @@ export default function Rankings() {
   const top10 = useMemo(() => mangas.slice(0, 10), [mangas]);
 
   return (
-    <main className={cx('rankingsPage')}>
-      <div className={cx('container-fluid')}>
-        <section className={cx('hero')}>
-          <h1>Bảng xếp hạng truyện tuần</h1>
-          <p>Trang mới dành cho người đọc theo dõi bộ nào đang hot nhất theo thời điểm.</p>
-        </section>
+    <main className={cx('rankingsPage', 'container-fluid')}>
+      <Container maxWidth="md">
+        <header className={cx('hero')}>
+          <div className={cx('heroContent')}>
+            <span className={cx('kicker')}>
+              <LocalFireDepartmentRounded fontSize="small" /> Trending Now
+            </span>
+            <Typography variant="h1">Bảng Xếp Hạng Tuần</Typography>
+            <Typography variant="body1">Khám phá những siêu phẩm đang thống trị cộng đồng tuần này.</Typography>
+          </div>
+        </header>
 
-        {loading && <div className={cx('loading')}>Đang cập nhật bảng xếp hạng...</div>}
-
-        {!loading && top10.length === 0 && <div className={cx('loading')}>Chưa có dữ liệu xếp hạng.</div>}
-
-        {!loading && top10.length > 0 && (
-          <section className={cx('listWrap')}>
-            {top10.map((item, idx) => (
-              <Link to={`${paths.mangaDetail}?slug=${item.slug}`} key={item.slug || idx} className={cx('rankItem')}>
-                <div className={cx('rankNo')}>#{idx + 1}</div>
-                <img src={item.thumb_url ? `${IMG_BASE_URL}${item.thumb_url}` : ''} alt={item.name} className={cx('cover')} />
-                <div className={cx('meta')}>
-                  <h3>{item.name}</h3>
-                  <div className={cx('tags')}>
-                    <span>{item.status || 'Đang cập nhật'}</span>
-                    <span>⭐ {item.score || 0}</span>
-                  </div>
-                </div>
-                <div className={cx('arrow')}>Xem</div>
-              </Link>
+        {loading ? (
+          <Stack spacing={2}>
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} variant="rectangular" className={cx('skeleton')} />
             ))}
+          </Stack>
+        ) : (
+          <section className={cx('listWrap')}>
+            {top10.map((item, idx) => {
+              const rankClass = idx === 0 ? 'top1' : idx === 1 ? 'top2' : idx === 2 ? 'top3' : '';
+              return (
+                <Link to={`${paths.mangaDetail}?slug=${item.slug}`} key={item.slug || idx} className={cx('rankItem', rankClass)}>
+                  <div className={cx('rankIndicator')}>
+                    <span className={cx('number')}>{idx + 1}</span>
+                    {idx < 3 && <EmojiEventsRounded className={cx('medal')} />}
+                  </div>
+
+                  <img src={item.thumb_url ? `${IMG_BASE_URL}${item.thumb_url}` : ''} alt={item.name} className={cx('cover')} />
+
+                  <div className={cx('meta')}>
+                    <h3>{item.name}</h3>
+                    <div className={cx('stats')}>
+                      <span className={cx('status')}>{item.status || 'Ongoing'}</span>
+                      <span className={cx('score')}>
+                        <TrendingUpRounded fontSize="small" /> {item.score || '9.0'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={cx('action')}>
+                    <ArrowForwardIosRounded />
+                  </div>
+                </Link>
+              );
+            })}
           </section>
         )}
-      </div>
+      </Container>
     </main>
   );
 }

@@ -61,7 +61,7 @@ export default function PublicProfile() {
   const isFollowing = async (followerId, followingId) => {
     try {
       const isFollow = await userFollowService.isFollow({ followerId, followingId });
-      setIsFollow(isFollow);
+      setIsFollow(isFollow.result);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Không thể kiểm tra trạng thái theo dõi. Vui lòng thử lại.');
     }
@@ -282,11 +282,11 @@ export default function PublicProfile() {
               </div>
 
               {userPosts.length > 0 ? (
-                userPosts?.map((item) => {
-                  const post = item.post;
+                <>
+                  {userPosts?.map((item) => {
+                    const post = item.post;
 
-                  return (
-                    <>
+                    return (
                       <div key={post.id} className={cx('postCard')}>
                         <div className={cx('postHead')}>
                           <Chip label={post.title} className={cx('postTag')} size="small" />
@@ -299,7 +299,6 @@ export default function PublicProfile() {
 
                         <Typography className={cx('postContent')}>{post.content}</Typography>
 
-                        {/* nếu sau này có image thì bật */}
                         {post.image && (
                           <div className={cx('postImage')}>
                             <img src={post.image} alt="Post content" />
@@ -318,12 +317,13 @@ export default function PublicProfile() {
                           </IconButton>
                         </div>
                       </div>
-                      <Button fullWidth className={cx('btnLoadMore')} sx={{ fontSize: '1.2rem' }}>
-                        Khám phá thêm bài viết
-                      </Button>
-                    </>
-                  );
-                })
+                    );
+                  })}
+
+                  <Button fullWidth className={cx('btnLoadMore')} sx={{ fontSize: '1.2rem' }}>
+                    Khám phá thêm bài viết
+                  </Button>
+                </>
               ) : (
                 <Typography className={cx('noPosts')}>Người dùng chưa có bài viết nào.</Typography>
               )}
