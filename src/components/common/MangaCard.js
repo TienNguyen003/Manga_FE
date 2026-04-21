@@ -10,9 +10,9 @@ export default function MangaCard({ manga, badge, rank }) {
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || '';
   if (!manga) return null;
 
-  const name = manga.mangaName || manga.name || '';
+  const name = manga.mangaName || manga.name || manga.title || '';
   const slug = manga.mangaPath || manga.slug || '';
-  const thumb = manga.thumbnailUrl || manga.thumb_url || '';
+  const thumb = manga.thumbnailUrl || manga.thumb_url || manga.cover || '';
   const score = manga.averageRating ?? manga.score ?? 0;
   const status = manga.status || '';
 

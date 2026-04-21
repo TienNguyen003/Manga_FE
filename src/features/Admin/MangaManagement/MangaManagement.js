@@ -1,13 +1,29 @@
-import { useState } from 'react';
-import { AddRounded, DeleteOutlineRounded, EditRounded, LibraryBooksRounded, SearchRounded, VisibilityRounded, StarRounded, AutoStoriesRounded } from '@mui/icons-material';
 import {
-  Avatar,
+  AddRounded,
+  AutoStoriesRounded,
+  CategoryRounded,
+  DeleteOutlineRounded,
+  DescriptionRounded,
+  EditRounded,
+  ImageRounded,
+  LibraryBooksRounded,
+  LinkRounded,
+  MenuBookRounded,
+  PersonRounded,
+  SearchRounded,
+  StarRounded,
+  VisibilityRounded,
+} from '@mui/icons-material';
+import {
   Box,
   Button,
-  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
   IconButton,
   InputAdornment,
   Paper,
+  Stack,
   Tab,
   Table,
   TableBody,
@@ -17,50 +33,44 @@ import {
   TableRow,
   Tabs,
   TextField,
-  Typography,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import classNames from 'classnames/bind';
-import MangaOpsPanel from './MangaOpsPanel';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './Manga.module.scss';
+import MangaOpsPanel from './MangaOpsPanel';
 
 const cx = classNames.bind(styles);
 
 export default function MangaManagement() {
+  const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || '';
   const [activeTab, setActiveTab] = useState('catalog');
+  const [mangaList, setMangaList] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [newManga, setNewManga] = useState({
+    title: '',
+    slug: '',
+    description: '',
+    cover: '',
+    genre: '',
+    userId: '',
+  });
 
-  const mangaList = [
-    {
-      id: 1,
-      title: 'Berserk',
-      author: 'Kentaro Miura',
-      chapters: 364,
-      status: 'Ongoing',
-      rating: 4.9,
-      views: '1.2M',
-      thumb: 'https://i.pinimg.com/564x/01/f9/0a/01f90a8f8d6896173df52f9c8f85f16c.jpg',
-    },
-    {
-      id: 2,
-      title: 'Vagabond',
-      author: 'Takehiko Inoue',
-      chapters: 327,
-      status: 'Hiatus',
-      rating: 4.8,
-      views: '850k',
-      thumb: 'https://i.pinimg.com/564x/93/6d/4e/936d4e287498c0d12e694553250e390c.jpg',
-    },
-    {
-      id: 3,
-      title: 'One Piece',
-      author: 'Eiichiro Oda',
-      chapters: 1100,
-      status: 'Ongoing',
-      rating: 4.9,
-      views: '5.6M',
-      thumb: 'https://i.pinimg.com/564x/93/e3/3e/93e33e14479532585292a832f0524458.jpg',
-    },
-  ];
+  useEffect(() => {
+    const loadComics = async () => {
+      try {
+        const response = await adminService.getComics();
+        const data = response?.result || response?.data || response || [];
+        setMangaList(Array.isArray(data) ? data : data.items || data.comics || []);
+      } catch {
+        setMangaList([]);
+      }
+    };
+
+    loadComics();
+  }, []);
 
   return (
     <div className={cx('mangaWrapper')}>
@@ -76,7 +86,7 @@ export default function MangaManagement() {
             <SearchRounded className={cx('searchIcon')} />
             <input type="text" placeholder="Tìm tên truyện, tác giả..." className={cx('customInput')} />
           </div>
-          <Button variant="contained" startIcon={<AddRounded />} className={cx('addBtn')}>
+          <Button variant="contained" startIcon={<AddRounded />} className={cx('primaryBtn')} onClick={() => setOpenModal(true)}>
             Thêm truyện
           </Button>
         </div>
@@ -96,24 +106,22 @@ export default function MangaManagement() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 800 }}>TÁC PHẨM</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>NỘI DUNG</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>TRẠNG THÁI</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>ĐÁNH GIÁ</TableCell>
-                <TableCell sx={{ fontWeight: 800 }} align="right">
-                  THAO TÁC
-                </TableCell>
+                <TableCell>Tác phẩm</TableCell>
+                <TableCell>Nội dung</TableCell>
+                <TableCell>Trạng thái</TableCell>
+                <TableCell>Đánh giá</TableCell>
+                <TableCell align="right">Thao tác</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {mangaList.map((manga) => (
+              {mangaList.map((manga, index) => (
                 <TableRow key={manga.id} className={cx('tableRow')}>
                   <TableCell>
                     <Box className={cx('mangaInfo')}>
-                      <img src={manga.thumb} alt={manga.title} className={cx('mangaThumb')} />
+                      <img src={manga.cover && `${IMG_BASE_URL}/${manga.cover}`} alt={manga.title || manga.name || `Manga ${index + 1}`} className={cx('mangaThumb')} />
                       <Box>
-                        <Typography className={cx('mangaTitle')}>{manga.title}</Typography>
-                        <Typography className={cx('mangaAuthor')}>{manga.author}</Typography>
+                        <Typography className={cx('mangaTitle')}>{manga.title || manga.name || `Manga ${index + 1}`}</Typography>
+                        <Typography className={cx('mangaAuthor')}>{manga.author || manga.authorName || '-'}</Typography>
                       </Box>
                     </Box>
                   </TableCell>
@@ -123,26 +131,26 @@ export default function MangaManagement() {
                       <div className={cx('dataItem')}>
                         <AutoStoriesRounded />{' '}
                         <span>
-                          <b>{manga.chapters}</b> chương
+                          <b>{manga.chapters.length || 0}</b> chương
                         </span>
                       </div>
                       <div className={cx('dataItem')}>
-                        <VisibilityRounded /> <span>{manga.views} lượt đọc</span>
+                        <VisibilityRounded /> <span>{manga.views || 0} lượt đọc</span>
                       </div>
                     </Box>
                   </TableCell>
 
                   <TableCell>
-                    <div className={cx('statusTag', manga.status.toLowerCase())}>
+                    <div className={cx('statusTag', (manga.status || 'ongoing').toLowerCase())}>
                       <span className={cx('dot')} />
-                      {manga.status}
+                      {manga.status || 'Ongoing'}
                     </div>
                   </TableCell>
 
                   <TableCell>
                     <div className={cx('ratingBox')}>
                       <StarRounded />
-                      <span>{manga.rating}</span>
+                      <span>{manga.rating || manga.avgRating || 0}</span>
                     </div>
                   </TableCell>
 
@@ -171,6 +179,123 @@ export default function MangaManagement() {
           </Table>
         </TableContainer>
       )}
+
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth PaperProps={{ className: cx('premiumModal') }}>
+        <Box className={cx('modalHeader')}>
+          <Typography variant="h5" className={cx('modalTitle')}>
+            Thêm Manga Mới
+          </Typography>
+        </Box>
+
+        <DialogContent className={cx('modalBody')}>
+          <Box className={cx('formGrid')}>
+            {/* CỘT 1: THÔNG TIN CƠ BẢN */}
+            <Stack spacing={3}>
+              <Typography className={cx('sectionLabel')}>Thông tin cơ bản</Typography>
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Tên truyện *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <MenuBookRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewManga({ ...newManga, title: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Slug (Ví dụ: dao-hai-tac) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LinkRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewManga({ ...newManga, slug: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Link ảnh bìa (Cover URL) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <ImageRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewManga({ ...newManga, cover: e.target.value })}
+              />
+            </Stack>
+
+            {/* CỘT 2: PHÂN LOẠI & MÔ TẢ */}
+            <Stack spacing={3}>
+              <Typography className={cx('sectionLabel')}>Phân loại & Tác giả</Typography>
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Thể loại (Genre) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CategoryRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewManga({ ...newManga, genre: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="ID người đăng (UserId) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewManga({ ...newManga, userId: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Mô tả chi tiết"
+                multiline
+                rows={3}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                      <DescriptionRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewManga({ ...newManga, description: e.target.value })}
+              />
+            </Stack>
+          </Box>
+        </DialogContent>
+
+        <DialogActions className={cx('modalFooter')}>
+          <Button onClick={() => setOpenModal(false)} className={cx('textBtn')}>
+            Hủy bỏ
+          </Button>
+          <Button variant="contained" className={cx('primaryBtn')}>
+            Lưu Manga
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

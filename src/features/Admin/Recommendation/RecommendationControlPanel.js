@@ -1,32 +1,70 @@
 import { AutoFixHighRounded, PushPinRounded, SecurityRounded, SyncRounded, TrendingUpRounded } from '@mui/icons-material';
-import { Alert, Box, Button, Chip, Divider, Grid, IconButton, Paper, Stack, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Grid,
+  IconButton,
+  Paper,
+  Stack,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './Recommendation.module.scss';
 
 const cx = classNames.bind(styles);
 
-const seed = [
-  { manga: 'Huyết Kiếm', impressions: 22000, ctr: '8.2%', score: 0.91, pinned: false },
-  { manga: 'Mặt Trăng Đỏ', impressions: 18200, ctr: '5.1%', score: 0.77, pinned: true },
-  { manga: 'Hoa Đăng', impressions: 41000, ctr: '2.3%', score: 0.45, pinned: false },
-];
-
 export default function RecommendationControlPanel() {
-  const [rows, setRows] = useState(seed);
+  const [rows, setRows] = useState([]);
   const [notice, setNotice] = useState('');
   const [biasGuard, setBiasGuard] = useState(true);
 
-  const togglePin = (manga) => {
-    setRows((prev) => prev.map((r) => (r.manga === manga ? { ...r, pinned: !r.pinned } : r)));
-    setNotice(`Đã cập nhật trạng thái ghim cho ${manga}.`);
-    setTimeout(() => setNotice(''), 3000);
+  useEffect(() => {
+    const loadControls = async () => {
+      try {
+        const response = await adminService.getRecommendationControls('');
+        const data = response?.result || response?.data || response || [];
+        setRows(Array.isArray(data) ? data : data.items || data.controls || []);
+      } catch {
+        setRows([]);
+      }
+    };
+
+    loadControls();
+  }, []);
+
+  const togglePin = async (manga) => {
+    try {
+      await adminService.updateRecommendationControls({ target: manga, action: 'togglePin' });
+      setRows((prev) => prev.map((r) => (r.manga === manga ? { ...r, pinned: !r.pinned } : r)));
+      setNotice(`Đã cập nhật trạng thái ghim cho ${manga}.`);
+      setTimeout(() => setNotice(''), 3000);
+    } catch {
+      setNotice('Không thể ghim nội dung.');
+    }
   };
 
-  const overrideScore = (manga) => {
-    setRows((prev) => prev.map((r) => (r.manga === manga ? { ...r, score: Math.min(0.99, r.score + 0.1) } : r)));
-    setNotice(`Đã override điểm ưu tiên cho ${manga}.`);
-    setTimeout(() => setNotice(''), 3000);
+  const overrideScore = async (manga) => {
+    try {
+      await adminService.updateRecommendationControls({ target: manga, action: 'boostScore' });
+      setRows((prev) => prev.map((r) => (r.manga === manga ? { ...r, score: Math.min(0.99, Number(r.score || 0) + 0.1) } : r)));
+      setNotice(`Đã override điểm ưu tiên cho ${manga}.`);
+      setTimeout(() => setNotice(''), 3000);
+    } catch {
+      setNotice('Không thể cập nhật điểm ưu tiên.');
+    }
   };
 
   return (
@@ -70,19 +108,19 @@ export default function RecommendationControlPanel() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((r) => (
+                  {rows.map((r, index) => (
                     <TableRow key={r.manga} className={cx('tableRow', { pinned: r.pinned })}>
                       <TableCell className={cx('mangaCell')}>
-                        {r.pinned && <PushPinRounded className={cx('pinIcon')} />}
-                        {r.manga}
+                        {(r.pinned || r.isPinned) && <PushPinRounded className={cx('pinIcon')} />}
+                        {r.manga || r.title || `Manga ${index + 1}`}
                       </TableCell>
-                      <TableCell className={cx('statCell')}>{r.impressions.toLocaleString()}</TableCell>
+                      <TableCell className={cx('statCell')}>{Number(r.impressions || r.views || 0).toLocaleString()}</TableCell>
                       <TableCell className={cx('ctrCell')}>
-                        <span className={cx('badge')}>{r.ctr}</span>
+                        <span className={cx('badge')}>{r.ctr || '0%'}</span>
                       </TableCell>
                       <TableCell className={cx('scoreCell')}>
                         <Typography fontWeight={900} color={r.score > 0.8 ? 'primary' : 'inherit'}>
-                          {r.score.toFixed(2)}
+                          {Number(r.score || 0).toFixed(2)}
                         </Typography>
                       </TableCell>
                       <TableCell align="right">

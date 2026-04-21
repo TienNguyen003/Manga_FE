@@ -1,16 +1,28 @@
 import { DeleteOutlineRounded, EditRounded, FilterListRounded, SearchRounded, VisibilityRounded, AddRounded } from '@mui/icons-material';
 import { Box, Button, IconButton, InputAdornment, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Tooltip } from '@mui/material';
 import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './Posts.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function PostManagement() {
-  const posts = [
-    { id: 1, title: 'Top 10 Manga hành động đáng đọc 2026', author: 'Admin Duy', topic: 'Hành động', views: '12.5k', date: '10/04/2026' },
-    { id: 2, title: 'Review chi tiết bộ truyện Berserk', author: 'Editor A', topic: 'Kinh dị', views: '8.2k', date: '08/04/2026' },
-    { id: 3, title: 'Lịch phát hành One Piece tháng 5', author: 'Mod Zen', topic: 'Tin tức', views: '15.0k', date: '12/04/2026' },
-  ];
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const response = await adminService.getPosts('');
+        const data = response?.result || response?.data || response || [];
+        setPosts(Array.isArray(data) ? data : data.items || data.posts || []);
+      } catch {
+        setPosts([]);
+      }
+    };
+
+    loadPosts();
+  }, []);
 
   return (
     <div className={cx('postWrapper')}>
@@ -19,7 +31,7 @@ export default function PostManagement() {
           <Typography className={cx('mainTitle')}>Quản lý Bài viết</Typography>
           <Typography className={cx('subTitle')}>Theo dõi, chỉnh sửa và điều phối nội dung cộng đồng.</Typography>
         </Box>
-        
+
         <Button variant="contained" startIcon={<AddRounded />} className={cx('createBtn')}>
           Viết bài mới
         </Button>
@@ -54,28 +66,32 @@ export default function PostManagement() {
               <TableCell className={cx('headCell')}>Chủ đề</TableCell>
               <TableCell className={cx('headCell')}>Thống kê</TableCell>
               <TableCell className={cx('headCell')}>Ngày xuất bản</TableCell>
-              <TableCell className={cx('headCell')} align="right">Thao tác</TableCell>
+              <TableCell className={cx('headCell')} align="right">
+                Thao tác
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {posts.map((post) => (
+            {posts.map((post, index) => (
               <TableRow key={post.id} className={cx('tableRow')}>
                 <TableCell className={cx('titleCell')}>
-                  <Typography className={cx('postTitle')}>{post.title}</Typography>
+                  <Typography className={cx('postTitle')}>{post.title || post.name || `Post ${index + 1}`}</Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography className={cx('authorName')}>{post.author}</Typography>
+                  <Typography className={cx('authorName')}>{post.author || post.createdBy || '-'}</Typography>
                 </TableCell>
                 <TableCell>
-                  <span className={cx('topicTag', post.topic.toLowerCase())}>{post.topic}</span>
+                  <span className={cx('topicTag', (post.topic || 'general').toLowerCase())}>{post.topic || post.topicName || '-'}</span>
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography className={cx('viewCount')}>{post.views}</Typography>
-                    <Typography variant="caption" color="textSecondary">Lượt xem</Typography>
+                    <Typography className={cx('viewCount')}>{post.views || post.viewCount || 0}</Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      Lượt xem
+                    </Typography>
                   </Box>
                 </TableCell>
-                <TableCell className={cx('dateCell')}>{post.date}</TableCell>
+                <TableCell className={cx('dateCell')}>{post.date || post.createdAt || '-'}</TableCell>
                 <TableCell align="right">
                   <div className={cx('actionGroup')}>
                     <Tooltip title="Xem trước">

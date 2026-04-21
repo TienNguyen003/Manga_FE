@@ -1,190 +1,226 @@
 $primary: #ea982b;
-$dark: #0f172a;
-$text-sub: #64748b;
+$primary-hover: #d68720;
+$bg-main: #f8fafc;
 $border: #f1f5f9;
+$text-title: #0f172a;
+$text-body: #475569;
+$text-muted: #94a3b8;
 
-.pageContainer {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.header {
+/* ============ HEADER STYLE ============ */
+.pageHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-bottom: 32px;
 
-  .title {
-    font-size: 2.6rem;
-    font-weight: 950;
-    color: $dark;
-  }
-  .subtitle {
-    font-size: 1.4rem;
-    color: $text-sub;
-    font-weight: 500;
+  .pageTitle {
+    font-weight: 800;
+    color: $text-title;
   }
 
-  .addBtn {
-    background: $dark;
-    border-radius: 14px;
-    text-transform: none;
-    padding: 10px 24px;
-    font-weight: 700;
-    &:hover {
-      background: $primary;
-      box-shadow: 0 10px 20px rgba($primary, 0.2);
-    }
-  }
-}
-
-.statCard {
-  background: #fff;
-  padding: 24px;
-  border-radius: 24px;
-  border: 1px solid $border;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  transition: 0.3s;
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-    border-color: $primary;
-  }
-
-  .iconBox {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    svg {
-      font-size: 2.8rem;
-    }
-  }
-  .statVal {
-    font-size: 2.6rem;
-    font-weight: 900;
-    color: $dark;
-    line-height: 1;
-  }
-  .statLbl {
-    font-size: 1.3rem;
-    color: $text-sub;
-    font-weight: 600;
+  .pageSubtitle {
+    color: $text-body;
     margin-top: 4px;
+    font-size: 1.5rem;
   }
 }
 
-.tableWrapper {
-  border-radius: 28px;
+.primaryBtn {
+  background: $primary !important;
+  color: #fff !important;
+  padding: 10px 24px !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba($primary, 0.3) !important;
+  transition: all 0.2s ease !important;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: $primary-hover !important;
+  }
+}
+
+/* ============ TABLE STYLE (Đồng bộ Badge/User) ============ */
+.tableCard {
   border: 1px solid $border;
-  background: #fff;
-  overflow: hidden;
-  margin-top: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+
   :global(.MuiTableHead-root) {
     background: #f8fafc;
-    :global(.MuiTableCell-root) {
-      font-size: 1.1rem;
-      letter-spacing: 0.05em;
-      color: $text-sub;
+    th {
       border-bottom: 1px solid $border;
+      padding: 16px 24px;
     }
   }
-}
 
-.tableRow {
-  transition: 0.2s;
-  &:hover {
-    background: #fbfcfd;
-  }
-  :global(.MuiTableCell-root) {
-    padding: 20px 16px;
+  :global(.MuiTableBody-root) td {
+    padding: 16px 24px;
     border-bottom: 1px solid $border;
   }
 }
 
-.adName {
-  font-weight: 800;
-  color: $dark;
-  font-size: 1.5rem;
-}
-.adPos {
-  font-size: 1.2rem;
-  color: $text-sub;
-  font-weight: 500;
-}
-
-.typeChip {
-  border-radius: 8px !important;
-  font-weight: 700 !important;
-  background: #f1f5f9 !important;
-  border: none !important;
-  color: $dark !important;
-}
-
-.statusTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 800;
-  font-size: 1.2rem;
-  padding: 6px 14px;
-  border-radius: 100px;
-  .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-  }
-
-  &.active {
-    color: #10b981;
-    background: #f0fdf4;
-    .dot {
-      background: #10b981;
-    }
-  }
-  &.paused {
-    color: #f59e0b;
-    background: #fffbeb;
-    .dot {
-      background: #f59e0b;
-    }
-  }
-  &.expired {
-    color: #ef4444;
-    background: #fef2f2;
-    .dot {
-      background: #ef4444;
-    }
+.tableRow {
+  transition: background 0.2s ease;
+  &:hover {
+    background-color: #f8fafc !important;
   }
 }
 
-.actions {
+/* Cell hiển thị chiến dịch quảng cáo giống Badge */
+.badgeInfoCell {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  .actionBtn {
-    background: #f8fafc;
-    &:hover {
-      background: #eef2ff;
-      color: #3b82f6;
-    }
-    &.delete:hover {
-      background: #fef2f2;
-      color: #ef4444;
-    }
+  align-items: center;
+  gap: 14px;
+
+  .badgeAvatar {
+    width: 80px; // Kích thước preview ảnh quảng cáo
+    height: 52px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid $border;
+  }
+
+  .badgeName {
+    font-weight: 700;
+    color: $text-title;
+    font-size: 1.4rem;
+  }
+
+  .badgeDesc {
+    color: $text-muted;
+    font-size: 1.2rem;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+.actionBtn {
+  background: #f8fafc !important;
+  border-radius: 8px !important;
+  transition: 0.2s !important;
+  color: $text-body !important;
+
+  &.edit:hover {
+    background: #eef2ff !important;
+    color: #4f46e5 !important;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  &.delete:hover {
+    background: #fef2f2 !important;
+    color: #ef4444 !important;
+  }
+}
+
+/* ============ MODAL PREMIUM STYLE ============ */
+.premiumModal {
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modalHeader {
+  padding: 32px 32px 16px 32px;
+  .modalTitle {
+    font-weight: 800;
+    color: $text-title;
+  }
+}
+
+.modalBody {
+  padding: 0 32px 32px 32px !important;
+  overflow-x: hidden;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.sectionLabel {
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  color: $text-title;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 8px;
+  margin-bottom: 8px !important;
+}
+
+.premiumInput {
+  :global(.MuiOutlinedInput-root) {
+    background-color: #f8fafc;
+    border-radius: 12px !important;
+    transition: all 0.2s ease;
+
+    fieldset {
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    svg {
+      color: $text-muted;
+      transition: 0.2s;
+    }
+
+    &:hover {
+      background-color: #f1f5f9;
+    }
+
+    &.Mui-focused {
+      background-color: #fff;
+      fieldset {
+        border: 2px solid $primary !important;
+      }
+      box-shadow: 0 0 0 4px rgba($primary, 0.1);
+      svg {
+        color: $primary;
+      }
+    }
+  }
+
+  :global(.MuiOutlinedInput-input) {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: $text-title;
+  }
+}
+
+/* Kiểu dáng cho Switch Card trong Modal */
+.switchCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid $border;
+
+  .switchTitle {
+    font-weight: 700;
+    color: $text-title;
+    font-size: 1.3rem;
+  }
+
+  .switchDesc {
+    color: $text-muted;
+    font-size: 1.2rem;
+    margin-top: 2px;
+  }
+}
+
+.modalFooter {
+  padding: 24px 32px !important;
+  background: #f8fafc;
+  border-top: 1px solid $border;
+}
+
+.textBtn {
+  color: $text-body !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  &:hover {
+    background: #e2e8f0 !important;
   }
 }

@@ -1,17 +1,28 @@
 import { Box, Grid, LinearProgress, Paper, Typography, useTheme } from '@mui/material';
 import { ShowChartRounded, PieChartRounded, TrendingUpRounded } from '@mui/icons-material';
 import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './Stats.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function AdminStats() {
-  const userRoles = [
-    { role: 'Thành viên', value: 80, color: '#ea982b' }, // Màu chủ đạo của mày
-    { role: 'Tác giả', value: 45, color: '#3b82f6' },
-    { role: 'Dịch giả', value: 25, color: '#10b981' },
-    { role: 'Admin', value: 10, color: '#ef4444' },
-  ];
+  const [userRoles, setUserRoles] = useState([]);
+
+  useEffect(() => {
+    const loadCharts = async () => {
+      try {
+        const response = await adminService.getStatsCharts();
+        const data = response?.result || response?.data || response || {};
+        setUserRoles(data.userRoles || data.roles || []);
+      } catch {
+        setUserRoles([]);
+      }
+    };
+
+    loadCharts();
+  }, []);
 
   return (
     <div className={cx('statsWrapper')}>
@@ -28,7 +39,7 @@ export default function AdminStats() {
                 <ShowChartRounded />
               </div>
             </header>
-            
+
             <div className={cx('chartPlaceholder')}>
               <div className={cx('visualIcon')}>
                 <TrendingUpRounded />
@@ -57,15 +68,15 @@ export default function AdminStats() {
               {userRoles.map((item, idx) => (
                 <Box key={idx} className={cx('progressItem')}>
                   <Box className={cx('labelRow')}>
-                    <Typography className={cx('roleName')}>{item.role}</Typography>
-                    <Typography className={cx('roleVal')}>{item.value}%</Typography>
+                    <Typography className={cx('roleName')}>{item.role || item.name || '-'}</Typography>
+                    <Typography className={cx('roleVal')}>{item.value ?? item.percent ?? 0}%</Typography>
                   </Box>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={item.value} 
+                  <LinearProgress
+                    variant="determinate"
+                    value={item.value ?? item.percent ?? 0}
                     className={cx('progBar')}
                     sx={{
-                      '& .MuiLinearProgress-bar': { backgroundColor: item.color }
+                      '& .MuiLinearProgress-bar': { backgroundColor: item.color || '#ea982b' },
                     }}
                   />
                 </Box>
@@ -73,9 +84,7 @@ export default function AdminStats() {
             </div>
 
             <Box className={cx('infoBox')}>
-              <Typography variant="caption">
-                * Dữ liệu được cập nhật tự động mỗi 15 phút.
-              </Typography>
+              <Typography variant="caption">* Dữ liệu được cập nhật tự động mỗi 15 phút.</Typography>
             </Box>
           </Paper>
         </Grid>

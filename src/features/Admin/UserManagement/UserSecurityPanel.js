@@ -1,31 +1,43 @@
 import { AdminPanelSettingsRounded, CleaningServicesRounded, LogoutRounded, PhishingRounded, SecurityRounded } from '@mui/icons-material';
 import { Alert, Box, Button, Chip, Grid, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './UserSecurity.module.scss';
 
 const cx = classNames.bind(styles);
 
-const sessionsSeed = [
-  { id: 'SE-01', user: 'reader_01', ip: '10.10.2.4', device: 'Chrome / Windows 11', risk: 'thấp' },
-  { id: 'SE-02', user: 'reader_77', ip: '194.2.1.9', device: 'Unknown Browser', risk: 'cao' },
-  { id: 'SE-03', user: 'mimic_dev', ip: '45.112.x.x', device: 'Safari / iPhone 15', risk: 'trung bình' },
-];
-
-const followFlagsSeed = [
-  { id: 'FL-01', account: 'bot_like_12', pattern: 'Follow 300 user / 10 phút', severity: 'high' },
-  { id: 'FL-02', account: 'bot_like_18', pattern: 'Vòng lặp Unfollow/Follow liên tục', severity: 'medium' },
-];
-
 export default function UserSecurityPanel() {
-  const [sessions, setSessions] = useState(sessionsSeed);
-  const [followFlags, setFollowFlags] = useState(followFlagsSeed);
+  const [sessions, setSessions] = useState([]);
+  const [followFlags, setFollowFlags] = useState([]);
   const [notice, setNotice] = useState('');
 
-  const forceLogout = (id) => {
-    setSessions((prev) => prev.filter((s) => s.id !== id));
-    setNotice(`Phiên đăng nhập ${id} đã bị ngắt kết nối bắt buộc.`);
-    setTimeout(() => setNotice(''), 3000);
+  useEffect(() => {
+    const loadSecurity = async () => {
+      try {
+        const [sessionsRes, flagsRes] = await Promise.all([adminService.getSessions(''), adminService.getFollowFlags('')]);
+        const sessionsData = sessionsRes?.result || sessionsRes?.data || sessionsRes || [];
+        const flagsData = flagsRes?.result || flagsRes?.data || flagsRes || [];
+        setSessions(Array.isArray(sessionsData) ? sessionsData : sessionsData.items || sessionsData.sessions || []);
+        setFollowFlags(Array.isArray(flagsData) ? flagsData : flagsData.items || flagsData.flags || []);
+      } catch {
+        setSessions([]);
+        setFollowFlags([]);
+      }
+    };
+
+    loadSecurity();
+  }, []);
+
+  const forceLogout = async (id) => {
+    try {
+      await adminService.terminateSession(id);
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      setNotice(`Phiên đăng nhập ${id} đã bị ngắt kết nối bắt buộc.`);
+      setTimeout(() => setNotice(''), 3000);
+    } catch {
+      setNotice('Không thể ngắt phiên đăng nhập.');
+    }
   };
 
   return (
@@ -74,7 +86,7 @@ export default function UserSecurityPanel() {
                     <TableRow key={s.id} className={cx('tableRow')}>
                       <TableCell>
                         <Typography fontWeight={800} color="primary">
-                          {s.user}
+                          {s.user || s.username || '-'}
                         </Typography>
                         <Typography variant="caption" color="textSecondary">
                           {s.id}
@@ -83,13 +95,13 @@ export default function UserSecurityPanel() {
                       <TableCell>
                         <Box display="flex" alignItems="center" gap={1}>
                           <Typography fontSize="1.3rem" fontWeight={600}>
-                            {s.ip}
+                            {s.ip || s.ipAddress || '-'}
                           </Typography>
-                          <Chip label={s.device} size="small" variant="outlined" sx={{ fontSize: '1rem' }} />
+                          <Chip label={s.device || s.deviceInfo || '-'} size="small" variant="outlined" sx={{ fontSize: '1rem' }} />
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Chip label={s.risk} className={cx('riskChip', s.risk.replace(' ', '-'))} />
+                        <Chip label={s.risk || s.severity || 'thấp'} className={cx('riskChip', String(s.risk || s.severity || 'thấp').replace(' ', '-'))} />
                       </TableCell>
                       <TableCell align="right">
                         <Tooltip title="Ngắt kết nối ngay">
@@ -121,10 +133,10 @@ export default function UserSecurityPanel() {
                 {followFlags.map((f) => (
                   <Box key={f.id} className={cx('flagItem')}>
                     <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                      <Typography fontWeight={850}>{f.account}</Typography>
-                      <Chip label={f.severity} size="small" className={cx('sevChip', f.severity)} />
+                      <Typography fontWeight={850}>{f.account || f.user || '-'}</Typography>
+                      <Chip label={f.severity || 'medium'} size="small" className={cx('sevChip', f.severity || 'medium')} />
                     </Box>
-                    <Typography className={cx('patternText')}>{f.pattern}</Typography>
+                    <Typography className={cx('patternText')}>{f.pattern || f.reason || '-'}</Typography>
                     <Button size="small" className={cx('resolveBtn')}>
                       Xử lý tài khoản
                     </Button>

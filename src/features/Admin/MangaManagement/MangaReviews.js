@@ -1,17 +1,31 @@
-import { ArrowBackRounded, StarRounded, DeleteOutlineRounded, ThumbUpAltRounded, ChatBubbleOutlineRounded } from '@mui/icons-material';
-import { Box, Typography, IconButton, Paper, Grid, Avatar, Rating, Button, Divider } from '@mui/material';
+import { ArrowBackRounded, DeleteOutlineRounded, ThumbUpAltRounded, ChatBubbleOutlineRounded } from '@mui/icons-material';
+import { Box, Typography, IconButton, Paper, Grid, Avatar, Rating, Button } from '@mui/material';
 import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { adminService } from '~/services/adminService';
 import styles from './MangaReviews.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function MangaReviews() {
-  const reviews = [
-    { id: 1, user: 'Hoàng Long', rating: 5, content: 'Cốt truyện đỉnh cao, nét vẽ Berserk thì khỏi bàn rồi. Mong nhóm dịch tiếp tục cố gắng!', date: '12/04/2026', likes: 24 },
-    { id: 2, user: 'MangaFan99', rating: 4, content: 'Truyện hay nhưng thỉnh thoảng font chữ hơi khó đọc ở các chap cũ.', date: '10/04/2026', likes: 12 },
-    { id: 3, user: 'MangaFan99', rating: 4, content: 'Truyện hay nhưng thỉnh thoảng font chữ hơi khó đọc ở các chap cũ.', date: '10/04/2026', likes: 12 },
-    { id: 4, user: 'MangaFan99', rating: 4, content: 'Cốt truyện đỉnh cao, nét vẽ Berserk thì khỏi bàn rồi. Mong nhóm dịch tiếp tục cố gắng!', date: '10/04/2026', likes: 12 },
-  ];
+  const { id } = useParams();
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        const response = await adminService.getReviewModeration('');
+        const data = response?.result || response?.data || response || [];
+        const list = Array.isArray(data) ? data : data.items || data.reviews || [];
+        setReviews(id ? list.filter((item) => String(item.mangaId || item.comicId || item.id) === String(id) || !item.mangaId) : list);
+      } catch {
+        setReviews([]);
+      }
+    };
+
+    loadReviews();
+  }, [id]);
 
   return (
     <div className={cx('reviewsContainer')}>
@@ -21,8 +35,8 @@ export default function MangaReviews() {
           <ArrowBackRounded />
         </IconButton>
         <Box ml={2}>
-          <Typography className={cx('mangaName')}>Berserk (1997)</Typography>
-          <Typography className={cx('statLine')}>Tổng cộng 128 đánh giá • Điểm trung bình: 4.8/5</Typography>
+          <Typography className={cx('mangaName')}>{id ? `Manga ${id}` : 'Đánh giá truyện'}</Typography>
+          <Typography className={cx('statLine')}>Tổng cộng {reviews.length} đánh giá</Typography>
         </Box>
       </header>
 
@@ -31,20 +45,20 @@ export default function MangaReviews() {
           <Grid item size={6} key={rev.id}>
             <Paper className={cx('reviewCard')} elevation={0}>
               <Box className={cx('userSection')}>
-                <Avatar sx={{ bgcolor: '#ea982b', fontWeight: 700 }}>{rev.user[0]}</Avatar>
+                <Avatar sx={{ bgcolor: '#ea982b', fontWeight: 700 }}>{(rev.user || rev.username || 'U')[0]}</Avatar>
                 <div className={cx('userInfo')}>
-                  <Typography className={cx('userName')}>{rev.user}</Typography>
-                  <Typography className={cx('date')}>{rev.date}</Typography>
+                  <Typography className={cx('userName')}>{rev.user || rev.username || '-'}</Typography>
+                  <Typography className={cx('date')}>{rev.date || rev.createdAt || '-'}</Typography>
                 </div>
-                <Rating value={rev.rating} readOnly size="small" className={cx('stars')} />
+                <Rating value={Number(rev.rating || rev.score || 0)} readOnly size="small" className={cx('stars')} />
               </Box>
 
-              <Typography className={cx('content')}>{rev.content}</Typography>
+              <Typography className={cx('content')}>{rev.content || rev.text || '-'}</Typography>
 
               <div className={cx('footer')}>
                 <div className={cx('interactions')}>
                   <span className={cx('stat')}>
-                    <ThumbUpAltRounded /> {rev.likes}
+                    <ThumbUpAltRounded /> {rev.likes ?? rev.likeCount ?? 0}
                   </span>
                   <span className={cx('stat')}>
                     <ChatBubbleOutlineRounded /> 4 phản hồi

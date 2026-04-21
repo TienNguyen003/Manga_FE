@@ -1,26 +1,40 @@
 import { AnalyticsRounded, AutoModeRounded, ErrorOutlineRounded, FactCheckRounded, PersonSearchRounded, RestoreRounded } from '@mui/icons-material';
+import SourceIcon from '@mui/icons-material/Source';
 import { Alert, Box, Button, Chip, Divider, Grid, Paper, Stack, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './CollectionAudit.module.scss';
 
 const cx = classNames.bind(styles);
 
-const seedCases = [
-  { id: 'CL-01', user: 'reader_22', issue: 'Mất 18 manga trong bộ sưu tập', level: 'high', timestamp: '2 giờ trước' },
-  { id: 'CL-02', user: 'reader_35', issue: 'Chuỗi đọc (streak) bị reset bất thường', level: 'medium', timestamp: '5 giờ trước' },
-  { id: 'CL-03', user: 'reader_42', issue: 'Dữ liệu bộ sưu tập bị trùng lặp', level: 'medium', timestamp: '1 giờ trước' },
-  { id: 'CL-04', user: 'reader_18', issue: 'Không thể thêm manga mới vào bộ sưu tập', level: 'high', timestamp: '3 giờ trước' },
-];
-
 export default function CollectionAuditPanel() {
-  const [cases, setCases] = useState(seedCases);
+  const [cases, setCases] = useState([]);
   const [notice, setNotice] = useState('');
 
-  const resolveCase = (id) => {
-    setCases((prev) => prev.filter((c) => c.id !== id));
-    setNotice(`Ticket ${id} đã được đóng. Dữ liệu đã được kiểm toán.`);
-    setTimeout(() => setNotice(''), 3000);
+  useEffect(() => {
+    const loadCases = async () => {
+      try {
+        const response = await adminService.getCollectionAuditCases('');
+        const data = response?.result || response?.data || response || [];
+        setCases(Array.isArray(data) ? data : data.items || data.cases || []);
+      } catch {
+        setCases([]);
+      }
+    };
+
+    loadCases();
+  }, []);
+
+  const resolveCase = async (id) => {
+    try {
+      await adminService.updateCollectionAuditCase(id, { status: 'resolved' });
+      setCases((prev) => prev.filter((c) => c.id !== id));
+      setNotice(`Ticket ${id} đã được đóng. Dữ liệu đã được kiểm toán.`);
+      setTimeout(() => setNotice(''), 3000);
+    } catch {
+      setNotice('Không thể xử lý ticket kiểm toán.');
+    }
   };
 
   return (
@@ -46,32 +60,40 @@ export default function CollectionAuditPanel() {
         <Grid item size={{ xs: 12, sm: 8 }}>
           <Grid container spacing={2}>
             {cases.map((c) => (
-              <Grid item size={{ xs: 12 }} key={c.id}>
+              <Grid size={{ xs: 12 }} key={c.id}>
                 <Paper className={cx('caseCard', c.level)} elevation={0}>
-                  <Box display="flex" justifyContent="space-between" mb={2}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Typography className={cx('idTag')}>{c.id}</Typography>
-                      <Typography className={cx('timeTag')}>{c.timestamp}</Typography>
+                  {/* Header: Gom ID, Time và Title lại để tạo cảm giác chuyên nghiệp */}
+                  <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                    <Stack spacing={0.5} style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px'}}>
+                      <Typography className={cx('idTag')}>#{c.id}</Typography>
+                      <Typography className={cx('collectionName')}>{c.collectionName}</Typography>
                     </Stack>
-                    <Chip label={c.level.toUpperCase()} className={cx('levelChip', c.level)} size="small" />
+                    <Typography className={cx('timeTag')}>{new Date(c.createdAt).toLocaleString()}</Typography>
                   </Box>
 
+                  {/* Body: Chỉ chứa thông tin User và Vi phạm */}
                   <Box className={cx('content')}>
                     <Box className={cx('userInfo')}>
-                      <PersonSearchRounded />
-                      <Typography fontWeight={800}>{c.user}</Typography>
+                      <PersonSearchRounded sx={{ fontSize: 20 }} />
+                      <Typography fontWeight={700} fontSize="1.3rem">
+                        {c.user || c.username || 'Unknown'}
+                      </Typography>
                     </Box>
-                    <Typography className={cx('issueText')}>{c.issue}</Typography>
+
+                    <Box className={cx('violationWrapper')}>
+                      <SourceIcon sx={{ fontSize: 20 }} />
+                      <Typography className={cx('violationLabel')}>Vi phạm: {c.violationReason || 'Không có'}</Typography>
+                    </Box>
                   </Box>
 
                   <Divider className={cx('divider')} />
 
                   <Stack direction="row" spacing={1.5}>
                     <Button variant="contained" startIcon={<RestoreRounded />} className={cx('restoreBtn')}>
-                      Khôi phục dữ liệu
+                      Khôi phục
                     </Button>
                     <Button variant="outlined" onClick={() => resolveCase(c.id)} className={cx('resolveBtn')}>
-                      Xác nhận xử lý
+                      Xử lý
                     </Button>
                   </Stack>
                 </Paper>

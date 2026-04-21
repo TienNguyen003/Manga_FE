@@ -12,6 +12,12 @@ $border: #f1f5f9;
     align-items: center;
     margin-bottom: 35px;
 
+    .titleBox{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .backBtn {
       background: #fff;
       border: 1px solid $border;
@@ -192,6 +198,25 @@ $border: #f1f5f9;
       }
     }
   }
+}
+
+.projectList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.projectSection {
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  text-transform: uppercase;
+  color: #64748b !important;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
 }
 
 @keyframes fadeIn {

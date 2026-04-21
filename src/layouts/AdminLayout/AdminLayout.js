@@ -17,7 +17,7 @@ import {
 import classNames from 'classnames/bind';
 import styles from './Admin.module.scss';
 import paths from '~/routes/paths';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -41,7 +41,9 @@ const menuItems = [
 ];
 
 export default function AdminLayout({ children }) {
-  const [activeTab, setActiveTab] = useState('Tổng quan');
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <Box className={cx('adminWrapper')}>
@@ -69,7 +71,7 @@ export default function AdminLayout({ children }) {
             {menuItems.map((item) => (
               <Link to={item.path} key={item.text} style={{ textDecoration: 'none' }}>
                 <ListItem key={item.text} disablePadding>
-                  <ListItemButton className={cx('menuItem', { active: activeTab === item.text })} onClick={() => setActiveTab(item.text)}>
+                  <ListItemButton className={cx('menuItem', { active: isActive(item.path) })}>
                     <ListItemIcon className={cx('menuIcon')}>{item.icon}</ListItemIcon>
                     <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: '1.4rem', fontWeight: 600 }} />
                   </ListItemButton>
@@ -91,11 +93,6 @@ export default function AdminLayout({ children }) {
 
       {/* MAIN CONTENT */}
       <main className={cx('mainContent')}>
-        <header className={cx('topBar')}>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>
-            {activeTab}
-          </Typography>
-        </header>
         <section className={cx('pageBody')}>{children}</section>
       </main>
     </Box>

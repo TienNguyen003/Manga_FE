@@ -1,31 +1,48 @@
 import { AddModeratorRounded, CloudSyncRounded, KeyRounded, ManageAccountsRounded, SecurityRounded, SupervisedUserCircleRounded, VerifiedUserRounded } from '@mui/icons-material';
 import { Alert, Box, Button, Chip, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './Rbac.module.scss';
 
 const cx = classNames.bind(styles);
 
-const roleSeed = [
-  { role: 'Quản trị viên', level: 'Admin', permissions: ['Xóa bài viết', 'Cấm người dùng', 'Quản lý vai trò', 'Truy cập Logs'] },
-  { role: 'Điều phối viên', level: 'Mod', permissions: ['Xóa bài viết', 'Ẩn đánh giá', 'Duyệt chương'] },
-  { role: 'Người dùng', level: 'User', permissions: ['Tạo bài viết', 'Bình luận'] },
-];
-
 export default function RbacPanel() {
-  const [roles, setRoles] = useState(roleSeed);
+  const [roles, setRoles] = useState([]);
   const [notice, setNotice] = useState('');
 
-  const grantBan = (role) => {
-    setRoles((prev) =>
-      prev.map((r) => {
-        if (r.role !== role) return r;
-        if (r.permissions.includes('Cấm người dùng')) return r;
-        return { ...r, permissions: [...r.permissions, 'Cấm người dùng'] };
-      }),
-    );
-    setNotice(`Cấp quyền 'Cấm người dùng' thành công cho nhóm ${role}.`);
-    setTimeout(() => setNotice(''), 3000);
+  useEffect(() => {
+    const loadMatrix = async () => {
+      try {
+        const response = await adminService.getRbacMatrix();
+        const data = response?.result || response?.data || response || [];
+        setRoles(Array.isArray(data) ? data : data.items || data.roles || []);
+      } catch {
+        setRoles([]);
+      }
+    };
+
+    loadMatrix();
+  }, []);
+
+  const grantBan = async (role) => {
+    try {
+      const current = roles.find((item) => item.role === role);
+      const permissions = current?.permissions || [];
+      if (permissions.includes('Cấm người dùng')) return;
+
+      await adminService.updateRbacRolePermissions(role, [...permissions, 'Cấm người dùng']);
+      setRoles((prev) =>
+        prev.map((r) => {
+          if (r.role !== role) return r;
+          return { ...r, permissions: [...permissions, 'Cấm người dùng'] };
+        }),
+      );
+      setNotice(`Cấp quyền 'Cấm người dùng' thành công cho nhóm ${role}.`);
+      setTimeout(() => setNotice(''), 3000);
+    } catch {
+      setNotice('Không thể cập nhật quyền RBAC.');
+    }
   };
 
   const getLevelColor = (level) => {
@@ -82,16 +99,16 @@ export default function RbacPanel() {
                     <Box display="flex" alignItems="center" gap={1.5}>
                       <div className={cx('roleIcon', r.level)}>{r.level === 'Admin' ? <SecurityRounded /> : <SupervisedUserCircleRounded />}</div>
                       <Typography fontWeight={850} fontSize="1.4rem" color="#0f172a">
-                        {r.role}
+                        {r.role || r.roleName || '-'}
                       </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip label={r.level} color={getLevelColor(r.level)} size="small" variant="outlined" className={cx('levelChip')} />
+                    <Chip label={r.level || r.roleName || 'User'} color={getLevelColor(r.level || 'User')} size="small" variant="outlined" className={cx('levelChip')} />
                   </TableCell>
                   <TableCell sx={{ maxWidth: 400 }}>
                     <Stack direction="row" spacing={0.6} flexWrap="wrap" useFlexGap>
-                      {r.permissions.map((p) => (
+                      {(r.permissions || r.permissionNames || []).map((p) => (
                         <Chip key={p} size="small" label={p} className={cx('permChip')} />
                       ))}
                     </Stack>
@@ -99,7 +116,12 @@ export default function RbacPanel() {
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
                       <Tooltip title="Cấp quyền 'Cấm User'">
-                        <IconButton color="warning" onClick={() => grantBan(r.role)} disabled={r.permissions.includes('Cấm người dùng')} className={cx('actionIcon')}>
+                        <IconButton
+                          color="warning"
+                          onClick={() => grantBan(r.role || r.roleName)}
+                          disabled={(r.permissions || r.permissionNames || []).includes('Cấm người dùng')}
+                          className={cx('actionIcon')}
+                        >
                           <VerifiedUserRounded />
                         </IconButton>
                       </Tooltip>

@@ -1,29 +1,31 @@
 import { ReplyRounded, DeleteSweepRounded, BlockRounded, FlagRounded, CheckCircleRounded } from '@mui/icons-material';
 import { Box, Typography, IconButton, Paper, Avatar, Button, Chip, Stack } from '@mui/material';
 import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { adminService } from '~/services/adminService';
 import styles from './CommentManagement.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function CommentManagement() {
-  const comments = [
-    {
-      id: 1,
-      user: 'Zoro Lạc Lối',
-      content: 'Chap này vẽ hơi ẩu nhé nhóm dịch ơi, xem lại trang 5 bị mất khung hình.',
-      time: '2 giờ trước',
-      chapter: 'Chap 150',
-      replies: [{ id: 11, user: 'Admin Duy', content: 'Cảm ơn bạn đã góp ý, mình sẽ check lại ngay!', time: '1 giờ trước' }],
-    },
-    {
-      id: 2,
-      user: 'Trùm Spoil',
-      content: 'Thằng chính chuẩn bị chết ở chap sau nè các ông ơi hahaha!',
-      time: '5 giờ trước',
-      chapter: 'Chap 150',
-      isSpam: true,
-    },
-  ];
+  const { id } = useParams();
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    const loadComments = async () => {
+      try {
+        const response = await adminService.getCommentModeration('');
+        const data = response?.result || response?.data || response || [];
+        const list = Array.isArray(data) ? data : data.items || data.comments || [];
+        setComments(id ? list.filter((item) => String(item.mangaId || item.comicId || item.id) === String(id) || !item.mangaId) : list);
+      } catch {
+        setComments([]);
+      }
+    };
+
+    loadComments();
+  }, [id]);
 
   return (
     <div className={cx('commentWrapper')}>
@@ -40,14 +42,14 @@ export default function CommentManagement() {
         {comments.map((comment) => (
           <Paper key={comment.id} className={cx('commentBox', { spam: comment.isSpam })} elevation={0}>
             <Box className={cx('mainComment')}>
-              <Avatar sx={{ width: 40, height: 40, bgcolor: '#0f172a' }}>{comment.user[0]}</Avatar>
+              <Avatar sx={{ width: 40, height: 40, bgcolor: '#0f172a' }}>{(comment.user || comment.username || 'U')[0]}</Avatar>
               <Box flex={1}>
                 <div className={cx('userMeta')}>
-                  <Typography className={cx('userName')}>{comment.user}</Typography>
-                  <Typography className={cx('time')}>{comment.time}</Typography>
+                  <Typography className={cx('userName')}>{comment.user || comment.username || '-'}</Typography>
+                  <Typography className={cx('time')}>{comment.time || comment.createdAt || '-'}</Typography>
                   {comment.isSpam && <Chip label="Bị báo cáo" size="small" color="error" className={cx('reportBadge')} />}
                 </div>
-                <Typography className={cx('text')}>{comment.content}</Typography>
+                <Typography className={cx('text')}>{comment.content || comment.text || '-'}</Typography>
 
                 <div className={cx('actions')}>
                   <Button size="small" startIcon={<CheckCircleRounded />}>
@@ -70,10 +72,10 @@ export default function CommentManagement() {
             {comment.replies?.map((reply) => (
               <Box key={reply.id} className={cx('replyBox')}>
                 <div className={cx('replyLine')} />
-                <Avatar sx={{ width: 28, height: 28, bgcolor: '#ea982b' }}>{reply.user[0]}</Avatar>
+                <Avatar sx={{ width: 28, height: 28, bgcolor: '#ea982b' }}>{(reply.user || reply.username || 'U')[0]}</Avatar>
                 <Box>
-                  <Typography className={cx('replyUser')}>{reply.user}</Typography>
-                  <Typography className={cx('replyText')}>{reply.content}</Typography>
+                  <Typography className={cx('replyUser')}>{reply.user || reply.username || '-'}</Typography>
+                  <Typography className={cx('replyText')}>{reply.content || reply.text || '-'}</Typography>
                 </Box>
               </Box>
             ))}

@@ -1,18 +1,35 @@
 import { GroupsRounded, InsightsRounded, MenuBookRounded, SpeedRounded, TrendingUpRounded, WhatshotRounded } from '@mui/icons-material';
 import { Box, Chip, Grid, LinearProgress, Paper, Stack, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './Ops.module.scss';
 
 const cx = classNames.bind(styles);
 
-const kpis = [
-  { label: 'DAU', value: '18,420', trend: '+12%', tone: 'success', icon: <GroupsRounded /> },
-  { label: 'MAU', value: '204,110', trend: '+5.2%', tone: 'info', icon: <InsightsRounded /> },
-  { label: 'Tỷ lệ báo cáo', value: '2.8%', trend: '-0.4%', tone: 'warning', icon: <SpeedRounded /> },
-  { label: 'Thời gian đọc TB', value: '26m', trend: '+2m', tone: 'primary', icon: <MenuBookRounded /> },
-];
-
 export default function OpsMonitoringPanel() {
+  const [kpis, setKpis] = useState([]);
+  const [topMangas, setTopMangas] = useState([]);
+  const [activities, setActivities] = useState([]);
+
+  useEffect(() => {
+    const loadMetrics = async () => {
+      try {
+        const response = await adminService.getOpsMetrics();
+        const data = response?.result || response?.data || response || {};
+        setKpis(data.kpis || data.metrics || []);
+        setTopMangas(data.topMangas || data.mangas || []);
+        setActivities(data.activity || data.activities || []);
+      } catch {
+        setKpis([]);
+        setTopMangas([]);
+        setActivities([]);
+      }
+    };
+
+    loadMetrics();
+  }, []);
+
   return (
     <div className={cx('opsWrapper')}>
       <Box className={cx('header')}>
@@ -25,15 +42,15 @@ export default function OpsMonitoringPanel() {
 
       {/* KPI Cards */}
       <Grid container spacing={3} mb={4}>
-        {kpis.map((k) => (
+        {kpis.map((k, index) => (
           <Grid item size={{ xs: 6, sm: 3 }} key={k.label}>
             <Paper className={cx('kpiCard', k.tone)} elevation={0}>
               <Box className={cx('cardTop')}>
-                <div className={cx('iconBox')}>{k.icon}</div>
-                <Typography className={cx('trendText')}>{k.trend}</Typography>
+                <div className={cx('iconBox')}>{k.icon || [<GroupsRounded />, <InsightsRounded />, <SpeedRounded />, <MenuBookRounded />][index % 4]}</div>
+                <Typography className={cx('trendText')}>{k.trend || k.change || '0%'}</Typography>
               </Box>
-              <Typography className={cx('kpiLabel')}>{k.label}</Typography>
-              <Typography className={cx('kpiValue')}>{k.value}</Typography>
+              <Typography className={cx('kpiLabel')}>{k.label || k.name || '-'}</Typography>
+              <Typography className={cx('kpiValue')}>{k.value || k.count || '0'}</Typography>
               <LinearProgress variant="determinate" value={70} className={cx('progress')} color="inherit" />
             </Paper>
           </Grid>
@@ -51,20 +68,16 @@ export default function OpsMonitoringPanel() {
               </Typography>
             </Box>
             <Stack spacing={2} p={3}>
-              {[
-                { name: 'Huyết Kiếm', views: '52,400', color: '#f59e0b' },
-                { name: 'Mặt Trăng Đỏ', views: '44,120', color: '#3b82f6' },
-                { name: 'Hoa Đăng', views: '36,000', color: '#10b981' },
-              ].map((m, index) => (
+              {topMangas.map((m, index) => (
                 <Box key={m.name} className={cx('mangaItem')}>
                   <Typography className={cx('rank')}>#{index + 1}</Typography>
                   <Box flex={1}>
-                    <Typography fontWeight={800}>{m.name}</Typography>
+                    <Typography fontWeight={800}>{m.name || m.title || '-'}</Typography>
                     <Typography variant="caption" color="textSecondary">
-                      {m.views} lượt xem/ngày
+                      {m.views || m.viewCount || 0} lượt xem/ngày
                     </Typography>
                   </Box>
-                  <TrendingUpRounded style={{ color: m.color }} />
+                  <TrendingUpRounded style={{ color: m.color || '#ea982b' }} />
                 </Box>
               ))}
             </Stack>
@@ -81,21 +94,19 @@ export default function OpsMonitoringPanel() {
               </Typography>
             </Box>
             <Stack spacing={3} p={3}>
-              <Box className={cx('metricBox')}>
-                <Typography>Bài viết mới</Typography>
-                <Typography className={cx('metricValue')}>420</Typography>
-                <LinearProgress variant="determinate" value={45} className={cx('metricBar', 'post')} />
-              </Box>
-              <Box className={cx('metricBox')}>
-                <Typography>Bình luận mới</Typography>
-                <Typography className={cx('metricValue')}>4,800</Typography>
-                <LinearProgress variant="determinate" value={85} className={cx('metricBar', 'comment')} />
-              </Box>
-              <Box className={cx('metricBox')}>
-                <Typography>Báo cáo xử lý</Typography>
-                <Typography className={cx('metricValue')}>71</Typography>
-                <LinearProgress variant="determinate" value={20} className={cx('metricBar', 'report')} />
-              </Box>
+              {activities.length ? (
+                activities.map((activity, index) => (
+                  <Box key={activity.label || index} className={cx('metricBox')}>
+                    <Typography>{activity.label || activity.name || '-'}</Typography>
+                    <Typography className={cx('metricValue')}>{activity.value || activity.count || 0}</Typography>
+                    <LinearProgress variant="determinate" value={Number(activity.progress || 0)} className={cx('metricBar', activity.type || 'post')} />
+                  </Box>
+                ))
+              ) : (
+                <Box className={cx('metricBox')}>
+                  <Typography>Chưa có dữ liệu</Typography>
+                </Box>
+              )}
             </Stack>
           </Paper>
         </Grid>

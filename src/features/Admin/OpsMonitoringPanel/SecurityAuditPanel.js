@@ -1,25 +1,39 @@
 import { BlockRounded, BugReportRounded, DoneAllRounded, PolicyRounded, RadarRounded, TerminalRounded } from '@mui/icons-material';
 import { Alert, Box, Button, Chip, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './SecurityAudit.module.scss';
 
 const cx = classNames.bind(styles);
 
-const logsSeed = [
-  { id: 'LG-1001', event: 'RATE_LIMIT_HIT', source: '/api/v1/community/posts', level: 'warning', ip: '192.168.1.45' },
-  { id: 'LG-1002', event: 'SQL_INJECTION_PATTERN', source: '/api/v1/mangas/search', level: 'critical', ip: '45.112.x.x' },
-  { id: 'LG-1003', event: 'BOT_SIGNATURE_DETECTED', source: '/api/v1/users/follow', level: 'high', ip: '103.21.x.x' },
-];
-
 export default function SecurityAuditPanel() {
-  const [logs, setLogs] = useState(logsSeed);
+  const [logs, setLogs] = useState([]);
   const [notice, setNotice] = useState('');
 
-  const markDone = (id) => {
-    setLogs((prev) => prev.filter((l) => l.id !== id));
-    setNotice(`Sự kiện ${id} đã được xác nhận và đưa vào kho lưu trữ.`);
-    setTimeout(() => setNotice(''), 3000);
+  useEffect(() => {
+    const loadLogs = async () => {
+      try {
+        const response = await adminService.getSecurityAuditLogs();
+        const data = response?.result || response?.data || response || [];
+        setLogs(Array.isArray(data) ? data : data.items || data.logs || []);
+      } catch {
+        setLogs([]);
+      }
+    };
+
+    loadLogs();
+  }, []);
+
+  const markDone = async (id) => {
+    try {
+      await adminService.createSecurityAuditLog({ eventId: id, status: 'acknowledged' });
+      setLogs((prev) => prev.filter((l) => l.id !== id));
+      setNotice(`Sự kiện ${id} đã được xác nhận và đưa vào kho lưu trữ.`);
+      setTimeout(() => setNotice(''), 3000);
+    } catch {
+      setNotice('Không thể xác nhận log bảo mật.');
+    }
   };
 
   return (
@@ -70,20 +84,20 @@ export default function SecurityAuditPanel() {
                   <TableCell>
                     <Typography className={cx('logId')}>{l.id}</Typography>
                     <Typography variant="caption" className={cx('logIp')}>
-                      {l.ip}
+                      {l.ip || l.ipAddress || '-'}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Box className={cx('eventBox')}>
                       <BugReportRounded fontSize="small" />
-                      <Typography fontWeight={700}>{l.event}</Typography>
+                      <Typography fontWeight={700}>{l.event || l.action || '-'}</Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <code className={cx('sourceCode')}>{l.source}</code>
+                    <code className={cx('sourceCode')}>{l.source || l.endpoint || '-'}</code>
                   </TableCell>
                   <TableCell>
-                    <Chip label={l.level} className={cx('levelChip', l.level)} size="small" />
+                    <Chip label={l.level || 'warning'} className={cx('levelChip', l.level || 'warning')} size="small" />
                   </TableCell>
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">

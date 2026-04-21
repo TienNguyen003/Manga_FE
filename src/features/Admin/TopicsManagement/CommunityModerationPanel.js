@@ -2,24 +2,39 @@ import { useState } from 'react';
 import { Alert, Box, Button, Chip, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Tooltip } from '@mui/material';
 import { GavelRounded, DeleteSweepRounded, VisibilityOffRounded, ForumRounded, ArticleRounded, BugReportRounded, ShieldRounded, AddModeratorRounded } from '@mui/icons-material';
 import classNames from 'classnames/bind';
+import { useEffect } from 'react';
+import { adminService } from '~/services/adminService';
 import styles from './Moderation.module.scss';
 
 const cx = classNames.bind(styles);
 
-const reportsSeed = [
-  { id: 'RP-01', type: 'post', target: 'Top 10 Manga hành động...', reason: 'Toxic', severity: 'high' },
-  { id: 'RP-02', type: 'comment', target: 'Spam link Telegram nhận thưởng', reason: 'Spam', severity: 'high' },
-  { id: 'RP-03', type: 'reaction', target: 'Bùng nổ like 400/5m', reason: 'Bot Abuse', severity: 'critical' },
-];
-
 export default function CommunityModerationPanel() {
-  const [reports, setReports] = useState(reportsSeed);
+  const [reports, setReports] = useState([]);
   const [notice, setNotice] = useState('');
 
-  const resolveReport = (id, action) => {
-    setReports((prev) => prev.filter((r) => r.id !== id));
-    setNotice(`Đã thực thi hành động: ${action.toUpperCase()} trên mã báo cáo ${id}.`);
-    setTimeout(() => setNotice(''), 3000);
+  useEffect(() => {
+    const loadReports = async () => {
+      try {
+        const response = await adminService.getReports('');
+        const data = response?.result || response?.data || response || [];
+        setReports(Array.isArray(data) ? data : data.items || data.reports || []);
+      } catch {
+        setReports([]);
+      }
+    };
+
+    loadReports();
+  }, []);
+
+  const resolveReport = async (id, action) => {
+    try {
+      await adminService.resolveReport(id, action);
+      setReports((prev) => prev.filter((r) => r.id !== id));
+      setNotice(`Đã thực thi hành động: ${action.toUpperCase()} trên mã báo cáo ${id}.`);
+      setTimeout(() => setNotice(''), 3000);
+    } catch {
+      setNotice('Không thể xử lý báo cáo.');
+    }
   };
 
   const getTypeIcon = (type) => {
@@ -82,7 +97,7 @@ export default function CommunityModerationPanel() {
                         <Box className={cx('typeBox')}>
                           <span className={cx('icon', r.type)}>{getTypeIcon(r.type)}</span>
                           <Typography fontWeight={700} fontSize="1.3rem">
-                            {r.type.toUpperCase()}
+                            {(r.type || r.targetType || 'report').toUpperCase()}
                           </Typography>
                         </Box>
                         <Typography variant="caption" color="textSecondary">
@@ -90,13 +105,13 @@ export default function CommunityModerationPanel() {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography className={cx('targetText')}>{r.target}</Typography>
+                        <Typography className={cx('targetText')}>{r.target || r.title || '-'}</Typography>
                         <Typography variant="caption" className={cx('reasonText')}>
-                          Lý do: {r.reason}
+                          Lý do: {r.reason || r.description || '-'}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Chip size="small" label={r.severity} className={cx('severityChip', r.severity)} />
+                        <Chip size="small" label={r.severity || 'medium'} className={cx('severityChip', r.severity || 'medium')} />
                       </TableCell>
                       <TableCell align="right">
                         <Stack direction="row" spacing={1} justifyContent="flex-end">

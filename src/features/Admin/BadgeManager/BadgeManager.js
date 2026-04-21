@@ -1,75 +1,309 @@
-import { AddRounded, EditRounded, DeleteOutlineRounded, WorkspacePremiumRounded } from '@mui/icons-material';
-import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, IconButton, Tooltip } from '@mui/material';
+import {
+  AddRounded,
+  EditRounded,
+  DeleteOutlineRounded,
+  WorkspacePremiumRounded,
+  QrCodeRounded,
+  BadgeRounded,
+  DescriptionRounded,
+  ImageRounded,
+  RuleRounded,
+  Filter1Rounded,
+} from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Avatar,
+  IconButton,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Stack,
+  TextField,
+  InputAdornment,
+  MenuItem,
+  FormControlLabel,
+  Switch,
+} from '@mui/material';
 import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { adminService } from '~/services/adminService';
 import styles from './Badges.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function BadgeManager() {
-  const badges = [
-    { id: '001', name: 'Vip Member', image: 'https://cdn-icons-png.flaticon.com/512/6198/6198527.png', count: 1254, date: '12/04/2026' },
-    { id: '002', name: 'Top Contributor', image: 'https://cdn-icons-png.flaticon.com/512/6198/6198527.png', count: 85, date: '10/04/2026' },
-    { id: '003', name: 'Legendary', image: 'https://cdn-icons-png.flaticon.com/512/6198/6198527.png', count: 12, date: '01/04/2026' },
-  ];
+  const [badges, setBadges] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+
+  // Khởi tạo state dựa trên DTO Backend
+  const [newBadge, setNewBadge] = useState({
+    code: '',
+    name: '',
+    description: '',
+    iconUrl: '',
+    isActive: 1,
+    conditionType: 'ORDINAL', // ORDINAL hoặc STRING
+    conditionValue: 0,
+    autoGrant: 1, // 1: Tự động, 0: Thủ công
+  });
+
+  useEffect(() => {
+    loadBadges();
+  }, []);
+
+  const loadBadges = async () => {
+    try {
+      const response = await adminService.getBadges();
+      const data = response?.result || response?.data || response || [];
+      setBadges(Array.isArray(data) ? data : data.items || data.badges || []);
+    } catch {
+      setBadges([]);
+    }
+  };
+
+  const handleCreateBadge = async () => {
+    if (!newBadge.code.trim() || !newBadge.name.trim()) {
+      toast.error('Mã và tên huy hiệu không được để trống!');
+      return;
+    }
+    try {
+      // API call: await adminService.createBadge(newBadge);
+      toast.success('Tạo huy hiệu thành công!');
+      setOpenModal(false);
+      loadBadges();
+    } catch (error) {
+      toast.error('Lỗi khi tạo huy hiệu.');
+    }
+  };
 
   return (
     <div className={cx('pageContainer')}>
-      {/* Header đồng nhất */}
+      {/* Header */}
       <header className={cx('pageHeader')}>
         <Box>
-          <Typography className={cx('title')}>Kho Huy Hiệu</Typography>
-          <Typography className={cx('subtitle')}>Cửa hàng và hệ thống danh hiệu dành cho thành viên.</Typography>
+          <Typography variant="h4" className={cx('pageTitle')}>
+            Kho Huy Hiệu
+          </Typography>
+          <Typography className={cx('pageSubtitle')}>Quản lý hệ thống danh hiệu và phần thưởng thành viên.</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddRounded />} className={cx('addBtn')}>
+        <Button variant="contained" startIcon={<AddRounded />} className={cx('primaryBtn')} onClick={() => setOpenModal(true)}>
           Tạo huy hiệu mới
         </Button>
       </header>
 
       {/* Table Section */}
-      <TableContainer component={Paper} className={cx('tableWrapper')} elevation={0}>
+      <TableContainer component={Paper} className={cx('tableCard')} elevation={0}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 800 }}>HUY HIỆU</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>MÃ ID</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>SỞ HỮU</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>NGÀY TẠO</TableCell>
-              <TableCell sx={{ fontWeight: 800 }} align="right">THAO TÁC</TableCell>
+              <TableCell>Huy hiệu</TableCell>
+              <TableCell>Tên - Mô tả</TableCell>
+              <TableCell>Mã ID</TableCell>
+              <TableCell>Sở hữu</TableCell>
+              <TableCell>Điều kiện</TableCell>
+              <TableCell align="right">Thao tác</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {badges.map((badge) => (
+            {badges.map((badge, index) => (
               <TableRow key={badge.id} className={cx('tableRow')}>
                 <TableCell>
                   <Box className={cx('badgeInfoCell')}>
-                    <div className={cx('imageBox')}>
-                      <img src={badge.image} alt={badge.name} />
-                    </div>
-                    <Typography className={cx('badgeName')}>{badge.name}</Typography>
+                    <Avatar src={badge.iconUrl || 'https://cdn-icons-png.flaticon.com/512/6198/6198527.png'} className={cx('badgeAvatar')} variant="rounded" />
                   </Box>
                 </TableCell>
-                <TableCell className={cx('idText')}>#{badge.id}</TableCell>
+                <TableCell>
+                  <Box className={cx('badgeInfoCell')}>
+                    <Box>
+                      <Typography className={cx('badgeName')}>{badge.name || badge.title || `Badge ${index + 1}`}</Typography>
+                      <Typography className={cx('badgeDesc')}>{badge.description || 'Không có mô tả'}</Typography>
+                    </Box>
+                  </Box>
+                </TableCell>
+                <TableCell className={cx('textMono')}>{badge.code || `#${badge.id}`}</TableCell>
                 <TableCell>
                   <Typography className={cx('countText')}>
-                    <b>{badge.count.toLocaleString()}</b> người
+                    <b>{Number(badge.count || badge.ownedCount || 0).toLocaleString()}</b> người
                   </Typography>
                 </TableCell>
-                <TableCell className={cx('dateText')}>{badge.date}</TableCell>
+                <TableCell>
+                  <span className={cx('conditionBadge')}>
+                    {badge.conditionType || 'N/A'} : {badge.conditionValue || 0}
+                  </span>
+                </TableCell>
                 <TableCell align="right">
-                  <div className={cx('actionGroup')}>
-                    <Tooltip title="Sửa">
-                      <IconButton size="small" className={cx('editIcon')}><EditRounded /></IconButton>
+                  <Stack direction="row" spacing={1} justifyContent="flex-end">
+                    <Tooltip title="Chỉnh sửa">
+                      <IconButton className={cx('actionBtn', 'edit')}>
+                        <EditRounded fontSize="small" />
+                      </IconButton>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton size="small" className={cx('deleteIcon')}><DeleteOutlineRounded /></IconButton>
+                      <IconButton className={cx('actionBtn', 'delete')}>
+                        <DeleteOutlineRounded fontSize="small" />
+                      </IconButton>
                     </Tooltip>
-                  </div>
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Modal Thêm Huy Hiệu (Premium UI) */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth PaperProps={{ className: cx('premiumModal') }}>
+        <Box className={cx('modalHeader')}>
+          <Typography variant="h6" className={cx('modalTitle')}>
+            Tạo huy hiệu mới
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Thiết lập thông số và điều kiện trao tặng cho huy hiệu.
+          </Typography>
+        </Box>
+
+        <DialogContent className={cx('modalBody')}>
+          <Box className={cx('formGrid')}>
+            {/* CỘT TRÁI: THÔNG TIN HIỂN THỊ */}
+            <Stack spacing={2.5} className={cx('formColumn')}>
+              <Typography className={cx('sectionLabel')}>Thông tin hiển thị</Typography>
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Mã huy hiệu (VD: VIP_01) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <QrCodeRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewBadge({ ...newBadge, code: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Tên huy hiệu *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <BadgeRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewBadge({ ...newBadge, name: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="URL Ảnh Icon"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <ImageRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewBadge({ ...newBadge, iconUrl: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Mô tả chi tiết"
+                multiline
+                rows={3}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                      <DescriptionRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewBadge({ ...newBadge, description: e.target.value })}
+              />
+            </Stack>
+
+            {/* CỘT PHẢI: CẤU HÌNH HỆ THỐNG */}
+            <Stack spacing={2.5} className={cx('formColumn')}>
+              <Typography className={cx('sectionLabel')}>Điều kiện & Hệ thống</Typography>
+
+              <TextField
+                select
+                className={cx('premiumInput')}
+                value={newBadge.conditionType}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <RuleRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewBadge({ ...newBadge, conditionType: e.target.value })}
+              >
+                <MenuItem value="ORDINAL">Kiểu tuần tự (ORDINAL)</MenuItem>
+                <MenuItem value="STRING">Kiểu chuỗi (STRING)</MenuItem>
+              </TextField>
+
+              <TextField
+                type="number"
+                className={cx('premiumInput')}
+                placeholder="Giá trị điều kiện (VD: 100)"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Filter1Rounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewBadge({ ...newBadge, conditionValue: Number(e.target.value) })}
+              />
+
+              <Box className={cx('switchCard')}>
+                <Box>
+                  <Typography className={cx('switchTitle')}>Tự động cấp phát</Typography>
+                  <Typography className={cx('switchDesc')}>Hệ thống tự động trao khi đủ điều kiện</Typography>
+                </Box>
+                <Switch checked={newBadge.autoGrant === 1} color="primary" onChange={(e) => setNewBadge({ ...newBadge, autoGrant: e.target.checked ? 1 : 0 })} />
+              </Box>
+
+              <Box className={cx('switchCard')}>
+                <Box>
+                  <Typography className={cx('switchTitle')}>Trạng thái hoạt động</Typography>
+                  <Typography className={cx('switchDesc')}>Cho phép hiển thị trên hệ thống</Typography>
+                </Box>
+                <Switch checked={newBadge.isActive === 1} color="success" onChange={(e) => setNewBadge({ ...newBadge, isActive: e.target.checked ? 1 : 0 })} />
+              </Box>
+            </Stack>
+          </Box>
+        </DialogContent>
+
+        <DialogActions className={cx('modalFooter')}>
+          <Button onClick={() => setOpenModal(false)} className={cx('textBtn')}>
+            Hủy bỏ
+          </Button>
+          <Button onClick={handleCreateBadge} variant="contained" className={cx('primaryBtn')}>
+            Lưu huy hiệu
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

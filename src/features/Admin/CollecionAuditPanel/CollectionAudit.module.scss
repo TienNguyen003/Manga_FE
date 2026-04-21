@@ -88,6 +88,34 @@ $border: #f1f5f9;
       color: $dark;
       margin-bottom: 8px;
     }
+    .collectionName {
+      font-size: 1.25rem !important;
+      font-weight: 800 !important;
+      color: #f8fafc !important;
+      letter-spacing: -0.02em;
+      line-height: 1.2 !important;
+      margin-top: 4px;
+    }
+
+    .idTag {
+      font-size: 0.75rem !important;
+      font-weight: 700 !important;
+      color: #38bdf8 !important;
+      text-transform: uppercase;
+    }
+
+    .timeTag {
+      font-size: 0.75rem !important;
+      color: #64748b !important;
+      white-space: nowrap;
+    }
+    .violationWrapper{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: $dark;
+      margin-bottom: 8px;
+    }
     .issueText {
       font-size: 1.5rem;
       color: #334155;

@@ -143,6 +143,50 @@ $border: #ebebeb;
   margin: 4px !important;
 }
 
+.chapterAddBtn {
+  border: 2px solid $dark !important;
+  color: $dark !important;
+  font-weight: 800 !important;
+  border-radius: 0 !important;
+  text-transform: none !important;
+
+  &:hover {
+    background: $primary !important;
+  }
+}
+
+.chapterEmpty {
+  border: 2px dashed $dark;
+  background: #fff;
+  padding: 12px 14px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.chapterItem {
+  border: 2px solid $dark;
+  border-radius: 0;
+  padding: 12px;
+  background: #fff;
+}
+
+.chapterIndex {
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+}
+
+.chapterDeleteBtn {
+  border: 1px solid $dark !important;
+  border-radius: 0 !important;
+  color: $dark !important;
+
+  &:hover {
+    background: #ffefef !important;
+    color: #d32f2f !important;
+  }
+}
+
 .launchBtn {
   height: 70px !important;
   background: $dark !important;

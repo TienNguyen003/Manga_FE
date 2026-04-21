@@ -113,9 +113,11 @@ export default function MyComics() {
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Chỉnh sửa">
-                    <IconButton className={cx('iconBtn')}>
-                      <ModeEditOutlineRounded />
-                    </IconButton>
+                    <Link to={`${paths.upload}?comicId=${item.id}`}>
+                      <IconButton className={cx('iconBtn')}>
+                        <ModeEditOutlineRounded />
+                      </IconButton>
+                    </Link>
                   </Tooltip>
                   <Tooltip title="Tùy chỉnh">
                     <IconButton className={cx('iconBtn')}>

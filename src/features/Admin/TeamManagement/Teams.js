@@ -1,17 +1,86 @@
-import { AddRounded, DeleteOutlineRounded, GroupRounded, SettingsRounded, StarsRounded, LibraryBooksRounded } from '@mui/icons-material';
-import { Avatar, Box, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Chip, Tooltip } from '@mui/material';
+import {
+  AddRounded,
+  DeleteOutlineRounded,
+  DescriptionRounded,
+  FacebookRounded,
+  GroupRounded,
+  ImageRounded,
+  LibraryBooksRounded,
+  SettingsRounded,
+  SportsEsportsRounded,
+  StarsRounded,
+  WallpaperRounded,
+} from '@mui/icons-material';
+import {
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  IconButton,
+  InputAdornment,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import classNames from 'classnames/bind';
-import styles from './Teams.module.scss';
-import paths from '~/routes/paths';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import paths from '~/routes/paths';
+import { adminService } from '~/services/adminService';
+import styles from './Teams.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function TeamManagement() {
-  const teams = [
-    { id: 1, name: 'Lạc Thiên Nhóm', leader: 'Duy Nguyễn', members: 12, projects: 5, avatar: 'L', color: '#ea982b' },
-    { id: 2, name: 'Dark Night Scan', leader: 'Trần Văn A', members: 8, projects: 3, avatar: 'D', color: '#3b82f6' },
-  ];
+  const [teams, setTeams] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [newTeam, setNewTeam] = useState({
+    name: '',
+    description: '',
+    banner: '',
+    avatar: '',
+    socialLinks: {
+      facebook: '',
+      discord: '',
+      website: '',
+    },
+  });
+
+  useEffect(() => {
+    loadTeams();
+  }, []);
+
+  const loadTeams = async () => {
+    try {
+      const response = await adminService.getTeams();
+      const data = response?.result || [];
+      setTeams(data);
+    } catch {
+      toast.error('Không thể tải danh sách nhóm dịch.');
+    }
+  };
+
+  const handleSocialChange = (key, value) => {
+    setNewTeam((prev) => ({
+      ...prev,
+      socialLinks: {
+        ...prev.socialLinks,
+        [key]: value,
+      },
+    }));
+  };
 
   return (
     <div className={cx('pageContainer')}>
@@ -21,7 +90,7 @@ export default function TeamManagement() {
           <Typography className={cx('title')}>Nhóm Dịch Hệ Thống</Typography>
           <Typography className={cx('subtitle')}>Quản lý các tổ chức dịch thuật và cộng tác viên.</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddRounded />} className={cx('addBtn')}>
+        <Button variant="contained" startIcon={<AddRounded />} className={cx('primaryBtn')} onClick={() => setOpenModal(true)}>
           Thành lập nhóm
         </Button>
       </header>
@@ -31,13 +100,11 @@ export default function TeamManagement() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 800 }}>NHÓM DỊCH</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>TRƯỞNG NHÓM</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>QUY MÔ</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>DỰ ÁN ĐANG THỰC HIỆN</TableCell>
-              <TableCell sx={{ fontWeight: 800 }} align="right">
-                QUẢN TRỊ
-              </TableCell>
+              <TableCell>Nhóm dịch</TableCell>
+              <TableCell>Trưởng nhóm</TableCell>
+              <TableCell>Quy mô</TableCell>
+              <TableCell>Dự án đang thực hiện</TableCell>
+              <TableCell align="right">Quản trị</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -45,22 +112,20 @@ export default function TeamManagement() {
               <TableRow key={team.id} className={cx('tableRow')}>
                 <TableCell>
                   <Box className={cx('teamInfo')}>
-                    <Avatar className={cx('teamAvatar')} sx={{ bgcolor: team.color }}>
-                      {team.avatar}
-                    </Avatar>
-                    <Typography className={cx('teamName')}>{team.name}</Typography>
+                    <Avatar className={cx('teamAvatar')} sx={{ bgcolor: team.color }} src={team.avatar} />
+                    <Typography className={cx('teamName')}>{team.name || team.title || '-'}</Typography>
                   </Box>
                 </TableCell>
 
                 <TableCell>
-                  <Chip icon={<StarsRounded sx={{ color: `${team.color} !important` }} />} label={team.leader} className={cx('leaderChip')} />
+                  <Chip icon={<StarsRounded sx={{ color: `${team.color || '#ea982b'} !important` }} />} label={team.leader || team.owner || '-'} className={cx('leaderChip')} />
                 </TableCell>
 
                 <TableCell>
                   <Box className={cx('memberBox')}>
                     <GroupRounded className={cx('icon')} />
                     <Typography>
-                      <b>{team.members}</b> thành viên
+                      <b>{team.members.length || 0}</b> thành viên
                     </Typography>
                   </Box>
                 </TableCell>
@@ -69,7 +134,7 @@ export default function TeamManagement() {
                   <Box className={cx('projectBox')}>
                     <LibraryBooksRounded className={cx('icon')} />
                     <Typography>
-                      <b>{team.projects}</b> tác phẩm
+                      <b>{team.projects.length || 0}</b> tác phẩm
                     </Typography>
                   </Box>
                 </TableCell>
@@ -98,6 +163,123 @@ export default function TeamManagement() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth PaperProps={{ className: cx('premiumModal') }}>
+        <Box className={cx('modalHeader')}>
+          <Typography variant="h5" className={cx('modalTitle')}>
+            Cấu hình thông tin Team
+          </Typography>
+        </Box>
+
+        <DialogContent className={cx('modalBody')}>
+          <Box className={cx('formGrid')}>
+            {/* CỘT 1: NHẬN DIỆN NHÓM */}
+            <Stack spacing={3}>
+              <Typography className={cx('sectionLabel')}>Nhận diện thương hiệu</Typography>
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Tên nhóm (Team Name) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <GroupRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Link ảnh đại diện (Avatar URL) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <ImageRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewTeam({ ...newTeam, avatar: e.target.value })}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Link ảnh bìa nhóm (Banner URL) *"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <WallpaperRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewTeam({ ...newTeam, banner: e.target.value })}
+              />
+            </Stack>
+
+            {/* CỘT 2: MÔ TẢ & MẠNG XÃ HỘI */}
+            <Stack spacing={3}>
+              <Typography className={cx('sectionLabel')}>Liên kết & Mô tả</Typography>
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Facebook URL"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FacebookRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => handleSocialChange('facebook', e.target.value)}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Discord Invite Link"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SportsEsportsRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => handleSocialChange('discord', e.target.value)}
+              />
+
+              <TextField
+                className={cx('premiumInput')}
+                placeholder="Giới thiệu ngắn về Team..."
+                fullWidth
+                multiline
+                rows={3}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                      <DescriptionRounded fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => setNewTeam({ ...newTeam, description: e.target.value })}
+              />
+            </Stack>
+          </Box>
+        </DialogContent>
+
+        <DialogActions className={cx('modalFooter')}>
+          <Button onClick={() => setOpenModal(false)} className={cx('textBtn')}>
+            Hủy
+          </Button>
+          <Button variant="contained" className={cx('primaryBtn')}>
+            Lưu thông tin Team
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

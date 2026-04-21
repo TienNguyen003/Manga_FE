@@ -1,27 +1,49 @@
 import { ArrowBackRounded, MailRounded, MoreVertRounded, PersonAddRounded, PhoneRounded, VerifiedUserRounded } from '@mui/icons-material';
 import { Avatar, Box, Button, Chip, Grid, IconButton, Paper, Typography, Tooltip } from '@mui/material';
 import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { adminService } from '~/services/adminService';
 import styles from './TeamMembers.module.scss';
+import { toast } from 'react-toastify';
+import MangaCard from '~/components/common/MangaCard';
 
 const cx = classNames.bind(styles);
 
 export default function TeamMembers() {
-  const members = [
-    { id: 1, name: 'Duy Nguyễn', role: 'Leader', joinDate: 'Jan 2025', avatar: '', status: 'Online' },
-    { id: 2, name: 'Manga Lover', role: 'Translator', joinDate: 'Mar 2025', avatar: '', status: 'Offline' },
-    { id: 3, name: 'Clean Master', role: 'Editor', joinDate: 'Feb 2025', avatar: '', status: 'Online' },
-  ];
+  const { id } = useParams();
+  const [members, setMembers] = useState([]);
+  const [teamInfo, setTeamInfo] = useState();
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    if (id) loadMembers();
+  }, [id]);
+
+  const loadMembers = async () => {
+    try {
+      const response = await adminService.getTeamMembers(id);
+      const data = response?.result || [];
+      setMembers(data.members || []);
+      setTeamInfo(data || {});
+      setProjects(data.projects || []);
+    } catch {
+      toast.error('Không thể tải danh sách thành viên nhóm dịch.');
+    }
+  };
 
   return (
     <div className={cx('memberWrapper')}>
       {/* --- HEADER --- */}
       <Box className={cx('header')}>
         <div className={cx('titleBox')}>
-          <IconButton className={cx('backBtn')}>
-            <ArrowBackRounded />
-          </IconButton>
+          <div>
+            <IconButton className={cx('backBtn')}>
+              <ArrowBackRounded />
+            </IconButton>
+          </div>
           <Box ml={2}>
-            <Typography className={cx('mainTitle')}>Thành viên: Lạc Thiên Nhóm</Typography>
+            <Typography className={cx('mainTitle')}>Thành viên: {teamInfo?.name || 'Team'}</Typography>
             <Typography className={cx('subTitle')}>Quản lý nhân sự và phân quyền nhóm dịch của bạn</Typography>
           </Box>
         </div>
@@ -32,14 +54,10 @@ export default function TeamMembers() {
 
       {/* --- GRID LIST --- */}
       <Grid container spacing={3}>
-        {members.map((member) => (
+        {members.map((member, index) => (
           <Grid item size={{ xs: 12, sm: 6, md: 3 }} key={member.id}>
             <Paper className={cx('memberCard')} elevation={0}>
               <div className={cx('cardHeader')}>
-                <div className={cx('statusIndicator', member.status.toLowerCase())}>
-                  <span className={cx('dot')} />
-                  {member.status}
-                </div>
                 <IconButton size="small" className={cx('moreBtn')}>
                   <MoreVertRounded />
                 </IconButton>
@@ -47,7 +65,7 @@ export default function TeamMembers() {
 
               <div className={cx('cardBody')}>
                 <div className={cx('avatarWrapper')}>
-                  <Avatar className={cx('avatar')}>{member.name[0]}</Avatar>
+                  <Avatar className={cx('avatar')} src={member.avatar}></Avatar>
                   {member.role === 'Leader' && (
                     <div className={cx('badge')}>
                       <VerifiedUserRounded />
@@ -55,9 +73,9 @@ export default function TeamMembers() {
                   )}
                 </div>
 
-                <Typography className={cx('memberName')}>{member.name}</Typography>
+                <Typography className={cx('memberName')}>{member.name || member.fullName || '-'}</Typography>
 
-                <Chip label={member.role} size="small" className={cx('roleChip')} />
+                <Chip label={member.role || member.position || '-'} size="small" className={cx('roleChip')} />
 
                 <Typography className={cx('joinText')}>
                   Thành viên từ: <b>{member.joinDate}</b>
@@ -81,6 +99,18 @@ export default function TeamMembers() {
           </Grid>
         ))}
       </Grid>
+
+      {projects.length > 0 && (
+        <Box className={cx('projectSection')}>
+          <Typography className={cx('sectionTitle')}>Dự án đang tham gia</Typography>
+
+          <Box className={cx('projectList')}>
+            {projects.map((project) => (
+              <MangaCard key={project.id} manga={project} />
+            ))}
+          </Box>
+        </Box>
+      )}
     </div>
   );
 }

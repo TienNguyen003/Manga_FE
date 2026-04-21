@@ -6,7 +6,7 @@ import paths from '~/routes/paths';
 const ProtectedRoute = ({ children, roles = null }) => {
     const { userData } = useUser();
     const isLoggedIn = !!userData;
-    const userRole = userData?.role?.name || 'guest';
+    const userRole = userData?.username.toUpperCase() || 'guest';
 
     if (!isLoggedIn) {
         toast.warning("Bạn cần phải đăng nhập để có thể truy cập")
