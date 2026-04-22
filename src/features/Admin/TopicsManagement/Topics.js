@@ -6,31 +6,85 @@ import { adminService } from '~/services/adminService';
 import styles from './Topics.module.scss';
 import { TopicRounded, DescriptionRounded, ToggleOnRounded, SettingsBackupRestoreRounded } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogContent, DialogActions, Stack, TextField, InputAdornment, Switch } from '@mui/material';
+import { toast } from 'react-toastify';
+import DataTablePagination from '~/components/common/DataTablePagination';
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
 
 export default function TopicManagement() {
   const [topics, setTopics] = useState([]);
+  const [editing, setEditing] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [page, setPage] = useState({
+    currentPage: 0,
+    totalPages: 0,
+    totalItems: 0,
+    totalItemsPerPage: 10,
+  });
   const [newTopic, setNewTopic] = useState({
     name: '',
     description: '',
-    status: 1, // 1: Active, 0: Inactive
+    status: 1,
   });
 
   useEffect(() => {
-    const loadTopics = async () => {
-      try {
-        const response = await adminService.getTopics();
-        const data = response?.result || response?.data || response || [];
-        setTopics(Array.isArray(data) ? data : data.items || data.topics || []);
-      } catch {
-        setTopics([]);
-      }
-    };
-
     loadTopics();
-  }, []);
+  }, [page.currentPage, page.totalItemsPerPage]);
+
+  const loadTopics = async () => {
+    try {
+      const response = await adminService.getTopics({
+        page: page.currentPage + 1,
+        size: page.totalItemsPerPage,
+      });
+      const data = response?.result || [];
+      const newPage = response?.page || {};
+      setPage((prev) => ({ ...prev, totalItems: newPage?.totalItems || 0, totalPages: newPage?.totalPages || 0 }));
+      setTopics(data);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách topic.');
+    }
+  };
+
+  const handleCreateTopic = async () => {
+    try {
+      if (editing) {
+        await adminService.updateTopic(newTopic.id, newTopic);
+        toast.success('Cập nhật topic thành công!');
+      } else {
+        await adminService.createTopic(newTopic);
+        toast.success('Tạo topic mới thành công!');
+      }
+      setOpenModal(false);
+      setEditing(false);
+      loadTopics();
+    } catch (error) {
+      toast.error(error.response?.data?.message || `Lỗi khi ${editing ? 'cập nhật' : 'tạo'} topic.`);
+    }
+  };
+  const handleEditTopic = async (topicId) => {
+    setEditing(true);
+    setOpenModal(true);
+    try {
+      const response = await adminService.getTopic(topicId);
+      const topicData = response?.result || {};
+      setNewTopic(topicData);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi tải thông tin topic.');
+    }
+  };
+
+  const handleDeleteTopic = async (topicId) => {
+    try {
+      await adminService.deleteTopic(topicId);
+      toast.success('Xóa topic thành công!');
+      loadTopics();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa topic.');
+    }
+  };
 
   return (
     <div className={cx('pageContainer')}>
@@ -40,7 +94,15 @@ export default function TopicManagement() {
           <Typography className={cx('title')}>Quản lý Topic</Typography>
           <Typography className={cx('subtitle')}>Phân loại nội dung và tối ưu cấu trúc đường dẫn (SEO).</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddRounded />} className={cx('primaryBtn')} onClick={() => setOpenModal(true)}>
+        <Button
+          variant="contained"
+          startIcon={<AddRounded />}
+          className={cx('primaryBtn')}
+          onClick={() => {
+            setNewTopic({});
+            setOpenModal(true);
+          }}
+        >
           Thêm Topic mới
         </Button>
       </header>
@@ -83,9 +145,9 @@ export default function TopicManagement() {
                 </TableCell>
 
                 <TableCell>
-                  <div className={cx('statusTag', (topic.status || 'active').toLowerCase())}>
+                  <div className={cx('statusTag', topic.status ? 'active' : '')}>
                     <span className={cx('dot')} />
-                    {(topic.status || 'Active') === 'Active' ? 'Hiển thị' : 'Đang ẩn'}
+                    {topic.status ? 'Hiển thị' : 'Đang ẩn'}
                   </div>
                 </TableCell>
 
@@ -95,12 +157,19 @@ export default function TopicManagement() {
                       Xem Posts
                     </Button>
                     <Tooltip title="Chỉnh sửa">
-                      <IconButton size="small" className={cx('actionBtn', 'edit')}>
+                      <IconButton size="small" className={cx('actionBtn', 'edit')} onClick={() => handleEditTopic(topic.id)}>
                         <EditRounded />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton size="small" className={cx('actionBtn', 'delete')}>
+                      <IconButton
+                        size="small"
+                        className={cx('actionBtn', 'delete')}
+                        onClick={() => {
+                          setNewTopic(topic);
+                          setIsDeleteOpen(true);
+                        }}
+                      >
                         <DeleteOutlineRounded />
                       </IconButton>
                     </Tooltip>
@@ -111,11 +180,12 @@ export default function TopicManagement() {
           </TableBody>
         </Table>
       </TableContainer>
+      <DataTablePagination page={page} setPage={setPage} />
 
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth PaperProps={{ className: cx('premiumModal') }}>
         <Box className={cx('modalHeader')}>
           <Typography variant="h5" className={cx('modalTitle')}>
-            Cấu hình Chủ đề / Topic
+            {editing ? 'Chỉnh sửa Topic' : 'Thêm Topic mới'}
           </Typography>
         </Box>
 
@@ -128,6 +198,7 @@ export default function TopicManagement() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Tên chủ đề (Ví dụ: Action, Romance...)"
+                value={newTopic.name}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -144,7 +215,7 @@ export default function TopicManagement() {
                   <Typography className={cx('switchTitle')}>Trạng thái hiển thị</Typography>
                   <Typography className={cx('switchDesc')}>Cho phép người dùng tìm kiếm theo topic này</Typography>
                 </Box>
-                <Switch checked={newTopic.status === 1} onChange={(e) => setNewTopic({ ...newTopic, status: e.target.checked ? 1 : 0 })} color="primary" />
+                <Switch value={newTopic.status} checked={newTopic.status === 1} onChange={(e) => setNewTopic({ ...newTopic, status: e.target.checked ? 1 : 0 })} color="primary" />
               </Box>
             </Stack>
 
@@ -155,12 +226,13 @@ export default function TopicManagement() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Mô tả chi tiết về chủ đề này..."
+                value={newTopic.description}
                 fullWidth
                 multiline
-                rows={5} // Tăng rows để cân bằng chiều cao với cột 1
+                rows={3} // Tăng rows để cân bằng chiều cao với cột 1
                 InputProps={{
                   startAdornment: (
-                    <InputAdornment position="start" sx={{ alignItems: 'flex-start', mt: 1.5 }}>
+                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
                       <DescriptionRounded fontSize="small" />
                     </InputAdornment>
                   ),
@@ -175,11 +247,22 @@ export default function TopicManagement() {
           <Button onClick={() => setOpenModal(false)} className={cx('textBtn')}>
             Hủy bỏ
           </Button>
-          <Button variant="contained" className={cx('primaryBtn')}>
-            Lưu Topic
+          <Button variant="contained" className={cx('primaryBtn')} onClick={handleCreateTopic}>
+            {editing ? 'Lưu thay đổi' : 'Tạo mới'}
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDeleteModal
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={() => {
+          handleDeleteTopic(newTopic.id);
+          setIsDeleteOpen(false);
+        }}
+        title="Xóa chủ đề"
+        content={`Bạn đang chuẩn bị xóa chủ đề <strong>${newTopic.name}</strong>. Tiếp tục?`}
+      />
     </div>
   );
 }

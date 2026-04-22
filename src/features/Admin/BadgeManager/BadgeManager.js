@@ -28,6 +28,7 @@ import { toast } from 'react-toastify';
 import DataTablePagination from '~/components/common/DataTablePagination';
 import { adminService } from '~/services/adminService';
 import styles from './Badges.module.scss';
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
 
@@ -49,6 +50,7 @@ export default function BadgeManager() {
     totalItems: 0,
     totalItemsPerPage: 10,
   });
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [newBadge, setNewBadge] = useState({
     code: '',
@@ -72,8 +74,8 @@ export default function BadgeManager() {
       const newPage = response?.page || {};
       setPage((prev) => ({ ...prev, totalItems: newPage?.totalItems || 0, totalPages: newPage?.totalPages || 0 }));
       setBadges(data);
-    } catch {
-      setBadges([]);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách huy hiệu.');
     }
   };
 
@@ -94,7 +96,7 @@ export default function BadgeManager() {
       setOpenModal(false);
       loadBadges();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi tạo huy hiệu.');
+      toast.error(error.response?.data?.message || `Lỗi khi ${editing ? 'cập nhật' : 'tạo'} huy hiệu.`);
     }
   };
 
@@ -111,8 +113,6 @@ export default function BadgeManager() {
   };
 
   const handleDeleteBadge = async (badgeId) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa huy hiệu này?')) return;
-
     try {
       await adminService.deleteBadge(badgeId);
       toast.success('Xóa huy hiệu thành công!');
@@ -193,7 +193,13 @@ export default function BadgeManager() {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton className={cx('actionBtn', 'delete')} onClick={() => handleDeleteBadge(badge.id)}>
+                      <IconButton
+                        className={cx('actionBtn', 'delete')}
+                        onClick={() => {
+                          setNewBadge(badge);
+                          setIsDeleteOpen(true);
+                        }}
+                      >
                         <DeleteOutlineRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -365,6 +371,17 @@ export default function BadgeManager() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDeleteModal
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={() => {
+          handleDeleteBadge(newBadge.id);
+          setIsDeleteOpen(false);
+        }}
+        title="Xóa huy hiệu"
+        content={`Bạn đang chuẩn bị xóa huy hiệu <strong>${newBadge.name}</strong>. Tiếp tục?`}
+      />
     </div>
   );
 }

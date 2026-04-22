@@ -28,6 +28,7 @@ import { toast } from 'react-toastify';
 import { adminService } from '~/services/adminService';
 import styles from './Ads.module.scss';
 import DataTablePagination from '~/components/common/DataTablePagination';
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
 
@@ -36,6 +37,7 @@ export default function AdsManagement() {
   const [editing, setEditing] = useState(false);
   const [ads, setAds] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   // State theo đúng cấu trúc dữ liệu yêu cầu
   const [newAd, setNewAd] = useState({
@@ -97,8 +99,6 @@ export default function AdsManagement() {
   };
 
   const handleDeleteAd = async (adID) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa chiến dịch quảng cáo này?')) return;
-
     try {
       await adminService.deleteAd(adID);
       toast.success('Chiến dịch quảng cáo đã được xóa thành công!');
@@ -196,7 +196,10 @@ export default function AdsManagement() {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton size="small" className={cx('actionBtn', 'delete')} onClick={() => handleDeleteAd(ad.id)}>
+                      <IconButton size="small" className={cx('actionBtn', 'delete')} onClick={() => {
+                        setNewAd(ad);
+                        setIsDeleteOpen(true);
+                      }}>
                         <DeleteOutlineRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -313,6 +316,17 @@ export default function AdsManagement() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDeleteModal
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={() => {
+          handleDeleteAd(newAd.id);
+          setIsDeleteOpen(false);
+        }}
+        title="Xóa chiến dịch quảng cáo"
+        content={`Bạn đang chuẩn bị xóa chiến dịch quảng cáo <strong>${newAd.title}</strong>. Tiếp tục?`}
+      />
     </div>
   );
 }

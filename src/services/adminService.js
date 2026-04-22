@@ -33,7 +33,8 @@ export const adminService = {
   getModerationPipeline: (status) => httpRequest.get(`${baseUrl}/manga-ops/pipeline`, { params: { status } }),
   executeModerationAction: (data) => httpRequest.post(`${baseUrl}/manga-ops/pipeline/action`, data),
 
-  getTeams: () => httpRequest.get(`${baseUrl}/teams`),
+  getTeams: (params) => httpRequest.get(`${baseUrl}/teams`, { params }),
+  getTeam: (teamId) => httpRequest.get(`${baseUrl}/teams/${teamId}`),
   createTeam: (data) => httpRequest.post(`${baseUrl}/teams`, data),
   updateTeam: (teamId, data) => httpRequest.put(`${baseUrl}/teams/${teamId}`, data),
   deleteTeam: (teamId) => httpRequest.delete(`${baseUrl}/teams/${teamId}`),
@@ -41,7 +42,8 @@ export const adminService = {
   addTeamMember: (teamId, userId) => httpRequest.post(`${baseUrl}/teams/${teamId}/members/${userId}`),
   deleteTeamMember: (teamId, userId) => httpRequest.delete(`${baseUrl}/teams/${teamId}/members/${userId}`),
 
-  getTopics: () => httpRequest.get(`${baseUrl}/topics`),
+  getTopics: (params) => httpRequest.get(`${baseUrl}/topics`, { params }),
+  getTopic: (topicId) => httpRequest.get(`${baseUrl}/topics/${topicId}`),
   createTopic: (data) => httpRequest.post(`${baseUrl}/topics`, data),
   updateTopic: (topicId, data) => httpRequest.put(`${baseUrl}/topics/${topicId}`, data),
   deleteTopic: (topicId) => httpRequest.delete(`${baseUrl}/topics/${topicId}`),

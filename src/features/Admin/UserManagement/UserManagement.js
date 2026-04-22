@@ -41,6 +41,7 @@ import DataTablePagination from '~/components/common/DataTablePagination';
 import { adminService } from '~/services/adminService';
 import { userService } from '~/services/userService';
 import styles from './Users.module.scss';
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
 
@@ -51,6 +52,7 @@ export default function UserManagement() {
     currentPage: 0,
     totalPages: 0,
   });
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(false);
   const [users, setUsers] = useState([]);
@@ -102,7 +104,6 @@ export default function UserManagement() {
   };
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm('Bạn có chắc muốn xóa thành viên này?')) return;
     try {
       await userService.deleteUser(userId);
       toast.success('Đã xóa thành viên!');
@@ -193,7 +194,13 @@ export default function UserManagement() {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton className={cx('actionBtn', 'delete')} onClick={() => handleDeleteUser(user.id)}>
+                      <IconButton
+                        className={cx('actionBtn', 'delete')}
+                        onClick={() => {
+                          setNewUser(user);
+                          setIsDeleteOpen(true);
+                        }}
+                      >
                         <DeleteOutlineRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -356,6 +363,17 @@ export default function UserManagement() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDeleteModal
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={() => {
+          handleDeleteUser(newUser.id);
+          setIsDeleteOpen(false);
+        }}
+        title="Xóa người dùng"
+        content={`Bạn đang chuẩn bị xóa người dùng <strong>${newUser.name}</strong>. Tiếp tục?`}
+      />
     </div>
   );
 }
