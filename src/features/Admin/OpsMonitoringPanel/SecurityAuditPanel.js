@@ -4,26 +4,39 @@ import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { adminService } from '~/services/adminService';
 import styles from './SecurityAudit.module.scss';
+import { toast } from 'react-toastify';
+import DataTablePagination from '~/components/common/DataTablePagination';
 
 const cx = classNames.bind(styles);
 
 export default function SecurityAuditPanel() {
   const [logs, setLogs] = useState([]);
   const [notice, setNotice] = useState('');
+  const [page, setPage] = useState({
+    totalItems: 0,
+    totalItemsPerPage: 10,
+    currentPage: 0,
+    totalPages: 0,
+  });
 
   useEffect(() => {
-    const loadLogs = async () => {
-      try {
-        const response = await adminService.getSecurityAuditLogs();
-        const data = response?.result || response?.data || response || [];
-        setLogs(Array.isArray(data) ? data : data.items || data.logs || []);
-      } catch {
-        setLogs([]);
-      }
-    };
-
     loadLogs();
-  }, []);
+  }, [page.currentPage, page.totalItemsPerPage]);
+
+  const loadLogs = async () => {
+    try {
+      const response = await adminService.getSecurityAuditLogs({
+        page: page.currentPage + 1,
+        size: page.totalItemsPerPage,
+      });
+      const data = response?.result || [];
+      const newPage = response?.page || {};
+      setPage((prev) => ({ ...prev, totalItems: newPage.totalItems, totalPages: newPage.totalPages }));
+      setLogs(data);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể tải logs bảo mật.');
+    }
+  };
 
   const markDone = async (id) => {
     try {
@@ -118,6 +131,7 @@ export default function SecurityAuditPanel() {
             </TableBody>
           </Table>
         </TableContainer>
+        <DataTablePagination page={page} setPage={setPage} />
       </Paper>
 
       <Box mt={3} p={2} className={cx('footerInfo')}>

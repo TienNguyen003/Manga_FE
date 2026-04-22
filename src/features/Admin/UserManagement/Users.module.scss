@@ -134,6 +134,18 @@ $text-muted: #94a3b8;
     background: #fef2f2 !important;
     color: #ef4444 !important;
   }
+  &.ban:hover {
+    background: #fef2f2 !important;
+    color: #ef4444 !important;
+  }
+  &.unban:hover {
+    background: #d1fae5 !important;
+    color: #10b981 !important;
+  }
+  &.assign:hover {
+    background: #e0e7ff !important;
+    color: #3730a3 !important;
+  }
 }
 
 // MODAL PREMIUM (Thay đổi hoàn toàn diện mạo form)
@@ -220,5 +232,94 @@ $text-muted: #94a3b8;
   text-transform: none !important;
   &:hover {
     background: #e2e8f0 !important;
+  }
+}
+
+// ASSIGN ROLE MODAL (Lựa chọn quyền với card, có preview user ở trên)
+.roleModal {
+  .modalBody {
+    padding: 0 32px !important;
+
+    .userPreview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: $bg-main;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      border: 1px solid $border;
+
+      .userAvatar {
+        width: 48px;
+        height: 48px;
+      }
+      .userName {
+        font-weight: 700;
+        color: $text-title;
+      }
+      .userEmail {
+        font-size: 1.3rem;
+        color: $text-muted;
+      }
+    }
+
+    .sectionLabel {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: $text-muted;
+      margin-bottom: 12px;
+    }
+  }
+  .roleCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid $border;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+
+    &:hover {
+      border-color: rgba($primary, 0.3);
+      background: #fffaf5;
+    }
+
+    &.active {
+      border-color: $primary;
+      background: #fffaf5;
+      box-shadow: 0 4px 12px rgba($primary, 0.1);
+    }
+
+    .roleIcon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .roleInfo {
+      flex: 1;
+      .roleTitle {
+        font-weight: 700;
+        color: $text-title;
+      }
+      .roleDesc {
+        font-size: 1.2rem;
+        color: $text-body;
+        line-height: 1.4;
+      }
+    }
+
+    .checkIcon {
+      color: $primary;
+      font-size: 24px;
+    }
   }
 }

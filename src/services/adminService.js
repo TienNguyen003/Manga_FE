@@ -70,7 +70,7 @@ export const adminService = {
   createIncident: (data) => httpRequest.post(`${baseUrl}/ops/incidents`, data),
   updateIncident: (incidentId, data) => httpRequest.put(`${baseUrl}/ops/incidents/${incidentId}`, data),
 
-  getSecurityAuditLogs: () => httpRequest.get(`${baseUrl}/security/audit-logs`),
+  getSecurityAuditLogs: (params) => httpRequest.get(`${baseUrl}/security/audit-logs`, { params }),
   createSecurityAuditLog: (data) => httpRequest.post(`${baseUrl}/security/audit-logs`, data),
 
   getStatsCharts: () => httpRequest.get(`${baseUrl}/stats/charts`),

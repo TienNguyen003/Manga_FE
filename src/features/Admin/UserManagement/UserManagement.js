@@ -1,16 +1,24 @@
 import {
   AddRounded,
+  AdminPanelSettingsRounded,
   AlternateEmailRounded,
   BadgeRounded,
+  CheckCircleRounded,
   DeleteOutlineRounded,
   EditRounded,
   HomeRounded,
   ImageRounded,
   LinkRounded,
   LockOutlined,
+  ManageAccountsRounded,
+  PersonOutlineRounded,
   PersonRounded,
+  SecurityRounded,
   ShieldMoonRounded,
 } from '@mui/icons-material';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import BlockIcon from '@mui/icons-material/Block';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   Avatar,
   Box,
@@ -37,13 +45,37 @@ import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 import DataTablePagination from '~/components/common/DataTablePagination';
 import { adminService } from '~/services/adminService';
 import { userService } from '~/services/userService';
 import styles from './Users.module.scss';
-import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
+
+const ROLES = [
+  {
+    key: 'ADMIN',
+    title: 'Administrator',
+    desc: 'Toàn quyền quản trị hệ thống, quản lý người dùng và cấu hình.',
+    icon: <AdminPanelSettingsRounded />,
+    color: '#ef4444',
+  },
+  {
+    key: 'MODERATOR',
+    title: 'Moderator',
+    desc: 'Quản lý nội dung, duyệt truyện, xử lý báo cáo từ người dùng.',
+    icon: <ManageAccountsRounded />,
+    color: '#3b82f6',
+  },
+  {
+    key: 'MEMBER',
+    title: 'Member',
+    desc: 'Người dùng cơ bản, có thể đọc và bình luận.',
+    icon: <PersonOutlineRounded />,
+    color: '#10b981',
+  },
+];
 
 export default function UserManagement() {
   const [page, setPage] = useState({
@@ -52,6 +84,8 @@ export default function UserManagement() {
     currentPage: 0,
     totalPages: 0,
   });
+  const [selectedRole, setSelectedRole] = useState('');
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -122,6 +156,26 @@ export default function UserManagement() {
       setNewUser({ ...userData });
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Lỗi tải thông tin thành viên.');
+    }
+  };
+
+  const handleBanUser = async (userId) => {
+    try {
+      await adminService.banUser(userId);
+      toast.success('Thành viên đã bị khóa!');
+      loadUsers();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Lỗi khóa thành viên.');
+    }
+  };
+
+  const handleUnbanUser = async (userId) => {
+    try {
+      await adminService.unbanUser(userId);
+      toast.success('Thành viên đã được mở khóa!');
+      loadUsers();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Lỗi mở khóa thành viên.');
     }
   };
 
@@ -204,6 +258,30 @@ export default function UserManagement() {
                         <DeleteOutlineRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
+                    {user.status ? (
+                      <Tooltip title="Ban">
+                        <IconButton className={cx('actionBtn', 'ban')} onClick={() => handleBanUser(user.id)}>
+                          <BlockIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Unban">
+                        <IconButton className={cx('actionBtn', 'unban')} onClick={() => handleUnbanUser(user.id)}>
+                          <CheckCircleIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    <Tooltip title="Gán quyền">
+                      <IconButton
+                        className={cx('actionBtn', 'assign')}
+                        onClick={() => {
+                          setIsAssignOpen(true);
+                          setNewUser(user);
+                        }}
+                      >
+                        <AdminPanelSettingsIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                 </TableCell>
               </TableRow>
@@ -213,7 +291,7 @@ export default function UserManagement() {
       </TableContainer>
       <DataTablePagination page={page} setPage={setPage} />
 
-      {/* MODAL */}
+      {/* MODAL ADD CREATE*/}
       <Dialog
         open={openModal}
         onClose={() => {
@@ -364,6 +442,64 @@ export default function UserManagement() {
         </DialogActions>
       </Dialog>
 
+      {/* MODAL ASSIGN ROLE */}
+      <Dialog open={isAssignOpen} onClose={() => setIsAssignOpen(false)} maxWidth="sm" fullWidth PaperProps={{ className: cx('roleModal') }}>
+        <Box className={cx('modalHeader')}>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box className={cx('headerIcon')}>
+              <SecurityRounded />
+            </Box>
+            <Box>
+              <Typography variant="h6" className={cx('title')}>
+                Phân quyền người dùng
+              </Typography>
+              <Typography variant="body2" className={cx('subtitle')}>
+                Thay đổi vai trò và cấp bậc truy cập
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
+
+        <DialogContent className={cx('modalBody')}>
+          {/* User Preview */}
+          <Box className={cx('userPreview')}>
+            <Avatar src={newUser?.urlImage} className={cx('userAvatar')} />
+            <Box sx={{flex: 1}}>
+              <Typography className={cx('userName')}>{newUser?.name}</Typography>
+              <Typography className={cx('userEmail')}>{newUser?.email}</Typography>
+            </Box>
+            <Chip label={newUser?.role?.name || 'Member'} size="small" color="primary" />
+          </Box>
+
+          <Typography className={cx('sectionLabel')}>Chọn vai trò mới</Typography>
+
+          <Stack spacing={2} className={cx('roleList')}>
+            {ROLES.map((role) => (
+              <Box key={role.key} className={cx('roleCard', { active: selectedRole === role.key })} onClick={() => setSelectedRole(role.key)}>
+                <Box className={cx('roleIcon')} sx={{ color: role.color, backgroundColor: `${role.color}15` }}>
+                  {role.icon}
+                </Box>
+                <Box className={cx('roleInfo')}>
+                  <Typography className={cx('roleTitle')}>{role.title}</Typography>
+                  <Typography className={cx('roleDesc')}>{role.desc}</Typography>
+                </Box>
+                {selectedRole === role.key && <CheckCircleRounded className={cx('checkIcon')} />}
+              </Box>
+            ))}
+          </Stack>
+        </DialogContent>
+
+        <DialogActions className={cx('modalFooter')}>
+          <Button onClick={() => setIsAssignOpen(false)} className={cx('textBtn')}>
+            Hủy bỏ
+          </Button>
+          <Button variant="contained" className={cx('primaryBtn')}>
+            Xác nhận gán quyền
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* MODAL DELETE */}
       <ConfirmDeleteModal
         open={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
