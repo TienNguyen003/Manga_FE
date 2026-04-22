@@ -1,47 +1,39 @@
-import {
-  AddRounded,
-  AdsClickRounded,
-  VisibilityRounded,
-  TrendingUpRounded,
-  EditRounded,
-  DeleteOutlineRounded,
-  TitleRounded,
-  ImageRounded,
-  LinkRounded,
-  CalendarMonthRounded,
-} from '@mui/icons-material';
+import { AddRounded, AdsClickRounded, DeleteOutlineRounded, EditRounded, ImageRounded, LinkRounded, TitleRounded, TrendingUpRounded, VisibilityRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
-  Typography,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Paper,
+  Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
-  Tooltip,
-  Chip,
-  Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Stack,
   TextField,
-  InputAdornment,
-  Switch,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { adminService } from '~/services/adminService';
 import styles from './Ads.module.scss';
+import DataTablePagination from '~/components/common/DataTablePagination';
 
 const cx = classNames.bind(styles);
 
 export default function AdsManagement() {
+  const [page, setPage] = useState({ currentPage: 0, totalItemsPerPage: 10, totalItems: 0, totalPages: 0 });
+  const [editing, setEditing] = useState(false);
   const [ads, setAds] = useState([]);
   const [openModal, setOpenModal] = useState(false);
 
@@ -57,15 +49,62 @@ export default function AdsManagement() {
 
   useEffect(() => {
     loadAds();
-  }, []);
+  }, [page.currentPage, page.totalItemsPerPage]);
 
   const loadAds = async () => {
     try {
-      const response = await adminService.getAds('');
-      const data = response?.result || response?.data || response || [];
-      setAds(Array.isArray(data) ? data : data.items || data.ads || []);
+      const response = await adminService.getAds({ page: page.currentPage + 1, size: page.totalItemsPerPage });
+      const data = response?.result;
+      const newPage = response?.page || {};
+      setAds(data);
+      setPage((prev) => ({
+        ...prev,
+        totalItems: newPage?.totalItems || 0,
+        totalPages: newPage?.totalPages || 0,
+      }));
     } catch {
       setAds([]);
+    }
+  };
+
+  const handleCreateAd = async () => {
+    try {
+      if (editing) {
+        await adminService.updateAd(newAd.id, newAd);
+        toast.success('Chiến dịch quảng cáo đã được cập nhật thành công!');
+      } else {
+        await adminService.createAd(newAd);
+        toast.success('Chiến dịch quảng cáo đã được tạo thành công!');
+      }
+      setOpenModal(false);
+      setEditing(false);
+      loadAds();
+    } catch (error) {
+      toast.error('Đã có lỗi xảy ra khi tạo chiến dịch quảng cáo.');
+    }
+  };
+
+  const handleEditAd = async (adID) => {
+    setOpenModal(true);
+    setEditing(true);
+    try {
+      const res = await adminService.getAd(adID);
+      const ads = res?.result;
+      setNewAd({ ...ads });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra khi cập nhật chiến dịch quảng cáo.');
+    }
+  };
+
+  const handleDeleteAd = async (adID) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa chiến dịch quảng cáo này?')) return;
+
+    try {
+      await adminService.deleteAd(adID);
+      toast.success('Chiến dịch quảng cáo đã được xóa thành công!');
+      loadAds();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra khi xóa chiến dịch quảng cáo.');
     }
   };
 
@@ -79,7 +118,15 @@ export default function AdsManagement() {
           </Typography>
           <Typography className={cx('pageSubtitle')}>Theo dõi hiệu suất và tối ưu hóa doanh thu chiến dịch.</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddRounded />} className={cx('primaryBtn')} onClick={() => setOpenModal(true)}>
+        <Button
+          variant="contained"
+          startIcon={<AddRounded />}
+          className={cx('primaryBtn')}
+          onClick={() => {
+            setOpenModal(true);
+            setNewAd({});
+          }}
+        >
           Chiến dịch mới
         </Button>
       </header>
@@ -144,12 +191,12 @@ export default function AdsManagement() {
                 <TableCell align="right">
                   <Stack direction="row" spacing={1} justifyContent="flex-end">
                     <Tooltip title="Sửa">
-                      <IconButton size="small" className={cx('actionBtn', 'edit')}>
+                      <IconButton size="small" className={cx('actionBtn', 'edit')} onClick={() => handleEditAd(ad.id)}>
                         <EditRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton size="small" className={cx('actionBtn', 'delete')}>
+                      <IconButton size="small" className={cx('actionBtn', 'delete')} onClick={() => handleDeleteAd(ad.id)}>
                         <DeleteOutlineRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -160,12 +207,13 @@ export default function AdsManagement() {
           </TableBody>
         </Table>
       </TableContainer>
+      <DataTablePagination page={page} setPage={setPage} rowsPerPageLabel="Số chiến dịch:" />
 
       {/* --- MODAL (Đồng nhất cấu hình 2 cột) --- */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth PaperProps={{ className: cx('premiumModal') }}>
         <Box className={cx('modalHeader')}>
           <Typography variant="h5" className={cx('modalTitle')}>
-            Tạo chiến dịch mới
+            {editing ? 'Chỉnh sửa chiến dịch' : 'Tạo chiến dịch mới'}
           </Typography>
         </Box>
 
@@ -178,6 +226,7 @@ export default function AdsManagement() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Tiêu đề chiến dịch *"
+                value={newAd.title}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -192,6 +241,7 @@ export default function AdsManagement() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Link hình ảnh (URL) *"
+                value={newAd.imageUrl}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -206,6 +256,7 @@ export default function AdsManagement() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Link đích (Target URL) *"
+                value={newAd.targetUrl}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -225,6 +276,7 @@ export default function AdsManagement() {
               <TextField
                 label="Ngày bắt đầu"
                 type="datetime-local"
+                value={newAd.startAt}
                 fullWidth
                 className={cx('premiumInput')}
                 InputLabelProps={{ shrink: true }}
@@ -234,6 +286,7 @@ export default function AdsManagement() {
               <TextField
                 label="Ngày kết thúc"
                 type="datetime-local"
+                value={newAd.endAt}
                 fullWidth
                 className={cx('premiumInput')}
                 InputLabelProps={{ shrink: true }}
@@ -245,7 +298,7 @@ export default function AdsManagement() {
                   <Typography className={cx('switchTitle')}>Trạng thái kích hoạt</Typography>
                   <Typography className={cx('switchDesc')}>Cho phép quảng cáo hiển thị ngay</Typography>
                 </Box>
-                <Switch checked={newAd.isActive === 1} onChange={(e) => setNewAd({ ...newAd, isActive: e.target.checked ? 1 : 0 })} color="primary" />
+                <Switch value={newAd.isActive} checked={newAd.isActive === 1} onChange={(e) => setNewAd({ ...newAd, isActive: e.target.checked ? 1 : 0 })} color="primary" />
               </Box>
             </Stack>
           </Box>
@@ -255,8 +308,8 @@ export default function AdsManagement() {
           <Button onClick={() => setOpenModal(false)} className={cx('textBtn')}>
             Hủy bỏ
           </Button>
-          <Button variant="contained" className={cx('primaryBtn')}>
-            Lưu chiến dịch
+          <Button variant="contained" className={cx('primaryBtn')} onClick={handleCreateAd}>
+            {editing ? 'Cập nhật chiến dịch' : 'Lưu chiến dịch'}
           </Button>
         </DialogActions>
       </Dialog>

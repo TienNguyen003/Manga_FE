@@ -1,0 +1,81 @@
+$primary: #ea982b;
+$primary-hover: #d68720;
+$bg-main: #f8fafc;
+$surface: #ffffff;
+$border: #f1f5f9;
+$text-title: #0f172a;
+$text-body: #475569;
+$text-muted: #94a3b8;
+
+.paginationContainer {
+  padding: 16px 24px;
+  border-top: 1px solid $border;
+  background: #fff;
+  gap: 20px;
+
+  /* --- Style cho phần TablePagination (Bên trái) --- */
+  .tablePagination {
+    border: none;
+    color: $text-body;
+
+    :global(.MuiTablePagination-toolbar) {
+      padding-left: 0; // Đẩy sát lề trái
+    }
+
+    :global(.MuiTablePagination-selectLabel),
+    :global(.MuiTablePagination-displayedRows) {
+      font-weight: 600;
+      color: $text-muted;
+      text-transform: uppercase;
+      font-size: 1.2rem;
+      margin-bottom: 0;
+    }
+
+    :global(.MuiTablePagination-select) {
+      background: #f8fafc;
+      border-radius: 8px;
+      font-weight: 700;
+      color: $primary;
+      margin-bottom: 0;
+    }
+
+    /* Ẩn các nút mũi tên mặc định của TablePagination để tránh trùng lặp */
+    :global(.MuiTablePagination-actions) {
+      display: none;
+    }
+  }
+
+  /* --- Style cho phần Pagination số (Bên phải) --- */
+  .numberedPagination {
+    :global {
+      .MuiPaginationItem-root {
+        font-weight: 600;
+        border-radius: 8px;
+        margin: 0 2px;
+        color: $text-body;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: #f1f5f9;
+        }
+      }
+
+      .MuiPaginationItem-root.Mui-selected {
+        background: $primary !important;
+        color: #fff !important;
+        box-shadow: 0 4px 10px rgba($primary, 0.3);
+
+        &:hover {
+          background: $primary-hover !important;
+        }
+      }
+    }
+
+    /* Bo tròn nhẹ cho các nút First/Last/Next/Prev */
+    :global(.MuiPaginationItem-previousNext),
+    :global(.MuiPaginationItem-firstLast) {
+      background: #f8fafc;
+      border: 1px solid $border;
+    }
+  }
+}

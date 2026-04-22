@@ -1,90 +1,124 @@
+import { AddRounded, BadgeRounded, DeleteOutlineRounded, DescriptionRounded, EditRounded, Filter1Rounded, ImageRounded, QrCodeRounded, RuleRounded } from '@mui/icons-material';
 import {
-  AddRounded,
-  EditRounded,
-  DeleteOutlineRounded,
-  WorkspacePremiumRounded,
-  QrCodeRounded,
-  BadgeRounded,
-  DescriptionRounded,
-  ImageRounded,
-  RuleRounded,
-  Filter1Rounded,
-} from '@mui/icons-material';
-import {
+  Avatar,
   Box,
   Button,
-  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  Paper,
+  Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Avatar,
-  IconButton,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Stack,
   TextField,
-  InputAdornment,
-  MenuItem,
-  FormControlLabel,
-  Switch,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import DataTablePagination from '~/components/common/DataTablePagination';
 import { adminService } from '~/services/adminService';
 import styles from './Badges.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function BadgeManager() {
+  const badgeConditionTypes = [
+    { value: 'MANGA_FOLLOW_COUNT', label: 'Số người theo dõi truyện' },
+    { value: 'MANGA_RATING_COUNT', label: 'Số đánh giá truyện' },
+    { value: 'MANGA_COMMENT_COUNT', label: 'Số bình luận truyện' },
+    { value: 'READING_HISTORY_COUNT', label: 'Số lần đọc truyện' },
+    { value: 'FOLLOWER_COUNT', label: 'Số người theo dõi' },
+    { value: 'FOLLOWING_COUNT', label: 'Số người đang theo dõi' },
+  ];
+
   const [badges, setBadges] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-
-  // Khởi tạo state dựa trên DTO Backend
+  const [page, setPage] = useState({
+    currentPage: 0,
+    totalPages: 0,
+    totalItems: 0,
+    totalItemsPerPage: 10,
+  });
+  const [editing, setEditing] = useState(false);
   const [newBadge, setNewBadge] = useState({
     code: '',
     name: '',
     description: '',
     iconUrl: '',
     isActive: 1,
-    conditionType: 'ORDINAL', // ORDINAL hoặc STRING
+    conditionType: 'ORDINAL',
     conditionValue: 0,
-    autoGrant: 1, // 1: Tự động, 0: Thủ công
+    autoGrant: 1,
   });
 
   useEffect(() => {
     loadBadges();
-  }, []);
+  }, [page.currentPage, page.totalItemsPerPage]);
 
   const loadBadges = async () => {
     try {
-      const response = await adminService.getBadges();
-      const data = response?.result || response?.data || response || [];
-      setBadges(Array.isArray(data) ? data : data.items || data.badges || []);
+      const response = await adminService.getBadges({ page: page.currentPage + 1, size: page.totalItemsPerPage });
+      const data = response?.result || [];
+      const newPage = response?.page || {};
+      setPage((prev) => ({ ...prev, totalItems: newPage?.totalItems || 0, totalPages: newPage?.totalPages || 0 }));
+      setBadges(data);
     } catch {
       setBadges([]);
     }
   };
 
   const handleCreateBadge = async () => {
-    if (!newBadge.code.trim() || !newBadge.name.trim()) {
+    if (!newBadge.code?.trim() || !newBadge.name?.trim()) {
       toast.error('Mã và tên huy hiệu không được để trống!');
       return;
     }
     try {
-      // API call: await adminService.createBadge(newBadge);
-      toast.success('Tạo huy hiệu thành công!');
+      if (editing) {
+        await adminService.updateBadge(newBadge.id, newBadge);
+        toast.success('Cập nhật huy hiệu thành công!');
+      } else {
+        await adminService.createBadge(newBadge);
+        toast.success('Tạo huy hiệu thành công!');
+      }
+      setEditing(false);
       setOpenModal(false);
       loadBadges();
     } catch (error) {
-      toast.error('Lỗi khi tạo huy hiệu.');
+      toast.error(error.response?.data?.message || 'Lỗi khi tạo huy hiệu.');
+    }
+  };
+
+  const handleEditBadge = async (badgeId) => {
+    setEditing(true);
+    setOpenModal(true);
+    try {
+      const response = await adminService.getBadge(badgeId);
+      const badgeData = response?.result || {};
+      setNewBadge(badgeData);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi tải thông tin huy hiệu.');
+    }
+  };
+
+  const handleDeleteBadge = async (badgeId) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa huy hiệu này?')) return;
+
+    try {
+      await adminService.deleteBadge(badgeId);
+      toast.success('Xóa huy hiệu thành công!');
+      loadBadges();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa huy hiệu.');
     }
   };
 
@@ -98,7 +132,15 @@ export default function BadgeManager() {
           </Typography>
           <Typography className={cx('pageSubtitle')}>Quản lý hệ thống danh hiệu và phần thưởng thành viên.</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddRounded />} className={cx('primaryBtn')} onClick={() => setOpenModal(true)}>
+        <Button
+          variant="contained"
+          startIcon={<AddRounded />}
+          className={cx('primaryBtn')}
+          onClick={() => {
+            setOpenModal(true);
+            setNewBadge({});
+          }}
+        >
           Tạo huy hiệu mới
         </Button>
       </header>
@@ -146,12 +188,12 @@ export default function BadgeManager() {
                 <TableCell align="right">
                   <Stack direction="row" spacing={1} justifyContent="flex-end">
                     <Tooltip title="Chỉnh sửa">
-                      <IconButton className={cx('actionBtn', 'edit')}>
+                      <IconButton className={cx('actionBtn', 'edit')} onClick={() => handleEditBadge(badge.id)}>
                         <EditRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton className={cx('actionBtn', 'delete')}>
+                      <IconButton className={cx('actionBtn', 'delete')} onClick={() => handleDeleteBadge(badge.id)}>
                         <DeleteOutlineRounded fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -162,6 +204,7 @@ export default function BadgeManager() {
           </TableBody>
         </Table>
       </TableContainer>
+      <DataTablePagination page={page} setPage={setPage} />
 
       {/* Modal Thêm Huy Hiệu (Premium UI) */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth PaperProps={{ className: cx('premiumModal') }}>
@@ -183,6 +226,7 @@ export default function BadgeManager() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Mã huy hiệu (VD: VIP_01) *"
+                value={newBadge.code}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -197,6 +241,7 @@ export default function BadgeManager() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Tên huy hiệu *"
+                value={newBadge.name}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -211,6 +256,7 @@ export default function BadgeManager() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="URL Ảnh Icon"
+                value={newBadge.iconUrl}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -225,6 +271,7 @@ export default function BadgeManager() {
               <TextField
                 className={cx('premiumInput')}
                 placeholder="Mô tả chi tiết"
+                value={newBadge.description}
                 multiline
                 rows={3}
                 fullWidth
@@ -257,14 +304,18 @@ export default function BadgeManager() {
                 }}
                 onChange={(e) => setNewBadge({ ...newBadge, conditionType: e.target.value })}
               >
-                <MenuItem value="ORDINAL">Kiểu tuần tự (ORDINAL)</MenuItem>
-                <MenuItem value="STRING">Kiểu chuỗi (STRING)</MenuItem>
+                {badgeConditionTypes.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
               </TextField>
 
               <TextField
                 type="number"
                 className={cx('premiumInput')}
                 placeholder="Giá trị điều kiện (VD: 100)"
+                value={newBadge.conditionValue}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -281,7 +332,12 @@ export default function BadgeManager() {
                   <Typography className={cx('switchTitle')}>Tự động cấp phát</Typography>
                   <Typography className={cx('switchDesc')}>Hệ thống tự động trao khi đủ điều kiện</Typography>
                 </Box>
-                <Switch checked={newBadge.autoGrant === 1} color="primary" onChange={(e) => setNewBadge({ ...newBadge, autoGrant: e.target.checked ? 1 : 0 })} />
+                <Switch
+                  value={newBadge.autoGrant}
+                  checked={newBadge.autoGrant === 1}
+                  color="primary"
+                  onChange={(e) => setNewBadge({ ...newBadge, autoGrant: e.target.checked ? 1 : 0 })}
+                />
               </Box>
 
               <Box className={cx('switchCard')}>
@@ -289,7 +345,12 @@ export default function BadgeManager() {
                   <Typography className={cx('switchTitle')}>Trạng thái hoạt động</Typography>
                   <Typography className={cx('switchDesc')}>Cho phép hiển thị trên hệ thống</Typography>
                 </Box>
-                <Switch checked={newBadge.isActive === 1} color="success" onChange={(e) => setNewBadge({ ...newBadge, isActive: e.target.checked ? 1 : 0 })} />
+                <Switch
+                  value={newBadge.isActive}
+                  checked={newBadge.isActive === 1}
+                  color="success"
+                  onChange={(e) => setNewBadge({ ...newBadge, isActive: e.target.checked ? 1 : 0 })}
+                />
               </Box>
             </Stack>
           </Box>

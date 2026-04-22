@@ -33,8 +33,14 @@ export const userService = {
   getAllUsers: async () => {
     return httpRequest.get(`${url}`);
   },
+  getUserById: async (userId) => {
+    return httpRequest.get(`${url}/user?userId=${userId}`);
+  },
   createUser: async (data) => {
     return httpRequest.post(`${url}`, data);
+  },
+  updateUser: async (userId, data) => {
+    return httpRequest.put(`${url}?userId=${userId}`, data);
   },
   updatePassword: async (data) => {
     return httpRequest.post(`${url}/change-password`, data);

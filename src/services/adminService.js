@@ -10,14 +10,16 @@ export const adminService = {
   unbanUser: (userId) => httpRequest.put(`${baseUrl}/users/${userId}/unban`),
   updateUserRole: (userId, roleName) => httpRequest.put(`${baseUrl}/users/${userId}/role`, null, { params: { roleName } }),
 
-  getBadges: () => httpRequest.get(`${baseUrl}/badges`),
+  getBadges: (params) => httpRequest.get(`${baseUrl}/badges`, { params }),
+  getBadge: (badgeId) => httpRequest.get(`${baseUrl}/badges/${badgeId}`),
   createBadge: (data) => httpRequest.post(`${baseUrl}/badges`, data),
   updateBadge: (badgeId, data) => httpRequest.put(`${baseUrl}/badges/${badgeId}`, data),
   deleteBadge: (badgeId) => httpRequest.delete(`${baseUrl}/badges/${badgeId}`),
   assignBadge: (badgeId, params) => httpRequest.post(`${baseUrl}/badges/${badgeId}/assign`, null, { params }),
   unassignBadge: (badgeId, params) => httpRequest.delete(`${baseUrl}/badges/${badgeId}/assign`, { params }),
 
-  getAds: (isActive) => httpRequest.get(`${baseUrl}/ads`, { params: { isActive } }),
+  getAds: (params) => httpRequest.get(`${baseUrl}/ads`, { params }),
+  getAd: (adId) => httpRequest.get(`${baseUrl}/ads/${adId}`),
   createAd: (data) => httpRequest.post(`${baseUrl}/ads`, data),
   updateAd: (adId, data) => httpRequest.put(`${baseUrl}/ads/${adId}`, data),
   toggleAd: (adId) => httpRequest.put(`${baseUrl}/ads/${adId}/toggle`),

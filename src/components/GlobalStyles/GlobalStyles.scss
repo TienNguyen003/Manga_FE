@@ -172,6 +172,8 @@ img {
   max-width: 100%;
   height: auto;
   display: block;
+  user-select: none;
+  pointer-events: none;
 }
 
 ::selection {
