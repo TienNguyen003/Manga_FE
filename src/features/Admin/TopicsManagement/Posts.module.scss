@@ -1,10 +1,33 @@
 $primary: #ea982b;
+$primary-hover: #d68720;
 $dark: #0f172a;
 $text-sub: #64748b;
+$text-main: #334155;
+$text-title: #0f172a;
+$text-muted: #94a3b8;
+$text-body: #475569;
 $border: #f1f5f9;
+$bg-card: #ffffff;
 
 .postWrapper {
   animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .leftBar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .backBtn {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 8px;
+    color: $text-main;
+    transition: all 0.2s;
+    &:hover {
+      background: $border;
+    }
+  }
 
   .header {
     display: flex;
@@ -22,19 +45,20 @@ $border: #f1f5f9;
       color: $text-sub;
       font-weight: 500;
     }
+  }
+}
 
-    .createBtn {
-      background: $dark;
-      border-radius: 14px;
-      text-transform: none;
-      padding: 12px 28px;
-      font-weight: 700;
-      font-size: 1.4rem;
-      &:hover {
-        background: $primary;
-        box-shadow: 0 10px 20px rgba($primary, 0.2);
-      }
-    }
+.primaryBtn {
+  background: $primary !important;
+  color: #fff !important;
+  padding: 10px 24px !important;
+  border-radius: 5px !important;
+  text-transform: none !important;
+  box-shadow: 0 4px 14px rgba($primary, 0.3) !important;
+  transition: all 0.2s ease !important;
+  &:hover {
+    transform: translateY(-1px);
+    background: $primary-hover !important;
   }
 }
 
@@ -80,7 +104,6 @@ $border: #f1f5f9;
 }
 
 .tableContainer {
-  border-radius: 24px;
   border: 1px solid $border;
   background: #fff;
   overflow: hidden;
@@ -88,8 +111,6 @@ $border: #f1f5f9;
   .headCell {
     background: #f8fafc;
     color: $text-sub;
-    font-weight: 800;
-    font-size: 1.2rem;
     padding: 18px 24px;
     border-bottom: 2px solid $border;
   }
@@ -122,29 +143,6 @@ $border: #f1f5f9;
       color: $text-sub;
       font-weight: 500;
     }
-
-    .topicTag {
-      background: #f1f5f9;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: $text-sub;
-      text-transform: uppercase;
-
-      &.hành\ động {
-        background: #fff7ed;
-        color: #ea580c;
-      }
-      &.kinh\ dị {
-        background: #fef2f2;
-        color: #dc2626;
-      }
-      &.tin\ tức {
-        background: #eff6ff;
-        color: #2563eb;
-      }
-    }
   }
 
   .actionGroup {
@@ -154,23 +152,19 @@ $border: #f1f5f9;
 
     button {
       border-radius: 10px;
-      border: 1px solid $border;
       transition: 0.3s;
     }
     .viewBtn:hover {
       color: #3b82f6;
       background: #eff6ff;
-      border-color: #3b82f6;
     }
     .editBtn:hover {
       color: $primary;
       background: #fffbeb;
-      border-color: $primary;
     }
     .deleteBtn:hover {
       color: #ef4444;
       background: #fef2f2;
-      border-color: #ef4444;
     }
   }
 }
@@ -183,5 +177,89 @@ $border: #f1f5f9;
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Modal
+.premiumModal {
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modalHeader {
+  padding: 32px 32px 16px 32px;
+  .modalTitle {
+    font-weight: 800;
+    color: $text-title;
+  }
+}
+
+.modalBody {
+  padding: 0 32px 32px 32px !important;
+  overflow-x: hidden;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.sectionLabel {
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  color: $text-title;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 8px;
+  margin-bottom: 16px !important;
+}
+
+.premiumInput {
+  :global(.MuiOutlinedInput-root) {
+    background-color: #f8fafc;
+    border-radius: 12px !important;
+    transition: all 0.2s ease;
+    fieldset {
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    svg {
+      color: $text-muted;
+      transition: 0.2s;
+    }
+    &:hover {
+      background-color: #f1f5f9;
+    }
+    &.Mui-focused {
+      background-color: #fff;
+      fieldset {
+        border: 2px solid $primary !important;
+      }
+      box-shadow: 0 0 0 4px rgba($primary, 0.1);
+      svg {
+        color: $primary;
+      }
+    }
+  }
+  :global(.MuiOutlinedInput-input) {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: $text-title;
+  }
+}
+
+.modalFooter {
+  padding: 24px 32px !important;
+  background: #f8fafc;
+  border-top: 1px solid $border;
+}
+
+.textBtn {
+  color: $text-body !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  &:hover {
+    background: #e2e8f0 !important;
   }
 }

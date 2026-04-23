@@ -1,228 +1,283 @@
 $primary: #ea982b;
 $dark: #0f172a;
-$text-sub: #64748b;
-$border: #f1f5f9;
+$text-main: #334155; // Slate-700
+$text-sub: #94a3b8; // Slate-400
+$bg-body: #f8fafc; // Nền xám nhạt cực nhẹ
+$bg-card: #ffffff;
+$border: #e2e8f0; // Slate-200
 
-.memberWrapper {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+.wrapper {
+  animation: fadeSlide 0.4s ease-out;
+}
 
-  .header {
+/* --- TOP BAR --- */
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid $border;
+
+  .leftBar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 35px;
+    gap: 16px;
+  }
 
-    .titleBox{
-      display: flex;
-      align-items: center;
-      gap: 6px;
+  .backBtn {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 8px;
+    color: $text-main;
+    transition: all 0.2s;
+    &:hover {
+      background: $border;
+    }
+  }
+
+  .teamName {
+    font-size: 1.8rem;
+    font-weight: 600; // Semibold là tối ưu nhất cho tiêu đề
+    color: $dark;
+    letter-spacing: -0.3px;
+  }
+
+  .teamDesc {
+    font-size: 1.3rem;
+    color: $text-sub;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .addBtn {
+    background: $dark;
+    border-radius: 8px;
+    text-transform: none;
+    padding: 8px 20px;
+    font-weight: 500;
+    font-size: 1.3rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.15s ease;
+    &:hover {
+      background: lighten($dark, 10%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+/* --- MAIN GRID LAYOUT --- */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 3fr 2fr; // Tỷ lệ bảng : sidebar
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* --- TABLE SECTION --- */
+.tableSection {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid $border;
+
+  .sectionLabel {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: $text-main;
+  }
+
+  .searchBox {
+    display: flex;
+    align-items: center;
+    background: $bg-body;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 6px 12px;
+    width: 240px;
+    transition: all 0.2s;
+
+    &:focus-within {
+      border-color: $primary;
+      box-shadow: 0 0 0 2px rgba($primary, 0.1);
     }
 
-    .backBtn {
-      background: #fff;
-      border: 1px solid $border;
-      border-radius: 12px;
-      &:hover {
-        background: $border;
-      }
-    }
-
-    .mainTitle {
-      font-size: 2.4rem;
-      font-weight: 950;
-      color: $dark;
-      letter-spacing: -1px;
-    }
-    .subTitle {
-      font-size: 1.4rem;
+    .searchIcon {
       color: $text-sub;
-      font-weight: 500;
+      font-size: 1.8rem;
+      margin-right: 8px;
     }
 
-    .addBtn {
-      background: $dark;
-      border-radius: 14px;
-      text-transform: none;
-      padding: 10px 24px;
-      font-weight: 700;
-      font-size: 1.4rem;
-      &:hover {
-        background: $primary;
-        box-shadow: 0 10px 20px rgba($primary, 0.2);
+    input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 1.3rem;
+      color: $dark;
+      width: 100%;
+      &::placeholder {
+        color: $text-sub;
       }
     }
   }
 }
 
-.memberCard {
-  padding: 24px;
-  border-radius: 30px;
-  border: 1px solid $border;
-  background: #fff;
-  transition: all 0.4s ease;
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-8px);
-    border-color: rgba($primary, 0.3);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+.dataTable {
+  // Style cho Header bảng
+  thead th {
+    background: #f8fafc;
+    color: $text-sub !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid $border !important;
+    padding: 12px 24px !important;
   }
 
-  .cardHeader {
+  // Style cho dòng dữ liệu
+  .dataRow {
+    transition: background 0.15s ease;
+    td {
+      padding: 16px 24px !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      color: $text-main;
+      font-size: 1.35rem;
+      vertical-align: middle;
+    }
+
+    &:hover {
+      background: #faf5ee; // Hover nhẹ tone vàng nhạt
+    }
+
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  }
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .userAvatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, $primary 0%, #f59e0b 100%);
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .userName {
+    font-weight: 500;
+    color: $dark;
+  }
+}
+
+.leaderChip {
+  background: rgba($primary, 0.1) !important;
+  color: $primary !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba($primary, 0.2) !important;
+  border-radius: 6px !important;
+}
+
+.memberChip {
+  background: #f1f5f9 !important;
+  color: $text-main !important;
+  font-weight: 500 !important;
+  border: 1px solid $border !important;
+  border-radius: 6px !important;
+}
+
+.dateText {
+  color: $text-sub;
+  font-size: 1.3rem;
+}
+
+.actionGroup {
+  display: flex;
+  gap: 4px;
+
+  button {
+    color: $text-sub;
+    border-radius: 6px;
+    transition: all 0.2s;
+    &:hover {
+      background: #eff6ff !important;
+      color: #3b82f6 !important;
+    }
+  }
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sideCard {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  .sideTitle {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: $text-main;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .infoRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
 
-    .statusIndicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 1.1rem;
-      font-weight: 800;
-      .dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-      }
-
-      &.online {
-        background: #dcfce7;
-        color: #15803d;
-        .dot {
-          background: #15803d;
-        }
-      }
-      &.offline {
-        background: #f1f5f9;
-        color: $text-sub;
-        .dot {
-          background: #94a3b8;
-        }
-      }
-    }
-  }
-
-  .cardBody {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 10px;
-
-    .avatarWrapper {
-      position: relative;
-      margin-bottom: 16px;
-      .avatar {
-        width: 80px;
-        height: 80px;
-        font-size: 2.4rem;
-        font-weight: 900;
-        background: linear-gradient(135deg, $primary 0%, #f59e0b 100%);
-        box-shadow: 0 8px 16px rgba($primary, 0.2);
-      }
-      .badge {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        background: #3b82f6;
-        color: #fff;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 3px solid #fff;
-        svg {
-          font-size: 1.4rem;
-        }
-      }
+    &:last-child {
+      border-bottom: none;
     }
 
-    .memberName {
-      font-size: 1.8rem;
-      font-weight: 900;
-      color: $dark;
-      margin-bottom: 6px;
-    }
-
-    .roleChip {
-      background: rgba($primary, 0.1);
-      color: $primary;
-      font-weight: 800;
-      font-size: 1.2rem;
-      margin-bottom: 12px;
-      border: 1px solid rgba($primary, 0.2);
-    }
-
-    .joinText {
-      font-size: 1.2rem;
+    span {
+      font-size: 1.3rem;
       color: $text-sub;
-      b {
-        color: $dark;
-      }
     }
-  }
-
-  .cardFooter {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid #f8fafc;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .contactBtn {
-      background: #f8fafc;
-      border-radius: 12px;
-      color: $text-sub;
-      &:hover {
-        background: #eff6ff;
-        color: #3b82f6;
-      }
-    }
-
-    .profileBtn {
-      margin-left: auto;
-      text-transform: none;
-      font-weight: 800;
+    b {
+      font-size: 1.3rem;
       color: $dark;
-      background: #f1f5f9;
-      border-radius: 10px;
-      padding: 6px 16px;
-      &:hover {
-        background: $dark;
-        color: #fff;
-      }
+      font-weight: 600;
     }
   }
 }
 
 .projectList {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.projectSection {
-  margin-top: 24px;
-}
-
-.sectionTitle {
-  font-weight: 700 !important;
-  font-size: 1.4rem !important;
-  text-transform: uppercase;
-  color: #64748b !important;
-  margin-bottom: 12px;
-  letter-spacing: 0.05em;
-}
-
-@keyframes fadeIn {
+/* --- ANIMATION --- */
+@keyframes fadeSlide {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;

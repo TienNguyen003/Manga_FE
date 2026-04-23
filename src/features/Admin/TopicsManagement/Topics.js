@@ -9,6 +9,8 @@ import { Box, Button, Dialog, DialogContent, DialogActions, Stack, TextField, In
 import { toast } from 'react-toastify';
 import DataTablePagination from '~/components/common/DataTablePagination';
 import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
+import { Link } from 'react-router-dom';
+import paths from '~/routes/paths';
 
 const cx = classNames.bind(styles);
 
@@ -153,9 +155,11 @@ export default function TopicManagement() {
 
                 <TableCell align="right">
                   <div className={cx('actionGroup')}>
-                    <Button startIcon={<DynamicFeedRounded />} variant="contained" className={cx('viewBtn')}>
-                      Xem Posts
-                    </Button>
+                    <Link to={paths.postManagement.replace(':id', topic.id)} >
+                      <Button startIcon={<DynamicFeedRounded />} variant="contained" className={cx('viewBtn')}>
+                        Xem Posts
+                      </Button>
+                    </Link>
                     <Tooltip title="Chỉnh sửa">
                       <IconButton size="small" className={cx('actionBtn', 'edit')} onClick={() => handleEditTopic(topic.id)}>
                         <EditRounded />
