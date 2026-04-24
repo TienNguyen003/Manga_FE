@@ -7,7 +7,6 @@ import { getHomeFeed } from '~/services/homeService';
 import { getMangasByCategory } from '~/services/mangaService';
 import { getPreferences } from '~/services/preferenceService';
 import { useUser } from '~/providers/UserContext';
-import MangaCard from '~/components/common/MangaCard';
 
 const cx = classNames.bind(styles);
 
@@ -51,66 +50,33 @@ export default function Home() {
         })
         .catch(() => {});
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   useEffect(() => {
     let mounted = true;
-
     const loadFallbacks = async () => {
       const result = await Promise.all(
         categoryFallbacks.map(async (item) => {
           try {
             const res = await getMangasByCategory({ path: item.slug, page: 1 });
-            return {
-              title: item.title,
-              subTitle: item.subTitle,
-              slug: item.slug,
-              data: res?.result || [],
-            };
+            return { title: item.title, subTitle: item.subTitle, slug: item.slug, data: res?.result || [] };
           } catch {
-            return {
-              title: item.title,
-              subTitle: item.subTitle,
-              slug: item.slug,
-              data: [],
-            };
+            return { title: item.title, subTitle: item.subTitle, slug: item.slug, data: [] };
           }
         }),
       );
-
-      if (mounted) {
-        setFallbackSections(result.filter((section) => section.data.length > 0));
-      }
+      if (mounted) setFallbackSections(result.filter((section) => section.data.length > 0));
     };
-
     loadFallbacks();
-
     return () => {
       mounted = false;
     };
   }, [categoryFallbacks]);
 
   const homeFeedSections = [
-    {
-      title: 'Chương mới lên',
-      subTitle: 'Dữ liệu từ feed cập nhật mới nhất',
-      slug: 'latest',
-      data: homeFeed?.latestMangas || [],
-    },
-    {
-      title: 'Đang được theo dõi',
-      subTitle: 'Các bộ có lượt đọc cao trong ngày',
-      slug: 'trending',
-      data: homeFeed?.trendingMangas || [],
-    },
-    {
-      title: 'Đánh giá cao',
-      subTitle: 'Ưu tiên bộ có điểm cộng đồng tốt',
-      slug: 'top-rated',
-      data: homeFeed?.topRatedMangas || [],
-    },
+    { title: 'Chương mới lên', subTitle: 'Cập nhật nhanh nhất', slug: 'latest', data: homeFeed?.latestMangas || [] },
+    { title: 'Đang thịnh hành', subTitle: 'Lượt đọc cao trong ngày', slug: 'trending', data: homeFeed?.trendingMangas || [], isTrending: true },
+    { title: 'Đánh giá cao', subTitle: 'Điểm cộng đồng tốt nhất', slug: 'top-rated', data: homeFeed?.topRatedMangas || [] },
   ].filter((section) => section.data.length > 0);
 
   const mergedSections = homeFeedSections.length > 0 ? homeFeedSections : fallbackSections;
@@ -119,91 +85,77 @@ export default function Home() {
     return homeFeed?.trendingMangas?.[0] || homeFeed?.latestMangas?.[0] || fallbackSections?.[0]?.data?.[0] || null;
   }, [homeFeed, fallbackSections]);
 
-  const quickNumbers = [
-    { label: 'Bộ theo dõi hằng ngày', value: '12.8K' },
-    { label: 'Bản phát hành tháng này', value: '780+' },
-    { label: 'Nhóm dịch đang hoạt động', value: '96' },
-  ];
-
   return (
     <main className={cx('homePage')}>
+      {/* --- HERO CINEMATIC MAGAZINE --- */}
       <section className={cx('heroPanel', 'container-fluid')}>
-        <div className={cx('introCol')}>
-          <p className={cx('kicker')}>Giao diện mới toàn diện</p>
-          <h1>Trạm đọc truyện thế hệ mới, gom mọi thứ vào một luồng rõ ràng</h1>
-          <p>Trang chủ được dựng lại từ đầu theo hướng tạp chí số: ưu tiên nội dung, ưu tiên tracking, ưu tiên thao tác nhanh thay vì layout cũ.</p>
+        <div className={cx('heroBg')}>
+          {heroManga?.thumbnailUrl ? (
+            <img src={`${IMG_BASE_URL}${heroManga.thumbnailUrl}`} alt="Hero Background" />
+          ) : (
+            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0f172a, #334155)' }} />
+          )}
+        </div>
+
+        <div className={cx('heroContent')}>
+          <span className={cx('kicker')}>
+            <i className="fa-solid fa-sparkles"></i> Không Gian Cá Nhân Hóa
+          </span>
+          <h1 className={cx('heroTitle')}>
+            Thế Giới Truyện, <span>Chỉ Có Thể Là Bạn</span>
+          </h1>
+          <p className={cx('heroDesc')}>Dừng lại một chút. Bỏ lại bộn bề ngoài kia và đắm chìm vào hàng ngàn câu chuyện được lựa chọn riêng cho bạn.</p>
 
           <div className={cx('heroActions')}>
             <Link to={paths.discover} className={cx('solidBtn')}>
-              Mở khu khám phá
+              <i className="fa-solid fa-compass"></i> Khám phá ngay
             </Link>
             <Link to={paths.library} className={cx('outlineBtn')}>
-              Đi tới thư viện
+              <i className="fa-solid fa-book-bookmark"></i> Thư viện của tôi
             </Link>
           </div>
-
-          <div className={cx('metricRow')}>
-            {quickNumbers.map((item) => (
-              <article key={item.label}>
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div className={cx('spotlightCol')}>
-          {heroManga ? (
-            <Link to={`${paths.mangaDetail}?slug=${heroManga.mangaPath}`} className={cx('spotlightCard')}>
-              {heroManga.thumbnailUrl ? (
-                <img src={`${IMG_BASE_URL}${heroManga.thumbnailUrl}`} alt={heroManga.mangaName} className={cx('spotlightCover')} />
-              ) : (
-                <div className={cx('coverFallback')}>
-                  <i className="fa-regular fa-image"></i>
-                </div>
-              )}
-              <div className={cx('spotlightOverlay')}>
-                <small>Tựa nổi bật hôm nay</small>
-                <h3>{heroManga.name}</h3>
-              </div>
-            </Link>
-          ) : (
-            <div className={cx('spotlightCard', 'emptySpotlight')}>
-              <div className={cx('coverFallback')}>
-                <i className="fa-solid fa-book-open"></i>
-              </div>
-              <div className={cx('spotlightOverlay')}>
-                <small>Đang chờ dữ liệu feed</small>
-                <h3>Kết nối API để hiển thị truyện đề cử</h3>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
+      {/* --- TIẾP TỤC ĐỌC --- */}
       {userId && homeFeed?.recentReadingHistory?.length > 0 && (
         <section className={cx('section', 'container-fluid')}>
           <header className={cx('sectionHead')}>
-            <h2>Tiếp tục từ chương đang đọc</h2>
-            <Link to={paths.library}>Mở lịch sử đọc</Link>
+            <div>
+              <h2>Tiếp tục đọc</h2>
+              <p>Đừng bỏ dở những câu chuyện đang dang dở</p>
+            </div>
           </header>
           <div className={cx('continueRail')}>
-            {homeFeed.recentReadingHistory.slice(0, 8).map((item, i) => (
+            {homeFeed.recentReadingHistory.slice(0, 10).map((item, i) => (
               <Link key={`${item.mangaPath}-${i}`} to={`${paths.mangaDetail}?slug=${item.mangaPath}`} className={cx('continueItem')}>
-                <span>{item.mangaName}</span>
-                <small>{item.chapterName || 'Đang đọc dở'}</small>
+                <div className={cx('contThumbWrap')}>
+                  <img src={(item.thumbnailUrl) ? `https://sv1.otruyencdn.com/${item.thumbnailUrl}` : ''} alt={item.mangaName} />
+                </div>
+                <div className={cx('contInfo')}>
+                  <span className={cx('contName')}>{item.mangaName}</span>
+                  <span className={cx('contChapter')}>
+                    <i className="fa-solid fa-bookmark"></i> Chương {item.chapterName || '?'}
+                  </span>
+                  {/* Thanh progress giả lập */}
+                  <div className={cx('progressBar')}>
+                    <div className={cx('progressFill')} style={{ width: `${Math.floor(Math.random() * 60) + 30}%` }}></div>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
         </section>
       )}
 
+      {/* --- LOADING --- */}
       {feedLoading && (
-        <section className={cx('section', 'container-fluid')}>
-          <div className={cx('stateBox')}>Đang tải trang chủ mới...</div>
-        </section>
+        <div className={cx('container-fluid')}>
+          <div className={cx('loadingBox')}>Đang tải dữ liệu trang chủ...</div>
+        </div>
       )}
 
+      {/* --- MANGA SECTIONS --- */}
       {!feedLoading &&
         mergedSections.map((section) => (
           <section key={section.title} className={cx('section', 'container-fluid')}>
@@ -212,24 +164,31 @@ export default function Home() {
                 <h2>{section.title}</h2>
                 <p>{section.subTitle}</p>
               </div>
-              <Link to={`${paths.category}?slug=${section.slug || ''}`}>Xem toàn bộ</Link>
+              <Link to={`${paths.category}?slug=${section.slug || ''}`}>Xem tất cả</Link>
             </header>
 
             <div className={cx('mangaGrid')}>
               {section.data.slice(0, 10).map((manga, idx) => (
-                <MangaCard key={`${manga.mangaPath || manga.mangaName}-${idx}`} manga={manga} rank={section.mangaPath === 'trending' ? idx + 1 : undefined} />
+                <Link key={`${manga.mangaPath || idx}`} to={`${paths.mangaDetail}?slug=${manga.mangaPath || manga.slug}`} className={cx('mangaCardWrap')}>
+                  <div className={cx('mangaImgWrap')}>
+                    <img src={manga.thumbnailUrl || manga.thumb_url ? `${IMG_BASE_URL}${manga.thumbnailUrl || manga.thumb_url}` : ''} alt={manga.name} className={cx('mangaImg')} />
+                    {section.isTrending && idx < 3 && <div className={cx('rankBadge')}>#{idx + 1}</div>}
+                  </div>
+                  <div className={cx('mangaTitle')}>{manga.mangaName || manga.name}</div>
+                </Link>
               ))}
             </div>
           </section>
         ))}
 
+      {/* --- EMPTY STATE --- */}
       {!feedLoading && mergedSections.length === 0 && (
         <section className={cx('section', 'container-fluid')}>
           <div className={cx('stateBox')}>
-            <h3>Chưa có dữ liệu để dựng block truyện</h3>
-            <p>Bạn có thể đi tới danh mục để xác nhận API trả dữ liệu trước khi bật feed trang chủ.</p>
+            <h3>Chưa có dữ liệu</h3>
+            <p>Kết nối API hoặc khám phá danh mục để bắt đầu.</p>
             <Link to={paths.category} className={cx('solidBtn')}>
-              Đi tới danh mục
+              Đi tới Danh mục
             </Link>
           </div>
         </section>
