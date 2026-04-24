@@ -9,6 +9,8 @@ import { createReadingSession } from '~/services/readingAnalyticsService';
 import { createBookmark, deleteBookmark, getBookmarkStatus } from '~/services/bookmarkService';
 import { useUser } from '~/providers/UserContext';
 import CommentSection from './CommentSection';
+import { toast } from 'react-toastify';
+import { adminService } from '~/services/adminService';
 
 const cx = classNames.bind(styles);
 
@@ -34,11 +36,13 @@ const ChapterReader = () => {
   const [showChapterDropdown, setShowChapterDropdown] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [adsData, setAdsData] = useState(null);
 
   useEffect(() => {
     if (urlChapterState && slug) {
       fetchData();
     }
+    loadAds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlChapterState, slug]);
 
@@ -141,6 +145,31 @@ const ChapterReader = () => {
     }
   };
 
+  const loadAds = async () => {
+    const targetUrl = '/manga/' + slug;
+    const now = new Date();
+
+    const localDateTime =
+      now.getFullYear() +
+      '-' +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(now.getDate()).padStart(2, '0') +
+      'T' +
+      String(now.getHours()).padStart(2, '0') +
+      ':' +
+      String(now.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(now.getSeconds()).padStart(2, '0');
+
+    try {
+      const res = await adminService.getAds({ targetUrl, endAt: localDateTime });
+      setAdsData(res.result || []);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra khi tải quảng cáo');
+    }
+  };
+
   const decryptText = (encoded) => {
     return decodeURIComponent(escape(atob(encoded)));
   };
@@ -213,91 +242,99 @@ const ChapterReader = () => {
   };
 
   return (
-    <div className={cx('readerContainer')}>
-      <div className={cx('header')}>
-        <h2>
-          {chapter?.item?.chapter_title || chapter?.item?.comic_name} - Chương {chapter?.item?.chapter_name}
-        </h2>
+    <div style={{display: 'flex'}}>
+      <div className={cx('banner1')}>
+        <img src={adsData?.[0]?.imageUrl} alt={adsData?.[0].title}/>
       </div>
+      <div className={cx('readerContainer')}>
+        <div className={cx('header')}>
+          <h2>
+            {chapter?.item?.chapter_title || chapter?.item?.comic_name} - Chương {chapter?.item?.chapter_name}
+          </h2>
+        </div>
 
-      <div className={cx('imageContainer')}>
-        {chapter?.item?.chapter_image.map((url, idx) => (
-          <img
-            key={idx}
-            ref={(el) => (imageRefs.current[idx] = el)}
-            src={`${IMG_BASE_URL}${chapter?.item?.chapter_path}/${url.image_file}`}
-            loading="lazy"
-            alt={`Page ${idx + 1}`}
-            className={cx('image')}
-          />
-        ))}
-      </div>
+        <div className={cx('imageContainer')}>
+          {chapter?.item?.chapter_image.map((url, idx) => (
+            <img
+              key={idx}
+              ref={(el) => (imageRefs.current[idx] = el)}
+              src={`${IMG_BASE_URL}${chapter?.item?.chapter_path}/${url.image_file}`}
+              loading="lazy"
+              alt={`Page ${idx + 1}`}
+              className={cx('image')}
+            />
+          ))}
+        </div>
 
-      <div className={cx('controlBar')}>
-        <span style={{ color: '#fff' }}>
-          {currentPage} / {chapter?.item?.chapter_image.length}
-        </span>
-        <input type="range" min="1" max={chapter?.item?.chapter_image.length} value={currentPage} onChange={handlePageChange} disabled={loading} />
+        <div className={cx('controlBar')}>
+          <span style={{ color: '#fff' }}>
+            {currentPage} / {chapter?.item?.chapter_image.length}
+          </span>
+          <input type="range" min="1" max={chapter?.item?.chapter_image.length} value={currentPage} onChange={handlePageChange} disabled={loading} />
 
-        <button
-          onClick={handlePrevPage}
-          disabled={loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) <= 0}
-          className={cx('btn', {
-            disabled: loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) <= 0,
-          })}
-        >
-          Trước
-        </button>
-
-        <button
-          onClick={handleNextPage}
-          disabled={loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) >= allChapters.length - 1}
-          className={cx('btn', {
-            disabled: loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) >= allChapters.length - 1,
-          })}
-        >
-          Tiếp
-        </button>
-
-        <div style={{ position: 'relative' }}>
-          <button onClick={toggleChapterDropdown} className={cx('chapterDropdownBtn')}>
-            Chương khác
+          <button
+            onClick={handlePrevPage}
+            disabled={loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) <= 0}
+            className={cx('btn', {
+              disabled: loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) <= 0,
+            })}
+          >
+            Trước
           </button>
 
-          {showChapterDropdown && (
-            <div className={cx('chapterDropdown')}>
-              <strong>Các chương ({allChapters.length})</strong>
-              <ul>
-                {allChapters.map((chap) => (
-                  <li key={chap.chapter_name} onClick={() => handleChapterSelect(chap.chapter_api_data)} className={cx({ active: chap.chapter_name === currentChapterSlug })}>
-                    Chương {chap.chapter_name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+          <button
+            onClick={handleNextPage}
+            disabled={loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) >= allChapters.length - 1}
+            className={cx('btn', {
+              disabled: loading || allChapters.findIndex((chap) => chap.chapter_name === currentChapterSlug) >= allChapters.length - 1,
+            })}
+          >
+            Tiếp
+          </button>
 
-        <button
-          onClick={handleToggleBookmark}
-          disabled={!userId || !currentChapterSlug || bookmarkLoading}
-          className={cx('btn', { disabled: !userId || !currentChapterSlug || bookmarkLoading })}
-          title={!userId ? 'Đăng nhập để đánh dấu chương' : ''}
-        >
-          {bookmarkLoading ? '...' : bookmarked ? 'Bỏ đánh dấu' : 'Đánh dấu chương'}
-        </button>
+          <div style={{ position: 'relative' }}>
+            <button onClick={toggleChapterDropdown} className={cx('chapterDropdownBtn')}>
+              Chương khác
+            </button>
+
+            {showChapterDropdown && (
+              <div className={cx('chapterDropdown')}>
+                <strong>Các chương ({allChapters.length})</strong>
+                <ul>
+                  {allChapters.map((chap) => (
+                    <li key={chap.chapter_name} onClick={() => handleChapterSelect(chap.chapter_api_data)} className={cx({ active: chap.chapter_name === currentChapterSlug })}>
+                      Chương {chap.chapter_name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleToggleBookmark}
+            disabled={!userId || !currentChapterSlug || bookmarkLoading}
+            className={cx('btn', { disabled: !userId || !currentChapterSlug || bookmarkLoading })}
+            title={!userId ? 'Đăng nhập để đánh dấu chương' : ''}
+          >
+            {bookmarkLoading ? '...' : bookmarked ? 'Bỏ đánh dấu' : 'Đánh dấu chương'}
+          </button>
+        </div>
+        {loading && (
+          <div className={cx('loadingModal')}>
+            <div className={cx('spinner')}></div>
+          </div>
+        )}
+        {/* Bình luận chapter */}
+        {slug && currentChapterSlug && (
+          <div style={{ padding: '0 20px', maxWidth: 900, margin: '0 auto' }}>
+            <CommentSection mangaPath={slug} chapterName={currentChapterSlug} mangaName={chapter?.item?.comic_name} />
+          </div>
+        )}
       </div>
-      {loading && (
-        <div className={cx('loadingModal')}>
-          <div className={cx('spinner')}></div>
-        </div>
-      )}
-      {/* Bình luận chapter */}
-      {slug && currentChapterSlug && (
-        <div style={{ padding: '0 20px', maxWidth: 900, margin: '0 auto' }}>
-          <CommentSection mangaPath={slug} chapterName={currentChapterSlug} mangaName={chapter?.item?.comic_name} />
-        </div>
-      )}
+      <div className={cx('banner2')}>
+        <img src={adsData?.[1]?.imageUrl} alt={adsData?.[1].title}/>
+      </div>
     </div>
   );
 };

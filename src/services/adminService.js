@@ -41,6 +41,7 @@ export const adminService = {
   getTeamMembers: (teamId) => httpRequest.get(`${baseUrl}/teams/${teamId}/members`),
   addTeamMember: (teamId, userId) => httpRequest.post(`${baseUrl}/teams/${teamId}/members/${userId}`),
   deleteTeamMember: (teamId, userId) => httpRequest.delete(`${baseUrl}/teams/${teamId}/members/${userId}`),
+  updateTeamMemberRole: (teamId, userId, params) => httpRequest.put(`${baseUrl}/teams/${teamId}/members/${userId}`, null, { params }),
 
   getTopics: (params) => httpRequest.get(`${baseUrl}/topics`, { params }),
   getTopic: (topicId) => httpRequest.get(`${baseUrl}/topics/${topicId}`),

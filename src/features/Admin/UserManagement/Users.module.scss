@@ -221,6 +221,26 @@ $text-muted: #94a3b8;
   }
 }
 
+.switchCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid $border;
+  .switchTitle {
+    font-weight: 700;
+    color: $text-title;
+    font-size: 1.3rem;
+  }
+  .switchDesc {
+    color: $text-muted;
+    font-size: 1.2rem;
+    margin-top: 2px;
+  }
+}
+
 .modalFooter {
   padding: 18px 32px !important;
   background: #f8fafc;

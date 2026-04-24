@@ -168,6 +168,22 @@
   }
 }
 
+.banner1,
+.banner2 {
+  width: calc((100% - 980px) / 2);
+  position: fixed;
+  top: 125px;
+  bottom: 50px;
+
+  img {
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.banner2 {
+  right: 0;
+}
+
 @media (max-width: 720px) {
   .readerContainer {
     padding: 14px 10px 118px;
@@ -185,4 +201,3 @@
     }
   }
 }
-

@@ -184,7 +184,7 @@ export default function PostManagement() {
             {posts.map((post, index) => (
               <TableRow key={post.id} className={cx('tableRow')}>
                 <TableCell className={cx('titleCell')}>
-                  <Typography className={cx('postTitle')}>{post.title || `Post ${index + 1}`}</Typography>
+                  <Typography className={cx('postTitle')}>{post.title}</Typography>
                 </TableCell>
                 <TableCell>
                   <Typography className={cx('authorName')}>{post.author?.name || '-'}</Typography>

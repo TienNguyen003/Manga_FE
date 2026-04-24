@@ -1,23 +1,23 @@
-import { useState } from 'react';
-import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Avatar, Divider } from '@mui/material';
 import {
-  DashboardRounded,
-  PeopleRounded,
-  WorkspacePremiumRounded,
-  SettingsRounded,
-  BarChartRounded,
-  LogoutRounded,
   AdminPanelSettingsRounded,
   AutoStoriesRounded,
-  GroupWorkRounded,
-  CategoryRounded,
+  BarChartRounded,
   CampaignRounded,
+  CategoryRounded,
+  DashboardRounded,
+  GroupWorkRounded,
+  LogoutRounded,
+  PeopleRounded,
+  SettingsRounded,
   TrendingUpRounded,
+  WorkspacePremiumRounded,
 } from '@mui/icons-material';
+import { Avatar, Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
-import styles from './Admin.module.scss';
-import paths from '~/routes/paths';
 import { Link, useLocation } from 'react-router-dom';
+import { useUser } from '~/providers/UserContext';
+import paths from '~/routes/paths';
+import styles from './Admin.module.scss';
 
 const cx = classNames.bind(styles);
 
@@ -42,6 +42,7 @@ const menuItems = [
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
+  const { userData } = useUser();
 
   const isActive = (path) => location.pathname === path;
 
@@ -57,10 +58,10 @@ export default function AdminLayout({ children }) {
         </div>
 
         <div className={cx('adminProfile')}>
-          <Avatar sx={{ width: 45, height: 45, bgcolor: '#ea982b' }}>A</Avatar>
+          <Avatar sx={{ width: 45, height: 45, bgcolor: '#ea982b' }} src={userData?.urlImage} alt={userData?.name} />
           <div className={cx('adminInfo')}>
-            <Typography className={cx('name')}>Duy Nguyễn</Typography>
-            <Typography className={cx('role')}>Super Admin</Typography>
+            <Typography className={cx('name')}>{userData?.name}</Typography>
+            <Typography className={cx('role')}>{userData?.role?.name}</Typography>
           </div>
         </div>
 

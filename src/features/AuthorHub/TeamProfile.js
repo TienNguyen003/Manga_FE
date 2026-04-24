@@ -60,7 +60,7 @@ export default function TeamProfile() {
             <div className={cx('sectionBlock')}>
               <h2>Thành viên cốt cán</h2>
               <div className={cx('memberGrid')}>
-                {team.members?.map((m) => (
+                {team.members.length > 0 ? team.members?.map((m) => (
                   <Link key={m.id} to={paths.publicProfile.replace(':id', m.id)}>
                     <div key={m.id} className={cx('memberCard')}>
                       <img src={m.avatar} alt={m.name} className={cx('userAva')} />
@@ -70,7 +70,9 @@ export default function TeamProfile() {
                       </div>
                     </div>
                   </Link>
-                ))}
+                )) : (
+                  <p className={cx('emptyText')}>Nhóm chưa có thành viên nào.</p>
+                )}
               </div>
             </div>
 

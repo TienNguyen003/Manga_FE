@@ -125,6 +125,7 @@ export default function AdsManagement() {
           onClick={() => {
             setOpenModal(true);
             setNewAd({});
+            setEditing(false);
           }}
         >
           Chiến dịch mới

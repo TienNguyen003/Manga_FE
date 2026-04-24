@@ -139,6 +139,7 @@ export default function BadgeManager() {
           onClick={() => {
             setOpenModal(true);
             setNewBadge({});
+            setEditing(false);
           }}
         >
           Tạo huy hiệu mới
@@ -216,7 +217,7 @@ export default function BadgeManager() {
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth PaperProps={{ className: cx('premiumModal') }}>
         <Box className={cx('modalHeader')}>
           <Typography variant="h6" className={cx('modalTitle')}>
-            Tạo huy hiệu mới
+            {editing ? 'Chỉnh sửa huy hiệu' : 'Tạo huy hiệu mới'}
           </Typography>
           <Typography variant="body2" color="textSecondary">
             Thiết lập thông số và điều kiện trao tặng cho huy hiệu.
@@ -367,7 +368,7 @@ export default function BadgeManager() {
             Hủy bỏ
           </Button>
           <Button onClick={handleCreateBadge} variant="contained" className={cx('primaryBtn')}>
-            Lưu huy hiệu
+            {editing ? 'Cập nhật' : 'Tạo mới'}
           </Button>
         </DialogActions>
       </Dialog>

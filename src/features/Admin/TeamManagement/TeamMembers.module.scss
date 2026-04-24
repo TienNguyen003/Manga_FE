@@ -1,9 +1,14 @@
 $primary: #ea982b;
+$primary-hover: #d68720;
 $dark: #0f172a;
 $text-main: #334155; // Slate-700
 $text-sub: #94a3b8; // Slate-400
+$text-title: #0f172a;
+$text-body: #475569;
+$text-muted: #94a3b8;
 $bg-body: #f8fafc; // Nền xám nhạt cực nhẹ
 $bg-card: #ffffff;
+$bg-main: #f8fafc;
 $border: #e2e8f0; // Slate-200
 
 .wrapper {
@@ -49,21 +54,19 @@ $border: #e2e8f0; // Slate-200
     font-weight: 400;
     margin-top: 2px;
   }
+}
 
-  .addBtn {
-    background: $dark;
-    border-radius: 8px;
-    text-transform: none;
-    padding: 8px 20px;
-    font-weight: 500;
-    font-size: 1.3rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: all 0.15s ease;
-    &:hover {
-      background: lighten($dark, 10%);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+.primaryBtn {
+  background: $primary !important;
+  color: #fff !important;
+  padding: 10px 24px !important;
+  border-radius: 5px !important;
+  text-transform: none !important;
+  box-shadow: 0 4px 14px rgba($primary, 0.3) !important;
+  transition: all 0.2s ease !important;
+  &:hover {
+    transform: translateY(-1px);
+    background: $primary-hover !important;
   }
 }
 
@@ -257,7 +260,6 @@ $border: #e2e8f0; // Slate-200
 
     span {
       font-size: 1.3rem;
-      color: $text-sub;
     }
     b {
       font-size: 1.3rem;
@@ -283,4 +285,212 @@ $border: #e2e8f0; // Slate-200
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+// Modal
+.premiumModal {
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modalHeader {
+  padding: 32px 32px 16px 32px;
+  .modalTitle {
+    font-weight: 800;
+    color: $text-title;
+  }
+}
+
+.modalBody {
+  padding: 0 32px 32px 32px !important;
+  overflow-x: hidden;
+
+  .sectionLabel {
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: $text-title;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 8px;
+    margin-bottom: 16px !important;
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+
+  &:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+
+  &.active {
+    background: #fff9f0;
+    border-color: $primary;
+  }
+
+  .addBtn {
+    text-transform: none;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+}
+
+.searchField {
+  .MuiOutlinedInput-root {
+    border-radius: 12px;
+    background: #f8fafc;
+  }
+}
+
+.switchCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid $border;
+  .switchTitle {
+    font-weight: 700;
+    color: $text-title;
+    font-size: 1.3rem;
+  }
+  .switchDesc {
+    color: $text-muted;
+    font-size: 1.2rem;
+    margin-top: 2px;
+  }
+}
+
+.modalFooter {
+  padding: 24px 32px !important;
+  background: #f8fafc;
+  border-top: 1px solid $border;
+}
+
+.textBtn {
+  color: $text-body !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  &:hover {
+    background: #e2e8f0 !important;
+  }
+}
+
+.noResults {
+  text-align: center;
+  color: $text-sub;
+  font-size: 1.3rem;
+  padding: 40px 0;
+}
+
+// ASSIGN ROLE MODAL (Lựa chọn quyền với card, có preview user ở trên)
+.roleModal {
+  .modalBody {
+    padding: 0 32px !important;
+
+    .userPreview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: $bg-main;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      border: 1px solid $border;
+
+      .userAvatar {
+        width: 48px;
+        height: 48px;
+      }
+      .userName {
+        font-weight: 700;
+        color: $text-title;
+      }
+      .userEmail {
+        font-size: 1.3rem;
+        color: $text-muted;
+      }
+    }
+
+    .sectionLabel {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: $text-muted;
+      margin-bottom: 12px;
+    }
+  }
+  .roleCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid $border;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+
+    &:hover {
+      border-color: rgba($primary, 0.3);
+      background: #fffaf5;
+    }
+
+    &.active {
+      border-color: $primary !important;
+      background: #fffaf5;
+      box-shadow: 0 4px 12px rgba($primary, 0.1);
+    }
+
+    &.available {
+      background: #f1f5f9;
+      border-color: $border;
+    }
+
+    .roleIcon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .roleInfo {
+      flex: 1;
+      .roleTitle {
+        font-weight: 700;
+        color: $text-title;
+      }
+      .roleDesc {
+        font-size: 1.2rem;
+        color: $text-body;
+        line-height: 1.4;
+      }
+    }
+
+    .checkIcon {
+      color: $primary;
+      font-size: 24px;
+    }
+  }
+}
+
+.warningText{
+  display: flex;
+  align-items: center;
+  margin-top: 8px !important;
 }

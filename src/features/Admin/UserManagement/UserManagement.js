@@ -31,6 +31,7 @@ import {
   InputAdornment,
   Paper,
   Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -236,8 +237,8 @@ export default function UserManagement() {
                 </TableCell>
                 <TableCell>
                   <Box className={cx('statusWrapper')}>
-                    <span className={cx('statusDot', { active: !user.isBanned })} />
-                    Hoạt động
+                    <span className={cx('statusDot', { active: user.status })} />
+                    {user.status ? 'Hoạt động' : 'Bị khóa'}
                   </Box>
                 </TableCell>
                 <TableCell align="right">
@@ -428,6 +429,14 @@ export default function UserManagement() {
                 }}
                 onChange={(e) => setNewUser({ ...newUser, urlImage: e.target.value })}
               />
+
+              <Box className={cx('switchCard')}>
+                <Box>
+                  <Typography className={cx('switchTitle')}>Trạng thái hoạt động</Typography>
+                  <Typography className={cx('switchDesc')}>Trạng thái hoạt động của tài khoản</Typography>
+                </Box>
+                <Switch value={newUser.status} checked={newUser.status === 1} onChange={(e) => setNewUser({ ...newUser, status: e.target.checked ? 1 : 0 })} color="primary" />
+              </Box>
             </Stack>
           </Box>
         </DialogContent>
@@ -464,7 +473,7 @@ export default function UserManagement() {
           {/* User Preview */}
           <Box className={cx('userPreview')}>
             <Avatar src={newUser?.urlImage} className={cx('userAvatar')} />
-            <Box sx={{flex: 1}}>
+            <Box sx={{ flex: 1 }}>
               <Typography className={cx('userName')}>{newUser?.name}</Typography>
               <Typography className={cx('userEmail')}>{newUser?.email}</Typography>
             </Box>

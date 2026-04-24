@@ -1,8 +1,8 @@
 $primary: #ea982b;
 $primary-hover: #d68720;
 $dark: #0f172a;
-$text-sub: #64748b;
 $border: #f1f5f9;
+$text-sub: #64748b;
 $text-title: #0f172a;
 $text-body: #475569;
 $text-muted: #94a3b8;
@@ -74,7 +74,6 @@ $text-muted: #94a3b8;
 .leaderChip {
   background: #fff !important;
   border: 1px solid $border !important;
-  font-weight: 700 !important;
   color: $dark !important;
   height: 32px !important;
   border-radius: 10px !important;
@@ -116,7 +115,9 @@ $text-muted: #94a3b8;
   }
 
   .iconBtn {
-    background: #f8fafc;
+    background: #f8fafc !important;
+    border-radius: 8px !important;
+    transition: 0.2s !important;
     &:hover {
       background: #eef2ff;
       color: #3b82f6;
@@ -124,6 +125,10 @@ $text-muted: #94a3b8;
     &.delete:hover {
       background: #fef2f2;
       color: #ef4444;
+    }
+    &.user:hover {
+      background: #02c70f17;
+      color: #02c70f;
     }
   }
 }
@@ -219,6 +224,26 @@ $text-muted: #94a3b8;
     font-size: 0.95rem;
     font-weight: 500;
     color: $text-title;
+  }
+}
+
+.switchCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid $border;
+  .switchTitle {
+    font-weight: 700;
+    color: $text-title;
+    font-size: 1.3rem;
+  }
+  .switchDesc {
+    color: $text-muted;
+    font-size: 1.2rem;
+    margin-top: 2px;
   }
 }
 

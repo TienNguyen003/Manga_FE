@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import classNames from 'classnames/bind';
-import { Pagination, Stack, Menu, MenuItem, Tooltip, CircularProgress, Typography } from '@mui/material';
 import {
-  PlaylistAddRounded,
   BookmarkAddedRounded,
   BookmarkAddRounded,
-  FolderSpecialRounded,
-  DownloadRounded,
-  StarRounded,
   ChatBubbleRounded,
+  DownloadRounded,
+  FolderSpecialRounded,
   PeopleAltRounded,
+  PlaylistAddRounded,
+  StarRounded,
 } from '@mui/icons-material';
+import { CircularProgress, Menu, MenuItem, Pagination, Stack, Tooltip, Typography } from '@mui/material';
+import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
@@ -259,9 +259,7 @@ const MangaDetail = () => {
       {/* Gợi ý */}
       <div className={cx('recommend-section')}>
         <h3 className={cx('section-label')}>Gợi ý cho bạn</h3>
-        <div
-          className={cx('carousel')}
-        >
+        <div className={cx('carousel')}>
           {recommendationItems.slice(0, 6).map((item, idx) => (
             <Link key={idx} to={`${paths.mangaDetail}?slug=${item.slug || item.mangaPath}`} className={cx('rec-card')}>
               <img src={`${IMG_BASE_URL}${item.thumbnailUrl}`} alt="" />

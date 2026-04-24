@@ -127,9 +127,11 @@ export default function PostDetail() {
       const newComment = res.result;
       setComments((prev) => [newComment, ...prev]);
 
-      commentRef.current.value = '';
+      if (commentRef.current) commentRef.current.value = '';
+
       toast.success('Bình luận đã được gửi!');
     } catch (err) {
+      console.error(err);
       toast.error(err.response?.data?.message || 'Không thể gửi bình luận. Vui lòng thử lại.');
     }
   };

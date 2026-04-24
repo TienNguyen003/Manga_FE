@@ -2,13 +2,11 @@ import {
   AddRounded,
   DeleteOutlineRounded,
   DescriptionRounded,
-  FacebookRounded,
+  EditRounded,
   GroupRounded,
   ImageRounded,
   LibraryBooksRounded,
   LinkRounded,
-  SettingsRounded,
-  SportsEsportsRounded,
   StarsRounded,
   WallpaperRounded,
 } from '@mui/icons-material';
@@ -24,6 +22,7 @@ import {
   InputAdornment,
   Paper,
   Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -38,11 +37,11 @@ import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
+import DataTablePagination from '~/components/common/DataTablePagination';
 import paths from '~/routes/paths';
 import { adminService } from '~/services/adminService';
 import styles from './Teams.module.scss';
-import DataTablePagination from '~/components/common/DataTablePagination';
-import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
 
@@ -146,6 +145,7 @@ export default function TeamManagement() {
           onClick={() => {
             setOpenModal(true);
             setNewTeam({});
+            setEditing(false);
           }}
         >
           Thành lập nhóm
@@ -160,7 +160,8 @@ export default function TeamManagement() {
               <TableCell>Nhóm dịch</TableCell>
               <TableCell>Trưởng nhóm</TableCell>
               <TableCell>Quy mô</TableCell>
-              <TableCell>Dự án đang thực hiện</TableCell>
+              <TableCell>Dự án</TableCell>
+              <TableCell>Trạng thái</TableCell>
               <TableCell align="right">Quản trị</TableCell>
             </TableRow>
           </TableHead>
@@ -175,7 +176,11 @@ export default function TeamManagement() {
                 </TableCell>
 
                 <TableCell>
-                  <Chip icon={<StarsRounded sx={{ color: `${team.color || '#ea982b'} !important` }} />} label={team.leader || team.owner || '-'} className={cx('leaderChip')} />
+                  <Chip
+                    icon={<StarsRounded sx={{ color: `${team.color || '#ea982b'} !important` }} />}
+                    label={team.members.filter((m) => m.role === 'LEAD')?.[0].name || '-'}
+                    className={cx('leaderChip')}
+                  />
                 </TableCell>
 
                 <TableCell>
@@ -196,16 +201,22 @@ export default function TeamManagement() {
                   </Box>
                 </TableCell>
 
+                <TableCell>
+                  <Chip label={team.status ? 'Đang hoạt động' : 'Ngừng hoạt động'} size="small" color={team.status ? 'success' : 'default'} variant="outlined" />
+                </TableCell>
+
                 <TableCell align="right">
                   <div className={cx('actionGroup')}>
                     <Link to={paths.teamMember.replace(':id', team.id)}>
-                      <Button variant="contained" disableElevation size="small" className={cx('manageBtn')} startIcon={<GroupRounded />}>
-                        Thành viên
-                      </Button>
+                      <Tooltip title="Xem thành viên">
+                        <IconButton size="small" className={cx('iconBtn', 'user')}>
+                          <GroupRounded />
+                        </IconButton>
+                      </Tooltip>
                     </Link>
                     <Tooltip title="Cài đặt nhóm">
                       <IconButton size="small" className={cx('iconBtn')} onClick={() => handleEditTeam(team.id)}>
-                        <SettingsRounded />
+                        <EditRounded />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Giải tán nhóm">
@@ -286,6 +297,14 @@ export default function TeamManagement() {
                 }}
                 onChange={(e) => setNewTeam({ ...newTeam, banner: e.target.value })}
               />
+
+              <Box className={cx('switchCard')}>
+                <Box>
+                  <Typography className={cx('switchTitle')}>Trạng thái hiển thị</Typography>
+                  <Typography className={cx('switchDesc')}>Cho phép người dùng tìm kiếm theo topic này</Typography>
+                </Box>
+                <Switch value={newTeam.status} checked={newTeam.status === 1} onChange={(e) => setNewTeam({ ...newTeam, status: e.target.checked ? 1 : 0 })} color="primary" />
+              </Box>
             </Stack>
 
             {/* CỘT 2: MÔ TẢ & MẠNG XÃ HỘI */}

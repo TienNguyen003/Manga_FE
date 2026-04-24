@@ -1,11 +1,11 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
 import classNames from 'classnames/bind';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import paths from '~/routes/paths';
+import { connectStomp, disconnectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
 import { useUser } from '~/providers/UserContext';
-import { getUnreadCount } from '~/services/notificationService';
+import paths from '~/routes/paths';
 import { getCategories } from '~/services/mangaService';
-import { connectStomp, subscribe as wsSubscribe, disconnectStomp, WS_TOPICS } from '~/lib/realtime';
+import { getUnreadCount } from '~/services/notificationService';
 import styles from './header.module.scss';
 
 const cx = classNames.bind(styles);
@@ -109,10 +109,12 @@ export default function Header() {
 
   return (
     <header className={cx('header')}>
-      <div className={cx('topLine')}>
-        <span></span>
-        <Link to={paths.releaseCalendar}>Lịch ra chương tuần này</Link>
-      </div>
+      {location.pathname === paths.home && (
+        <div className={cx('topLine')}>
+          <span></span>
+          <Link to={paths.releaseCalendar}>Lịch ra chương tuần này</Link>
+        </div>
+      )}
 
       <div className={cx('shell')}>
         <Link to={paths.home} className={cx('brand')}>

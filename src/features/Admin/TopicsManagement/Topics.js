@@ -103,6 +103,7 @@ export default function TopicManagement() {
           onClick={() => {
             setNewTopic({});
             setOpenModal(true);
+            setEditing(false);
           }}
         >
           Thêm Topic mới
@@ -135,8 +136,10 @@ export default function TopicManagement() {
 
                 <TableCell>
                   <Box className={cx('slugCell')}>
-                    <LinkRounded className={cx('linkIcon')} />
-                    <span>/{topic.slug || topic.code || '-'}</span>
+                    <Link to={paths.communityTopic.replace(':id', topic.id || '-')} style={{ display: 'flex', alignItems: 'center' }}>
+                      <LinkRounded className={cx('linkIcon')} />
+                      <span>{paths.communityTopic.replace(':id', topic.id || '-')}</span>
+                    </Link>
                   </Box>
                 </TableCell>
 
@@ -155,10 +158,12 @@ export default function TopicManagement() {
 
                 <TableCell align="right">
                   <div className={cx('actionGroup')}>
-                    <Link to={paths.postManagement.replace(':id', topic.id)} >
-                      <Button startIcon={<DynamicFeedRounded />} variant="contained" className={cx('viewBtn')}>
-                        Xem Posts
-                      </Button>
+                    <Link to={paths.postManagement.replace(':id', topic.id)}>
+                      <Tooltip title="Xem Posts">
+                        <IconButton size="small" className={cx('viewBtn')}>
+                          <DynamicFeedRounded />
+                        </IconButton>
+                      </Tooltip>
                     </Link>
                     <Tooltip title="Chỉnh sửa">
                       <IconButton size="small" className={cx('actionBtn', 'edit')} onClick={() => handleEditTopic(topic.id)}>
