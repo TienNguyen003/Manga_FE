@@ -1,92 +1,163 @@
-﻿$primary: #ea982b;
-$dark: #0f172a;
-$slate: #64748b;
-$bg: #f8fafc;
-$radius: 24px;
+﻿ $primary: #ea982b;
+ $primary-dark: #c27a1a;
+ $dark: #0f172a;
+ $slate: #64748b;
+ $bg: #f8fafc;
+ $radius: 24px;
+ $radius-sm: 14px;
 
 .authorPage {
-  padding: 40px 0;
+  padding: 40px 0 80px;
 }
 
+// --- HERO SECTION ---
 .hero {
   position: relative;
   background: $dark;
   border-radius: $radius;
   padding: 80px 60px;
   overflow: hidden;
-  margin-bottom: 60px;
+  margin-bottom: 70px;
   display: flex;
   align-items: center;
+  min-height: 400px;
+  box-shadow: 0 20px 50px rgba($dark, 0.15);
 
+  // Grid Pattern nền
   &::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 60%;
-    height: 200%;
-    background: radial-gradient(circle, rgba($primary, 0.2) 0%, transparent 70%);
-    transform: rotate(-15deg);
+    inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+    z-index: 1;
+  }
+
+  // Glow Effect
+  &::after {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba($primary, 0.35) 0%, transparent 70%);
+    filter: blur(40px);
+    z-index: 1;
   }
 
   .heroContent {
     position: relative;
     z-index: 2;
-    max-width: 600px;
+    max-width: 650px;
 
     h1 {
-      font-size: 5.2rem;
+      font-size: clamp(3.2rem, 5vw, 5.2rem); // Responsive tự động
       font-weight: 900;
       color: #fff;
       letter-spacing: -2px;
-      line-height: 1.1;
-      margin-bottom: 24px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
+
     .desc {
-      font-size: 1.8rem;
+      font-size: 1.7rem;
       color: #94a3b8;
       line-height: 1.6;
+      margin-bottom: 35px;
+      max-width: 500px;
     }
-  }
 
-  .kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba($primary, 0.15);
-    color: $primary;
-    padding: 6px 16px;
-    border-radius: 100px;
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    border: 1px solid rgba($primary, 0.2);
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba($primary, 0.15);
+      color: $primary;
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 1.2rem;
+      margin-bottom: 24px;
+      border: 1px solid rgba($primary, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .ctaGroup {
+      display: flex;
+      gap: 15px;
+      
+      .ctaBtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 28px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+      }
+      .ctaPrimary {
+        background: $primary;
+        color: #fff;
+        border: none;
+        &:hover {
+          background: $primary-dark;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba($primary, 0.3);
+        }
+      }
+      .ctaOutline {
+        background: transparent;
+        color: #fff;
+        border: 2px solid rgba(255,255,255,0.2);
+        &:hover {
+          border-color: #fff;
+          background: rgba(255,255,255,0.1);
+        }
+      }
+    }
   }
 }
 
+// --- SECTION LAYOUT ---
 .section {
-  margin-bottom: 60px;
+  margin-bottom: 70px;
 
   .sectionHead {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
+    align-items: flex-end;
+    margin-bottom: 35px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 15px;
 
     .titleGroup {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       .icon {
         color: $primary;
-        font-size: 3.2rem;
+        font-size: 3.4rem;
+        background: #fff7ed;
+        padding: 8px;
+        border-radius: 14px;
+        box-shadow: 0 4px 10px rgba($primary, 0.1);
       }
       h2 {
-        font-size: 2.8rem;
+        font-size: 2.6rem;
         font-weight: 850;
         color: $dark;
         letter-spacing: -1px;
+        position: relative;
       }
     }
 
@@ -97,88 +168,177 @@ $radius: 24px;
       color: $slate;
       font-weight: 700;
       font-size: 1.4rem;
+      padding: 8px 16px;
+      border-radius: 10px;
+      transition: 0.2s;
       &:hover {
         color: $primary;
+        background: #fff7ed;
       }
     }
   }
 }
 
+
+// --- NHÓM TÁC GIẢ (TEAM GRID - REDESIGNED) ---
 .teamGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 28px;
 }
 
 .teamCard {
   background: #fff;
   border-radius: $radius;
-  padding: 30px;
+  overflow: hidden; // Quan trọng để cover không tràn ra ngoài
   border: 1px solid #e2e8f0;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-    border-color: $primary;
-  }
-
-  .cardTop {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 24px;
-
-    .teamAvatar {
-      width: 64px;
-      height: 64px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: transparent;
+    
+    .cardCover {
+      transform: scale(1.05);
+    }
+    .profileBtn {
       background: $dark;
       color: #fff;
-      font-size: 2.4rem;
-      font-weight: 800;
-      border-radius: 18px;
-    }
-
-    h3 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: $dark;
-    }
-    .teamStats {
-      color: $slate;
-      font-size: 1.4rem;
+      border-color: $dark;
+      svg {
+        transform: translateX(4px);
+      }
     }
   }
-}
 
-.profileBtn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f1f5f9;
-  color: $dark;
-  padding: 14px 20px;
-  border-radius: 16px;
-  font-weight: 700;
-  transition: 0.3s;
+  // --- Cover Photo (Dùng Gradient làm bìa) ---
+  .cardCover {
+    height: 110px;
+    width: 100%;
+    position: relative;
+    transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+    
+    // Thêm họa tiết grid nhẹ lên bìa
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  }
 
-  &:hover {
+  // --- Phần nội dung bên dưới ---
+  .cardBody {
+    padding: 0 24px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+
+  // --- Avatar đè lên Cover ---
+  .teamAvatar {
+    width: 80px;
+    height: 80px;
+    margin-top: -40px; // Đẩy lên chèn vào cover
     background: $dark;
     color: #fff;
+    font-size: 2.6rem;
+    font-weight: 800;
+    border-radius: 20px;
+    border: 4px solid #fff; // Viền trắng nổi bật
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
+  }
+
+  .teamName {
+    font-size: 2rem;
+    font-weight: 800;
+    color: $dark;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .teamTag {
+    display: inline-block;
+    background: #f1f5f9;
+    color: $slate;
+    padding: 4px 12px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .teamStats {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    color: $slate;
+    font-size: 1.3rem;
+    width: 100%;
+    padding: 12px 0;
+    border-top: 1px dashed #e2e8f0;
+    margin-bottom: 20px;
+
+    .statItem {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      svg {
+        font-size: 1.6rem;
+        color: $primary;
+      }
+      b {
+        color: $dark;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .profileBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #f8fafc;
+    color: $dark;
+    padding: 12px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1.4rem;
+    transition: all 0.3s;
+    border: 1px solid #e2e8f0;
+    margin-top: auto; // Đẩy nút xuống đáy card
+
+    svg {
+      font-size: 1.6rem;
+      transition: transform 0.3s;
+    }
   }
 }
 
+.skeletonCard {
+  border-radius: $radius;
+  height: 280px; // Cập nhật chiều cao skeleton phù hợp với card mới
+}
+
+// --- SPOTLIGHT / WORKS ---
 .worksGrid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  // Tự động căn đều, không bị dư khoảng trống
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
   gap: 20px;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  @media (max-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .workItem {
@@ -186,10 +346,12 @@ $radius: 24px;
   border-radius: 18px;
   overflow: hidden;
   background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  cursor: pointer;
 
   &:hover {
     .imageWrapper img {
-      transform: scale(1.1);
+      transform: scale(1.08);
     }
     .workInfo {
       transform: translateY(0);
@@ -210,7 +372,23 @@ $radius: 24px;
     .imageOverlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba($dark, 0.8), transparent);
+      background: linear-gradient(to top, rgba($dark, 0.9) 0%, rgba($dark, 0.2) 40%, transparent 100%);
+      z-index: 1;
+    }
+    
+    // Badge Thể loại/Tình trạng
+    .spotlightBadge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: $primary;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      z-index: 2;
+      box-shadow: 0 4px 8px rgba($primary, 0.3);
     }
   }
 
@@ -219,19 +397,23 @@ $radius: 24px;
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 15px;
-    transition: 0.4s;
+    padding: 20px 15px 15px;
+    z-index: 2;
+    transition: 0.4s ease;
+    // Trạng thái ẩn ban đầu (Đã sửa lỗi cũ)
+    transform: translateY(10px);
+    opacity: 0;
+
     .mangaName {
       color: #fff;
       font-weight: 700;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       line-height: 1.4;
-      display: block;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
   }
-}
-
-.skeletonCard {
-  border-radius: $radius;
-  height: 180px;
 }

@@ -1,79 +1,287 @@
-﻿.calendarPage {
-  color: var(--ink);
-  padding: 22px 0 36px;
+﻿$primary: #ea982b;
+$primary-light: #ffb347;
+$primary-glow: rgba(234, 152, 43, 0.3);
+$dark: #0f172a;
+$slate: #64748b;
+$bg: #f4f6f8;
+$card-bg: #ffffff;
+$radius: 24px;
+$radius-sm: 14px;
+
+.calendarPage {
+  min-height: 100vh;
+  padding: 30px 0 80px;
+  background: $bg;
+  color: $dark;
 }
 
+// --- HERO CINEMATIC ---
 .hero {
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
-  padding: 20px;
-  margin-bottom: 12px;
+  position: relative;
+  background: $dark;
+  border-radius: $radius;
+  padding: 50px 40px;
+  margin-bottom: 30px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  // Ký tự khổng lồ làm nền
+  &::before {
+    content: 'SCHEDULE';
+    position: absolute;
+    bottom: -30px;
+    right: -20px;
+    font-size: 12rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    letter-spacing: 10px;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  // Hiệu ứng Glow sáng
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba($primary, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .heroContent {
+    position: relative;
+    z-index: 1;
+    max-width: 650px;
+  }
 
   h1 {
-    font-size: clamp(2.5rem, 4.2vw, 4.1rem);
-    line-height: 1.08;
-    margin-bottom: 7px;
-    max-width: 13ch;
-    color: #2d3a4b;
+    font-size: clamp(3rem, 5vw, 4.2rem);
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 12px;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    text-transform: uppercase;
+
+    span {
+      color: $primary;
+    }
   }
 
   p {
-    color: var(--muted-ink);
-    font-size: 1.4rem;
-    max-width: 64ch;
-  }
-}
-
-.calendarGrid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 9px;
-
-  @media (min-width: 900px) {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-  }
-}
-
-.dayCard {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--card);
-  padding: 10px;
-
-  h3 {
-    font-size: 1.55rem;
-    color: #334152;
-    margin-bottom: 8px;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
+    color: #94a3b8;
+    font-size: 1.7rem;
     margin: 0;
-    display: grid;
-    gap: 6px;
+    line-height: 1.5;
+  }
+}
+
+// --- DAY TABS (Pill Buttons) ---
+.dayTabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 35px;
+  padding: 5px 0 10px 0;
+
+  // Ẩn thanh cuộn
+  &::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+  }
+}
+
+.dayTab {
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: $card-bg;
+  border: 2px solid transparent;
+  border-radius: 99px; // Pill shape
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+
+  .dayName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $dark;
+    transition: 0.3s;
   }
 
-  li a {
-    display: block;
-    border: 1px solid #ebd3b2;
-    border-radius: 8px;
-    background: #fff4e4;
-    color: #5f6c79;
-    font-size: 1.2rem;
-    line-height: 1.35;
-    padding: 6px;
+  .dayBadge {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    background: #cbd5e1;
+    padding: 3px 9px;
+    border-radius: 99px;
+    transition: 0.3s;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  &:hover {
+    border-color: rgba($primary, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+  }
+
+  // ACTIVE STATE
+  &.active {
+    background: $dark;
+    border-color: $dark;
+    // box-shadow: 0 10px 25px rgba($dark, 0.25), 0 0 0 3px rgba($primary, 0.2);
+    transform: translateY(-2px);
+
+    .dayName {
+      color: #fff;
+    }
+    .dayBadge {
+      background: $primary;
+      color: #fff;
+    }
+  }
+
+  // TODAY MARKER (Chấm tròn nhỏ nếu không phải active)
+  &.isToday:not(.active) {
+    border-color: rgba($primary, 0.4);
+    .dayBadge {
+      background: $primary;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: $primary;
+      border: 2px solid #fff;
+    }
+  }
+}
+
+// --- MANGA GRID (3D Pop Cards) ---
+.mangaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 25px 20px;
+}
+
+.mangaCard {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  &:hover {
+    .mangaImgWrap {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    .mangaName {
+      color: $primary;
+    }
+  }
+}
+
+.mangaImgWrap {
+  position: relative;
+  aspect-ratio: 3/4.2;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: $radius-sm;
+  // Đổ bóng 3D dưới bìa
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+
+  .mangaImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  &:hover .mangaImg {
+    transform: scale(1.05);
+  }
+
+  .newBadge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: $primary;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-bottom-right-radius: 10px;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
+  }
+}
+
+.mangaInfo {
+  padding: 14px 4px 0;
+
+  .mangaName {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: $dark;
+    line-height: 1.4;
     display: -webkit-box;
-    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    transition: 0.2s;
+    margin-bottom: 4px;
+  }
+
+  .mangaMeta {
+    font-size: 1.15rem;
+    color: $slate;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 }
 
-.empty {
-  color: #8b96a4;
-  font-size: 1.2rem;
-}
+// --- EMPTY STATE ---
+.emptyState {
+  background: $card-bg;
+  border-radius: $radius;
+  padding: 100px 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 2px dashed #e2e8f0;
 
+  .emptyIcon {
+    font-size: 6rem;
+    margin-bottom: 15px;
+    display: block;
+  }
+
+  p {
+    color: $slate;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+  span {
+    display: block;
+    color: #cbd5e1;
+    font-size: 1.4rem;
+    margin-top: 8px;
+  }
+}

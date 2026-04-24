@@ -1,13 +1,16 @@
 ﻿$primary: #ea982b;
-$primary-light: #fff9f0;
-$text-main: #2d3436;
-$text-muted: #636e72;
-$danger: #ff7675;
-$border-color: #eee;
-$shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+$primary-light: #fff4e6;
+$dark: #0f172a;
+$slate: #64748b;
+$bg: #f1f5f9;
+$card-bg: #ffffff;
+$border-color: #e2e8f0;
+$radius: 20px;
+$radius-sm: 12px;
 
 .library-wrapper {
-  background-color: #f8f9fa;
+  background-color: $bg;
+  padding-bottom: 60px;
 
   .container {
     max-width: 1300px;
@@ -16,25 +19,25 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
   }
 }
 
-// --- Header Section ---
+// --- HEADER (Gọn gàng, dạng Profile Bar) ---
 .lib-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: #fff;
-  padding: 40px;
-  border-radius: 30px;
-  margin-bottom: 40px;
-  box-shadow: $shadow;
+  gap: 30px;
+  background: $card-bg;
+  padding: 25px 35px;
+  border-radius: $radius;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   border: 1px solid $border-color;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
+    text-align: center;
   }
 
   .header-content {
+    flex: 1;
     .kicker {
       color: $primary;
       font-weight: 800;
@@ -43,181 +46,192 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
       letter-spacing: 1px;
     }
     h1 {
-      font-size: 3.2rem;
+      font-size: 2.8rem;
       font-weight: 900;
-      margin: 10px 0;
+      margin: 5px 0;
       span {
         color: $primary;
       }
     }
     p {
-      color: $text-muted;
-      font-size: 1.5rem;
+      color: $slate;
+      font-size: 1.4rem;
+      margin: 0;
     }
   }
 
   .stats-grid {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     .stat-item {
-      background: $primary-light;
-      padding: 20px 30px;
-      border-radius: 20px;
+      background: $bg;
+      padding: 15px 25px;
+      border-radius: $radius-sm;
       text-align: center;
-      min-width: 120px;
+      border: 1px solid $border-color;
       .val {
         display: block;
-        font-size: 2.4rem;
+        font-size: 2.2rem;
         font-weight: 900;
         color: $primary;
+        line-height: 1.2;
       }
       .lbl {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: $text-muted;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: $slate;
+        text-transform: uppercase;
       }
     }
   }
 }
 
-// --- Layout Body ---
+// --- LAYOUT BODY ---
 .lib-body {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 40px;
+  grid-template-columns: 260px 1fr;
+  gap: 30px;
+
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
   }
 }
 
-// --- Sidebar Navigation ---
+// --- SIDEBAR (Hiệu ứng Glassmorphism) ---
 .sidebar {
   .nav-list {
     position: sticky;
-    top: 160px;
+    top: 130px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 24px;
-    box-shadow: $shadow;
-    border: 1px solid $border-color;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 15px;
+    border-radius: $radius;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
   }
 
   .nav-item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 16px 20px;
-    border-radius: 15px;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: $radius-sm;
     border: none;
     background: transparent;
-    color: $text-muted;
-    font-weight: 700;
-    font-size: 1.5rem;
+    color: $slate;
+    font-weight: 600;
+    font-size: 1.4rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: left;
 
     svg {
-      font-size: 2.2rem;
+      font-size: 2rem;
     }
 
     &:hover {
-      background: $primary-light;
-      color: $primary;
+      background: $bg;
+      color: $dark;
     }
 
     &.active {
-      background: $primary;
+      background: $dark;
       color: #fff;
-      box-shadow: 0 10px 20px rgba($primary, 0.3);
+      box-shadow: 0 5px 15px rgba($dark, 0.2);
     }
   }
 }
 
-// --- Main Panel ---
+// --- MAIN PANEL (Bỏ viền, để nội dung tự do) ---
 .main-panel {
-  background: #fff;
-  border-radius: 30px;
-  padding: 40px;
-  box-shadow: $shadow;
-  border: 1px solid $border-color;
-  min-height: 600px;
+  min-height: 60vh;
 
   .panel-head {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #f5f5f5;
+    margin-bottom: 25px;
     h2 {
       font-size: 2.4rem;
       font-weight: 800;
-      color: $text-main;
+      color: $dark;
     }
   }
 }
 
-// --- Manga Grid & Cards ---
+// --- MANGA GRID & CARDS (Thiết kế 3D Pop) ---
 .manga-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 25px 20px;
 }
 
 .manga-card {
+  position: relative;
+
   .img-box {
     position: relative;
     aspect-ratio: 3/4.2;
-    border-radius: 20px;
+    border-radius: $radius-sm;
     overflow: hidden;
     display: block;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background: #e2e8f0;
+    // Tạo bóng khối 3D dưới bìa
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: 0.5s ease;
+      transition: transform 0.4s ease;
     }
 
     .card-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: linear-gradient(to top, rgba($dark, 0.9) 0%, transparent 60%);
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
+      padding-bottom: 20px;
       opacity: 0;
       transition: 0.3s;
       span {
         color: #fff;
-        font-weight: 800;
-        border: 2px solid #fff;
-        padding: 8px 15px;
-        border-radius: 10px;
-        font-size: 1.3rem;
+        font-weight: 700;
+        background: $primary;
+        padding: 6px 15px;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transform: translateY(10px);
+        transition: 0.3s;
       }
     }
 
     &:hover {
       img {
-        transform: scale(1.1);
+        transform: scale(1.05);
       }
       .card-overlay {
         opacity: 1;
+        span {
+          transform: translateY(0);
+        }
       }
     }
   }
 
   .card-info {
-    padding: 15px 5px;
+    padding: 12px 2px 0;
     .title {
       display: block;
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: $text-main;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: $dark;
       text-decoration: none;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -232,10 +246,10 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
       .badge {
         font-size: 1.1rem;
         font-weight: 700;
-        color: $text-muted;
-        background: #f0f2f5;
-        padding: 4px 10px;
-        border-radius: 8px;
+        color: $slate;
+        background: $bg;
+        padding: 3px 8px;
+        border-radius: 6px;
         &.new {
           color: $primary;
           background: $primary-light;
@@ -244,54 +258,54 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
       .delete-icon {
         border: none;
         background: transparent;
-        color: $danger;
+        color: #cbd5e1;
         cursor: pointer;
-        padding: 5px;
-        border-radius: 50%;
+        padding: 4px;
+        border-radius: 6px;
         transition: 0.2s;
         &:hover {
           background: #fff5f5;
-          transform: scale(1.1);
+          color: #ef4444;
         }
       }
     }
   }
 }
 
-// --- Collection Section (Xử lý mớ logic phức tạp của mày) ---
+// --- COLLECTION SECTION ---
 .collection-section {
   .create-box {
     display: flex;
-    gap: 15px;
-    margin-bottom: 40px;
+    gap: 12px;
+    margin-bottom: 30px;
     input {
       flex: 1;
-      padding: 15px 25px;
-      border-radius: 15px;
-      border: 2px solid #eee;
-      font-size: 1.5rem;
+      padding: 14px 20px;
+      border-radius: $radius-sm;
+      border: 2px solid $border-color;
+      font-size: 1.4rem;
       outline: none;
       transition: 0.3s;
+      background: #fff;
       &:focus {
         border-color: $primary;
       }
     }
     button {
-      background: $primary;
+      background: $dark;
       color: #fff;
       border: none;
-      padding: 0 30px;
-      border-radius: 15px;
+      padding: 0 25px;
+      border-radius: $radius-sm;
       font-weight: 700;
+      font-size: 1.3rem;
       cursor: pointer;
       transition: 0.3s;
       &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
+        opacity: 0.5;
       }
       &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba($primary, 0.3);
+        background: $primary;
       }
     }
   }
@@ -303,28 +317,77 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
   }
 
   .col-card {
-    border: 1px solid $border-color;
-    border-radius: 24px;
-    padding: 25px;
+    border: none;
+    border-radius: $radius;
+    padding: 0;
     background: #fff;
     transition: 0.3s;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
+    border: 1px solid $border-color;
+
     &:hover {
       border-color: $primary;
-      transform: translateY(-5px);
-      box-shadow: $shadow;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba($primary, 0.1);
+    }
+
+    // Ảnh chồng nhau làm Cover cho Collection
+    .col-cover {
+      height: 200px;
+      background: $bg;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .cover-img {
+        height: 100%;
+        // width: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: absolute;
+        &:nth-child(1) {
+          transform: rotate(-10deg) translateX(-130px);
+          z-index: 1;
+        }
+        &:nth-child(2) {
+          transform: rotate(-5deg) translateX(-65px);
+          z-index: 2;
+        }
+        &:nth-child(3) {
+          transform: rotate(0deg) translateX(0);
+          z-index: 3;
+        }
+        &:nth-child(4) {
+          transform: rotate(5deg) translateX(65px);
+          z-index: 4;
+        }
+        &:nth-child(5) {
+          transform: rotate(10deg) translateX(130px);
+          z-index: 5;
+        }
+      }
     }
 
     .col-info {
+      padding: 20px 25px;
       h3 {
         font-size: 1.8rem;
         font-weight: 800;
-        color: $text-main;
+        color: $dark;
         margin-bottom: 5px;
       }
       p {
-        color: $text-muted;
+        color: $slate;
         font-size: 1.3rem;
         margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .col-stats {
@@ -335,29 +398,37 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
           gap: 5px;
           font-weight: 700;
           color: $primary;
+          background: $primary-light;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 1.1rem;
         }
       }
 
       .col-btns {
         display: flex;
-        gap: 10px;
+        gap: 8px;
         button {
           flex: 1;
           padding: 10px;
-          border-radius: 10px;
-          border: 1px solid #eee;
-          background: #f9f9f9;
-          font-weight: 700;
+          border-radius: 8px;
+          border: 1px solid $border-color;
+          background: $bg;
+          font-weight: 600;
+          font-size: 1.2rem;
           cursor: pointer;
           transition: 0.2s;
+          color: $dark;
           &:hover {
-            background: #eee;
+            background: #e2e8f0;
           }
           &.del {
-            color: $danger;
+            flex: 0 0 40px;
+            color: #cbd5e1;
             &:hover {
               background: #fff5f5;
-              border-color: $danger;
+              color: #ef4444;
+              border-color: #fecaca;
             }
           }
         }
@@ -365,27 +436,32 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
     }
 
     .col-items {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px dashed $border-color;
+      border-top: 1px solid $bg;
+      padding: 20px 25px;
+      background: #fafbfc;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
 
       .it-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #fcfcfc;
-        padding: 8px 12px;
-        border-radius: 10px;
+        background: #fff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #f1f5f9;
 
         a {
           text-decoration: none;
-          color: $text-main;
+          color: $dark;
           font-weight: 600;
           flex: 1;
           font-size: 1.3rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          padding-right: 10px;
           &:hover {
             color: $primary;
           }
@@ -394,20 +470,21 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
         .it-actions {
           display: flex;
           gap: 5px;
+          flex-shrink: 0;
           button {
             border: none;
             background: transparent;
-            color: $text-muted;
+            color: #cbd5e1;
             cursor: pointer;
-            padding: 5px;
-            border-radius: 5px;
+            padding: 4px;
+            border-radius: 6px;
             &:hover {
-              background: #eee;
-              color: $text-main;
+              background: $bg;
+              color: $primary;
             }
             &.del {
               &:hover {
-                color: $danger;
+                color: #ef4444;
                 background: #fff5f5;
               }
             }
@@ -416,4 +493,18 @@ $shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
       }
     }
   }
+}
+
+// --- ASYNC STATES ---
+.empty-state,
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: $slate;
+  text-align: center;
+  grid-column: 1 / -1;
 }

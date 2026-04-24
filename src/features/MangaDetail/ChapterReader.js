@@ -244,7 +244,7 @@ const ChapterReader = () => {
   return (
     <div style={{display: 'flex'}}>
       <div className={cx('banner1')}>
-        <img src={adsData?.[0]?.imageUrl} alt={adsData?.[0].title}/>
+        <img src={adsData?.[0]?.imageUrl} alt={adsData?.[0]?.title}/>
       </div>
       <div className={cx('readerContainer')}>
         <div className={cx('header')}>
@@ -333,7 +333,7 @@ const ChapterReader = () => {
         )}
       </div>
       <div className={cx('banner2')}>
-        <img src={adsData?.[1]?.imageUrl} alt={adsData?.[1].title}/>
+        <img src={adsData?.[1]?.imageUrl} alt={adsData?.[1]?.title}/>
       </div>
     </div>
   );

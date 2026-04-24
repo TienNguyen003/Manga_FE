@@ -8,7 +8,7 @@ import {
   PlaylistAddRounded,
   StarRounded,
 } from '@mui/icons-material';
-import { CircularProgress, Menu, MenuItem, Pagination, Stack, Tooltip, Typography } from '@mui/material';
+import { Avatar, CircularProgress, Menu, MenuItem, Pagination, Stack, Tooltip, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -140,6 +140,7 @@ const MangaDetail = () => {
   return (
     <div className={cx('manga-detail', 'container-fluid')}>
       <div className={cx('wrapper')}>
+        {/* --- CỘT TRÁI --- */}
         <div className={cx('left')}>
           <img src={`${IMG_BASE_URL}${mangas.thumb_url}`} alt={mangas.name} className={cx('cover')} />
 
@@ -205,6 +206,7 @@ const MangaDetail = () => {
           </div>
         </div>
 
+        {/* --- CỘT PHẢI (Đã gộp cả Gợi ý và Review vào đây) --- */}
         <div className={cx('right')}>
           <h1 className={cx('manga-title')}>{mangas.name}</h1>
           <div className={cx('tags-row')}>
@@ -238,90 +240,97 @@ const MangaDetail = () => {
                 count={Math.ceil(mangas.chapters?.[0]?.server_data?.length / 5)}
                 onChange={(e, v) => setActivePage(v)}
                 sx={{
-                  '& .MuiPaginationItem-root': {
-                    fontSize: '1.4rem',
-                  },
-                  '& .MuiPaginationItem-previousNext': {
-                    '& svg': {
-                      fontSize: '1.4rem',
-                      width: '2rem',
-                      height: '2rem',
-                    },
-                  },
+                  '& .MuiPaginationItem-root': { fontSize: '1.4rem' },
+                  '& .MuiPaginationItem-previousNext': { '& svg': { fontSize: '1.4rem', width: '2rem', height: '2rem' } },
                   '& .Mui-selected': { backgroundColor: '#ea982b !important', color: '#fff' },
                 }}
               />
             </Stack>
           </div>
-        </div>
-      </div>
 
-      {/* Gợi ý */}
-      <div className={cx('recommend-section')}>
-        <h3 className={cx('section-label')}>Gợi ý cho bạn</h3>
-        <div className={cx('carousel')}>
-          {recommendationItems.slice(0, 6).map((item, idx) => (
-            <Link key={idx} to={`${paths.mangaDetail}?slug=${item.slug || item.mangaPath}`} className={cx('rec-card')}>
-              <img src={`${IMG_BASE_URL}${item.thumbnailUrl}`} alt="" />
-              <div className={cx('rec-name')}>{item.name || item.mangaName}</div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Đánh giá */}
-      <div className={cx('rating-block')}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>
-          ⭐ ĐÁNH GIÁ
-        </Typography>
-        {ratingSummary && (
-          <div className={cx('rating-header')}>
-            <div className={cx('big-score')}>{Number(ratingSummary.averageScore || 0).toFixed(1)}</div>
-            <div className={cx('stars-wrap')}>
-              <div className={cx('stars-row')}>
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <StarRounded key={s} sx={{ color: s <= Math.round(ratingSummary.averageScore) ? '#ea982b' : '#eee', fontSize: '2.4rem' }} />
-                ))}
-              </div>
-              <div className={cx('count')}>{ratingSummary.totalRatings || 0} lượt đánh giá</div>
-            </div>
-          </div>
-        )}
-
-        {userId && (
-          <div className={cx('rating-form')}>
-            <div className={cx('input-stars')}>
-              {[1, 2, 3, 4, 5].map((s) => (
-                <StarRounded key={s} onClick={() => setRatingInput(s)} sx={{ cursor: 'pointer', fontSize: '4rem', color: s <= ratingInput ? '#ea982b' : '#ddd' }} />
+          {/* GỢI Ý */}
+          <div className={cx('recommend-section')}>
+            <h3 className={cx('section-label')}>💡 Gợi ý cho bạn</h3>
+            <div className={cx('carousel')}>
+              {recommendationItems.slice(0, 6).map((item, idx) => (
+                <Link key={idx} to={`${paths.mangaDetail}?slug=${item.slug || item.mangaPath}`} className={cx('rec-card')}>
+                  <img src={`${IMG_BASE_URL}${item.thumbnailUrl}`} alt="" />
+                  <div className={cx('rec-name')}>{item.name || item.mangaName}</div>
+                </Link>
               ))}
             </div>
-            <textarea className={cx('review-box')} value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Nhận xét của bạn..." rows={3} />
-            <button className={cx('submit-rating')} onClick={handleSubmitRating} disabled={ratingInput < 1 || ratingSubmitting}>
-              {ratingSubmitting ? 'ĐANG GỬI...' : 'GỬI ĐÁNH GIÁ'}
-            </button>
           </div>
-        )}
-        {reviews.length > 0 && (
-          <div className={cx('reviews-list')}>
-            <h3 className={cx('list-title')}>Nhận xét từ cộng đồng ({reviews.length})</h3>
-            {reviews.map((r, idx) => (
-              <div key={idx} className={cx('review-item')}>
-                <div className={cx('review-user-info')}>
-                  <div className={cx('user-meta')}>
-                    <span className={cx('username')}>{r.userDisplayName || r.name}</span>
-                    <div className={cx('user-stars')}>
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <StarRounded key={s} sx={{ fontSize: '1.4rem', color: s <= r.score ? '#ea982b' : '#eee' }} />
-                      ))}
+
+          {/* ĐÁNH GIÁ */}
+          <div className={cx('rating-block')}>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>
+              ⭐ ĐÁNH GIÁ TRUYỆN
+            </Typography>
+            {ratingSummary && (
+              <div className={cx('rating-header')}>
+                <div className={cx('big-score')}>{Number(ratingSummary.averageScore || 0).toFixed(1)}</div>
+                <div className={cx('stars-wrap')}>
+                  <div className={cx('stars-row')}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <StarRounded key={s} sx={{ color: s <= Math.round(ratingSummary.averageScore) ? '#ea982b' : '#eee', fontSize: '2.4rem' }} />
+                    ))}
+                  </div>
+                  <div className={cx('count')}>{ratingSummary.totalRatings || 0} lượt đánh giá</div>
+                </div>
+              </div>
+            )}
+
+            {userId && (
+              <div className={cx('rating-form')}>
+                <div className={cx('form-title')}>Để lại đánh giá của bạn</div>
+                <div className={cx('input-stars')}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <StarRounded
+                      key={s}
+                      onClick={() => setRatingInput(s)}
+                      sx={{ cursor: 'pointer', fontSize: '3.5rem', color: s <= ratingInput ? '#ea982b' : '#ddd', transition: '0.2s', '&:hover': { transform: 'scale(1.2)' } }}
+                    />
+                  ))}
+                </div>
+                <textarea
+                  className={cx('review-box')}
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Nhận xét của bạn về truyện này..."
+                  rows={3}
+                />
+                <button className={cx('submit-rating')} onClick={handleSubmitRating} disabled={ratingInput < 1 || ratingSubmitting}>
+                  {ratingSubmitting ? 'ĐANG GỬI...' : 'GỬI ĐÁNH GIÁ'}
+                </button>
+              </div>
+            )}
+
+            {reviews.length > 0 && (
+              <div className={cx('reviews-list')}>
+                <h3 className={cx('list-title')}>Nhận xét từ cộng đồng ({reviews.length})</h3>
+                {reviews.map((r, idx) => (
+                  <div key={idx} className={cx('review-item')}>
+                    <Avatar className={cx('review-avatar')} src={r.urlImage} />
+                    <div className={cx('review-body')}>
+                      <div className={cx('review-user-info')}>
+                        <div className={cx('user-meta')}>
+                          <span className={cx('username')}>{r.userDisplayName || r.name || 'Ẩn danh'}</span>
+                          <div className={cx('user-stars')}>
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <StarRounded key={s} sx={{ fontSize: '1.4rem', color: s <= r.score ? '#ea982b' : '#eee' }} />
+                            ))}
+                          </div>
+                        </div>
+                        <span className={cx('review-date')}>{new Date().toLocaleDateString('vi-VN')}</span>
+                      </div>
+                      {r.review && <p className={cx('review-content')}>{r.review}</p>}
                     </div>
                   </div>
-                  <span className={cx('review-date')}>{new Date().toLocaleDateString('vi-VN')}</span>
-                </div>
-                {r.review && <p className={cx('review-content')}>{r.review}</p>}
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

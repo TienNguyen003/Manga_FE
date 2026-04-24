@@ -43,7 +43,6 @@ export default function Library() {
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
   const { userId } = useUser();
 
-  // --- GIỮ NGUYÊN TOÀN BỘ STATE CỦA MÀY ---
   const [activeTab, setActiveTab] = useState(0);
   const [follows, setFollows] = useState([]);
   const [continueList, setContinueList] = useState([]);
@@ -65,7 +64,6 @@ export default function Library() {
     bookmarks: bookmarks.length,
   };
 
-  // --- GIỮ NGUYÊN LOGIC LOAD DATA ---
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
@@ -98,7 +96,6 @@ export default function Library() {
     load();
   }, [load]);
 
-  // --- GIỮ NGUYÊN CÁC HANDLER CỦA MÀY ---
   const handleDeleteHistory = async (mangaPath) => {
     setHistory((prev) => prev.filter((h) => h.mangaPath !== mangaPath));
     try {
@@ -116,9 +113,7 @@ export default function Library() {
       await createCollection({ userId, name, collectionName: name });
       setNewCollectionName('');
       load();
-    } catch {
-      /* toast */
-    } finally {
+    } catch { } finally {
       setCreatingCollection(false);
     }
   };
@@ -139,9 +134,7 @@ export default function Library() {
     try {
       await updateCollection({ collectionId, userId, name: nextName.trim(), collectionName: nextName.trim() });
       setCollections((prev) => prev.map((c) => (String(c.id || c.collectionId) === String(collectionId) ? { ...c, collectionName: nextName.trim(), name: nextName.trim() } : c)));
-    } catch {
-      /* ignore */
-    }
+    } catch { }
   };
 
   const handleToggleDetail = async (collectionId) => {
@@ -157,14 +150,12 @@ export default function Library() {
     try {
       const res = await getCollectionDetail({ userId, collectionId });
       setCollectionDetails((prev) => ({ ...prev, [collectionId]: res?.result || {} }));
-    } catch {
-      /* ignore */
-    } finally {
+    } catch { } finally {
       setDetailLoadingId(null);
     }
   };
 
-  // --- RENDER FUNCTIONS (LÀM MỚI UI NHƯNG GIỮ LOGIC) ---
+  // --- RENDER FUNCTIONS ---
   const renderFollows = () => (
     <div className={cx('manga-grid')}>
       {follows.map((f) => (
@@ -192,7 +183,7 @@ export default function Library() {
   const renderCollections = () => (
     <div className={cx('collection-section')}>
       <div className={cx('create-box')}>
-        <input value={newCollectionName} onChange={(e) => setNewCollectionName(e.target.value)} placeholder="Tên bộ sưu tập mới..." />
+        <input value={newCollectionName} onChange={(e) => setNewCollectionName(e.target.value)} placeholder="Tạo bộ sưu tập mới..." />
         <button onClick={handleCreateCollection} disabled={!newCollectionName.trim() || creatingCollection}>
           {creatingCollection ? 'Đang tạo...' : 'Tạo mới'}
         </button>
@@ -203,19 +194,34 @@ export default function Library() {
           const collectionId = c.id || c.collectionId;
           const detail = collectionDetails[collectionId];
           const items = detail?.items || detail?.mangas || [];
+          
+          // Lấy 3 ảnh đầu tiên làm Cover cho Collection
+          const isCheckCount = items.length > 3 && items.length < 5 ? 3 : 5;
+          const coverImages = items.slice(0, isCheckCount).map(it => it.thumbnailUrl ? `${IMG_BASE_URL}${it.thumbnailUrl}` : '');
 
           return (
             <div key={collectionId || idx} className={cx('col-card')}>
+              {/* Cover Image Stack */}
+              {coverImages.length > 0 && (
+                <div className={cx('col-cover')}>
+                  {coverImages.map((src, i) => (
+                    <img key={i} className={cx('cover-img')} src={src} alt="" />
+                  ))}
+                </div>
+              )}
+
               <div className={cx('col-info')}>
                 <h3>{c.collectionName || c.name || 'Bộ sưu tập'}</h3>
-                <p>{c.description}</p>
+                <p>{c.description || 'Chưa có mô tả'}</p>
                 <div className={cx('col-stats')}>
                   <span className={cx('badge')}>
-                    <Collections /> {c.totalItems ?? c.itemCount ?? 0} truyện
+                    <Collections /> {c.totalItems ?? c.itemCount ?? items.length} truyện
                   </span>
                 </div>
                 <div className={cx('col-btns')}>
-                  <button onClick={() => handleToggleDetail(collectionId)}>{detailLoadingId === collectionId ? 'Đang tải...' : detail ? 'Ẩn' : 'Chi tiết'}</button>
+                  <button onClick={() => handleToggleDetail(collectionId)}>
+                    {detailLoadingId === collectionId ? 'Đang tải...' : detail ? 'Ẩn đi' : 'Xem chi tiết'}
+                  </button>
                   <button onClick={() => handleRenameCollection(collectionId, c.collectionName || c.name)}>Đổi tên</button>
                   <button className={cx('del')} onClick={() => handleDeleteCollection(collectionId)}>
                     <DeleteOutline />
@@ -225,7 +231,7 @@ export default function Library() {
 
               {detail && items.length > 0 && (
                 <div className={cx('col-items')}>
-                  {items.slice(0, 12).map((it, i) => {
+                  {items.slice(0, 10).map((it, i) => {
                     const mangaPath = it.mangaPath || it.slug;
                     return (
                       <div key={it.id || i} className={cx('it-row')}>
@@ -237,7 +243,7 @@ export default function Library() {
                               if (nextNote === null) return;
                               try {
                                 await updateCollectionItemNote({ userId, collectionId, mangaPath, note: nextNote });
-                                load(); // Tải lại để cập nhật note
+                                load(); 
                               } catch {}
                             }}
                           >
@@ -248,7 +254,7 @@ export default function Library() {
                             onClick={async () => {
                               try {
                                 await deleteCollectionItem({ userId, collectionId, mangaPath });
-                                handleToggleDetail(collectionId); // Refresh detail
+                                handleToggleDetail(collectionId); 
                               } catch {}
                             }}
                           >
@@ -267,8 +273,6 @@ export default function Library() {
     </div>
   );
 
-  // Render tương tự cho các tab khác... (Mày có thể dùng hàm renderMangaCard chung như ở trên)
-
   if (!userId)
     return (
       <div className={cx('library-wrapper')}>
@@ -282,9 +286,7 @@ export default function Library() {
         <header className={cx('lib-header')}>
           <div className={cx('header-content')}>
             <span className={cx('kicker')}>Cá nhân hóa</span>
-            <h1>
-              Thư viện của <span>bạn</span>
-            </h1>
+            <h1>Thư viện của <span>bạn</span></h1>
             <p>Quản lý truyện đang theo dõi, tiếp tục đọc dở và bộ sưu tập cá nhân.</p>
           </div>
           <div className={cx('stats-grid')}>
@@ -328,6 +330,7 @@ export default function Library() {
                         <div key={i} className={cx('manga-card')}>
                           <Link to={`${paths.mangaDetail}?slug=${c.mangaPath}`} className={cx('img-box')}>
                             <img loading='lazy' src={`https://sv1.otruyencdn.com/${c.thumbnailUrl}`} alt={c.mangaName} />
+                            <div className={cx('card-overlay')}><span>Tiếp tục</span></div>
                           </Link>
                           <div className={cx('card-info')}>
                             <Link to={`${paths.mangaDetail}?slug=${c.mangaPath}`} className={cx('title')}>
@@ -345,6 +348,7 @@ export default function Library() {
                         <div key={i} className={cx('manga-card')}>
                           <Link to={`${paths.mangaDetail}?slug=${h.mangaPath}`} className={cx('img-box')}>
                             <img src={`https://sv1.otruyencdn.com/${h.thumbnailUrl}`} alt={h.mangaName} />
+                            <div className={cx('card-overlay')}><span>Đọc lại</span></div>
                           </Link>
                           <div className={cx('card-info')}>
                             <Link to={`${paths.mangaDetail}?slug=${h.mangaPath}`} className={cx('title')}>
@@ -368,6 +372,7 @@ export default function Library() {
                         <div key={i} className={cx('manga-card')}>
                           <Link to={`${paths.mangaDetail}?slug=${b.mangaPath}`} className={cx('img-box')}>
                             <img loading='lazy' src={`https://sv1.otruyencdn.com/${b.thumbnailUrl}`} alt={b.mangaName} />
+                            <div className={cx('card-overlay')}><span>Xem</span></div>
                           </Link>
                           <div className={cx('card-info')}>
                             <div className={cx('title')}>{b.mangaName}</div>

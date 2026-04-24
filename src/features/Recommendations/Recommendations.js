@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getRecommendationsMangas } from '~/services/recommendationService';
 import classNames from 'classnames/bind';
 import styles from './Recommendations.module.scss';
+import { useUser } from '~/providers/UserContext';
 
 const cx = classNames.bind(styles);
 
@@ -9,12 +10,13 @@ export default function Recommendations() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const {userId} = useUser();
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
     setError('');
-    getRecommendationsMangas()
+    getRecommendationsMangas({userId})
       .then((res) => {
         if (!mounted) return;
         setList(res?.data || []);

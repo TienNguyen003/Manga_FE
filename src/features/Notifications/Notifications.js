@@ -11,10 +11,11 @@ import styles from './Notifications.module.scss';
 
 const cx = classNames.bind(styles);
 
-const TYPE_ICON = {
-  FOLLOW: '🔖',
-  REPLY: '💬',
-  LIKE: '❤️',
+// Đổi Emoji sang Icon class để CSS styling đồng bộ và đẹp hơn
+const TYPE_CONFIG = {
+  FOLLOW_MANGA: { icon: 'fa-solid fa-user-plus', label: 'Follow' },
+  COMMENT_REPLY: { icon: 'fa-solid fa-comment-dots', label: 'Reply' },
+  LIKE: { icon: 'fa-solid fa-heart', label: 'Like' },
 };
 
 function timeAgo(dateStr) {
@@ -73,8 +74,7 @@ export default function Notifications() {
     const client = connectStomp({
       onConnect: () => {
         wsSubscribe(WS_TOPICS.notifications(userId), (msg) => {
-          if(msg.type === 'READ-ALL')
-            setUnreadCount(msg.count);
+          if(msg.type === 'READ-ALL') setUnreadCount(msg.count);
         });
       },
     });
@@ -85,12 +85,10 @@ export default function Notifications() {
 
   const handleMarkRead = async (notif) => {
     if (notif.isRead) return;
-    // Optimistic update
     setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)));    
     try {
       await markRead(userId, notif.id);
     } catch {
-      // Revert
       setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: false } : n)));
       setUnreadCount((c) => c + 1);
     }
@@ -153,12 +151,12 @@ export default function Notifications() {
           <h1 className={cx('pageTitle')}>Thông báo</h1>
           <div className={cx('headerActions')}>
             {items.some((n) => !n.isRead) && (
-              <button className={cx('markAllBtn')} onClick={handleMarkAllRead}>
-                <i className="fa-regular fa-circle-check"></i> Đánh dấu tất cả đã đọc
+              <button className={cx('actionBtn', 'markRead')} onClick={handleMarkAllRead}>
+                <i className="fa-regular fa-circle-check"></i> Đã đọc tất cả
               </button>
             )}
             {items.length > 0 && (
-              <button className={cx('deleteAllBtn')} onClick={handleDeleteAll}>
+              <button className={cx('actionBtn', 'deleteAll')} onClick={handleDeleteAll}>
                 <i className="fa-regular fa-trash-can"></i> Xóa tất cả
               </button>
             )}
@@ -176,37 +174,44 @@ export default function Notifications() {
 
         {error && <ErrorState text={error} onRetry={() => load(true)} />}
 
-        {!error && items.length === 0 && !loading && <EmptyState icon="🔔" text={filter === 'unread' ? 'Bạn không có thông báo chưa đọc.' : 'Chưa có thông báo nào.'} />}
+        {!error && items.length === 0 && !loading && (
+          <EmptyState icon="🔔" text={filter === 'unread' ? 'Bạn không có thông báo chưa đọc.' : 'Chưa có thông báo nào.'} />
+        )}
 
         <div className={cx('list')}>
-          {items.map((notif) => (
-            <div key={notif.id} className={cx('item', { unread: !notif.isRead })} onClick={() => handleMarkRead(notif)}>
-              <div className={cx('itemIcon')}>{TYPE_ICON[notif.type] || '🔔'}</div>
-              <div className={cx('itemBody')}>
-                <div className={cx('itemTitle')}>{notif.title}</div>
-                <div className={cx('itemContent')}>{notif.content}</div>
-                {notif.mangaPath && (
-                  <Link to={`${paths.mangaDetail}?slug=${notif.mangaPath}`} className={cx('itemLink')} onClick={(e) => e.stopPropagation()}>
-                    Xem truyện
-                  </Link>
-                )}
+          {items.map((notif) => {
+            const typeConf = TYPE_CONFIG[notif.type] || TYPE_CONFIG.DEFAULT;
+            return (
+              <div key={notif.id} className={cx('item', { unread: !notif.isRead })} onClick={() => handleMarkRead(notif)}>
+                <div className={cx('notifIcon', notif.type || 'DEFAULT')}>
+                  <i className={typeConf?.icon}></i>
+                </div>
+                <div className={cx('itemBody')}>
+                  <div className={cx('itemTitle')}>{notif.title}</div>
+                  <div className={cx('itemContent')}>{notif.content}</div>
+                  {notif.mangaPath && (
+                    <Link to={`${paths.mangaDetail}?slug=${notif.mangaPath}`} className={cx('itemLink')} onClick={(e) => e.stopPropagation()}>
+                      <i className="fa-solid fa-arrow-right-long"></i> Xem truyện
+                    </Link>
+                  )}
+                </div>
+                <div className={cx('itemMeta')}>
+                  <span className={cx('time')}>{timeAgo(notif.createdAt)}</span>
+                  {!notif.isRead && <span className={cx('dot')} />}
+                  <button
+                    className={cx('deleteOneBtn')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteOne(notif.id);
+                    }}
+                    title="Xóa thông báo"
+                  >
+                    <i className="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
               </div>
-              <div className={cx('itemMeta')}>
-                <span className={cx('time')}>{timeAgo(notif.createdAt)}</span>
-                {!notif.isRead && <span className={cx('dot')} />}
-                <button
-                  className={cx('deleteOneBtn')}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteOne(notif.id);
-                  }}
-                  title="Xóa thông báo"
-                >
-                  <i className="fa-regular fa-trash-can"></i>
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {loading && <LoadingSpinner text="Đang tải thêm..." />}
