@@ -1,201 +1,290 @@
-$dark: #020617;
-$gray-light: #f8fafc;
-$text-dim: #94a3b8;
-$accent: #ea982b;
-$border: #e2e8f0;
+ $primary: #ea982b;
+ $primary-light: #ffb347;
+ $primary-glow: rgba(234, 152, 43, 0.2);
+ $dark: #0f172a;
+ $slate: #64748b;
+ $bg: #f8fafc;
+ $card-bg: #ffffff;
+ $radius: 20px;
+ $radius-sm: 12px;
 
 .pageWrapper {
-  padding: 60px 0;
-  background-color: #fff;
+  min-height: 100vh;
+  background: $bg;
+  padding-bottom: 60px;
 }
 
+// --- HEADER STUDIO ---
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 50px;
+  background: $dark;
+  padding: 40px 0;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 $radius $radius;
+
+  // Hiệu ứng Glow góc phải
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba($primary, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
 
   .superTitle {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: $text-dim;
+    color: #94a3b8;
+    font-size: 1.4rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
   }
+
   .mainTitle {
-    font-size: 3.6rem;
+    color: #fff;
+    font-size: 3.5rem;
     font-weight: 900;
-    color: $dark;
-    letter-spacing: -2px;
+    letter-spacing: -1px;
   }
 
   .btnPrimary {
-    background: $dark !important;
-    border-radius: 14px !important;
-    padding: 10px 24px !important;
+    background: $primary !important;
+    color: #fff !important;
     font-weight: 800 !important;
+    font-size: 1.4rem !important;
+    padding: 10px 24px !important;
+    border-radius: $radius-sm !important;
     text-transform: none !important;
+    box-shadow: 0 8px 20px rgba($primary, 0.3);
+    transition: all 0.2s;
+
     &:hover {
-      background: $accent !important;
+      background: $primary-light !important;
       transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba($primary, 0.4);
     }
   }
 }
 
+// --- TABLE / LIST ---
 .listContainer {
-  .listHeader {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr;
-    padding: 12px 24px;
-    color: $text-dim;
-    font-weight: 700;
+  background: $card-bg;
+  border-radius: $radius;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.listHeader {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1.5fr 1.2fr;
+  padding: 16px 25px;
+  border-bottom: 2px solid #f1f5f9;
+  background: #fafbfc;
+
+  .col {
     font-size: 1.2rem;
+    font-weight: 800;
+    color: $slate;
     text-transform: uppercase;
-    border-bottom: 2px solid $gray-light;
+    letter-spacing: 0.5px;
+
+    &.center {
+      text-align: center;
+    }
   }
 }
 
 .comicRow {
   display: grid;
-  grid-template-columns: 2fr 1fr 1.5fr 1fr;
+  grid-template-columns: 2.5fr 1fr 1.5fr 1.2fr;
   align-items: center;
-  padding: 20px 24px;
-  background: #fff;
-  border-radius: 20px;
-  border: 1px solid transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-top: 10px;
+  padding: 20px 25px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &:hover {
-    background: #fdfdfd;
-    border-color: $border;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-    transform: scale(1.01);
+    background: #fffcf7;
   }
 }
 
+// --- COLUMNS ---
 .mainCol {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
+  min-width: 0;
 
   .miniCover {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 60px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); // 3D Shadow
+    transition: transform 0.2s;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
   }
 
   .itemTitle {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: $dark;
-  }
-  .itemId {
-    font-size: 1.2rem;
-    color: $text-dim;
-    font-family: monospace;
-  }
-
-  .itemMeta,
-  .itemGenre {
-    margin-top: 4px;
-    font-size: 1.2rem;
-    color: #475569;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .itemDesc {
-    margin-top: 4px;
     font-size: 1.2rem;
-    color: #64748b;
-    max-width: 44rem;
-    line-height: 1.5;
+    color: $slate;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 2px;
+  }
+
+  .itemGenre {
+    font-size: 1.1rem;
+    color: $primary;
+    font-weight: 700;
   }
 }
 
-.emptyState {
-  padding: 28px 24px;
-  border: 1px dashed $border;
-  border-radius: 20px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-}
-
-.emptyTitle {
-  font-size: 1.8rem !important;
-  font-weight: 800 !important;
-  color: $dark;
-}
-
-.emptyText {
-  margin-top: 8px !important;
-  font-size: 1.3rem !important;
-  color: $text-dim;
-}
-
+// --- STATUS BADGE ---
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 6px 14px;
-  border-radius: 10px;
+  border-radius: 99px;
   font-size: 1.2rem;
-  font-weight: 800;
-
-  &.published {
-    background: #f0fdf4;
-    color: #16a34a;
-    .dot {
-      background: #16a34a;
-    }
-  }
-  &.draft {
-    background: #f1f5f9;
-    color: $text-dim;
-    .dot {
-      background: $text-dim;
-    }
-  }
+  font-weight: 700;
+  width: fit-content;
 
   .dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
+    background: currentColor;
+  }
+
+  &.ongoing, &.Đang_tiến_hành {
+    background: rgba($primary, 0.1);
+    color: $primary;
+  }
+
+  &.completed, &.Hoàn_thành {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  &.dropped, &.Tạm_dừng {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
   }
 }
 
+// --- STATS ---
 .statBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: $dark;
+
+  svg {
+    font-size: 1.6rem;
+    color: $primary;
+  }
+}
+
+// --- ACTIONS ---
+.actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #475569;
-  font-weight: 700;
-  svg {
-    font-size: 18px;
-    color: $text-dim;
-  }
+  justify-content: center;
+  gap: 6px;
 }
 
 .iconBtn {
-  border-radius: 12px !important;
-  color: $text-dim !important;
-  transition: 0.2s !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent;
+  color: $slate !important;
+  transition: all 0.2s !important;
+  background: transparent !important;
+
   &:hover {
-    color: $dark !important;
-    background: $gray-light !important;
+    color: $primary !important;
+    background: rgba($primary, 0.05) !important;
+    border-color: rgba($primary, 0.2) !important;
   }
-  &.delete:hover {
-    color: #ef4444 !important;
-    background: #fef2f2 !important;
+
+  &.delete {
+    &:hover {
+      color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.05) !important;
+      border-color: rgba(239, 68, 68, 0.2) !important;
+    }
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+// --- EMPTY STATE ---
+.emptyState {
+  padding: 80px 20px;
+  text-align: center;
+  
+  .emptyTitle {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: $dark;
+    margin-bottom: 10px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .emptyText {
+    font-size: 1.5rem;
+    color: $slate;
+    margin-bottom: 25px;
+  }
+}
+
+// --- RESPONSIVE ---
+@media (max-width: 900px) {
+  .listHeader {
+    display: none; // Ẩn header trên mobile
+  }
+  
+  .comicRow {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: $radius-sm;
+    margin: 10px;
+    background: $card-bg;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+    .mainCol { grid-row: 1; }
+    .col:nth-child(2) { grid-row: 2; } // Status
+    .col:nth-child(3) { grid-row: 3; } // Stats
+    .col:nth-child(4) { grid-row: 4; justify-content: flex-start; } // Actions
   }
 }

@@ -17,7 +17,7 @@ import AuthorHub from '~/features/AuthorHub/AuthorHub';
 import TeamProfile from '~/features/AuthorHub/TeamProfile';
 import ReleaseCalendar from '~/features/ReleaseCalendar/ReleaseCalendar';
 import AdvancedSearch from '~/features/AdvancedSearch/AdvancedSearch';
-import Upload from '~/features/CreateStory/CreateStory';
+import CreateStory from '~/features/CreateStory/CreateStory';
 import Report from '~/features/Report/Report';
 import Profile from '~/features/Profile/Profile';
 import Recommendations from '~/features/Recommendations/Recommendations';
@@ -83,7 +83,7 @@ const privateRoutes = [
   { path: paths.profile, component: Profile, layout: 'private' },
   { path: paths.library, component: Library, layout: 'private' },
   { path: paths.dashboard, component: UserDashboard, layout: 'private' },
-  { path: paths.upload, component: Upload, layout: 'private' },
+  { path: paths.upload, component: CreateStory, layout: 'private' },
   { path: paths.report, component: Report, layout: 'private' },
   { path: paths.changePassword, component: ChangePassword, layout: 'private' },
   { path: paths.myComics, component: MyComics, layout: 'private' },

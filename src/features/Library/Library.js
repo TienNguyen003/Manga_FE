@@ -1,13 +1,4 @@
-import {
-  AutoAwesome,
-  Bookmark,
-  Collections,
-  DeleteOutline,
-  DeleteSweep,
-  History as HistoryIcon,
-  PlayCircleFilled,
-  StickyNote2
-} from '@mui/icons-material';
+import { AutoAwesome, Bookmark, Collections, DeleteOutline, DeleteSweep, History as HistoryIcon, PlayCircleFilled, StickyNote2 } from '@mui/icons-material';
 import classNames from 'classnames/bind';
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -28,6 +19,7 @@ import {
 import { getFollows } from '~/services/followService';
 import { deleteHistory, getContinueReading, getHistory } from '~/services/historyService';
 import styles from './Library.module.scss';
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
 
@@ -55,6 +47,8 @@ export default function Library() {
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [collectionData, setCollectionData] = useState({});
 
   const quickStats = {
     follows: follows.length,
@@ -113,7 +107,8 @@ export default function Library() {
       await createCollection({ userId, name, collectionName: name });
       setNewCollectionName('');
       load();
-    } catch { } finally {
+    } catch {
+    } finally {
       setCreatingCollection(false);
     }
   };
@@ -134,7 +129,7 @@ export default function Library() {
     try {
       await updateCollection({ collectionId, userId, name: nextName.trim(), collectionName: nextName.trim() });
       setCollections((prev) => prev.map((c) => (String(c.id || c.collectionId) === String(collectionId) ? { ...c, collectionName: nextName.trim(), name: nextName.trim() } : c)));
-    } catch { }
+    } catch {}
   };
 
   const handleToggleDetail = async (collectionId) => {
@@ -150,7 +145,8 @@ export default function Library() {
     try {
       const res = await getCollectionDetail({ userId, collectionId });
       setCollectionDetails((prev) => ({ ...prev, [collectionId]: res?.result || {} }));
-    } catch { } finally {
+    } catch {
+    } finally {
       setDetailLoadingId(null);
     }
   };
@@ -161,7 +157,7 @@ export default function Library() {
       {follows.map((f) => (
         <div key={f.id} className={cx('manga-card')}>
           <Link to={`${paths.mangaDetail}?slug=${f.mangaPath}`} className={cx('img-box')}>
-            <img loading='lazy' src={f.thumbnailUrl ? `${IMG_BASE_URL}${f.thumbnailUrl}` : ''} alt={f.mangaName} />
+            <img loading="lazy" src={f.thumbnailUrl ? `${IMG_BASE_URL}${f.thumbnailUrl}` : ''} alt={f.mangaName} />
             <div className={cx('card-overlay')}>
               <span>Đọc ngay</span>
             </div>
@@ -194,78 +190,84 @@ export default function Library() {
           const collectionId = c.id || c.collectionId;
           const detail = collectionDetails[collectionId];
           const items = detail?.items || detail?.mangas || [];
-          
+
           // Lấy 3 ảnh đầu tiên làm Cover cho Collection
           const isCheckCount = items.length > 3 && items.length < 5 ? 3 : 5;
-          const coverImages = items.slice(0, isCheckCount).map(it => it.thumbnailUrl ? `${IMG_BASE_URL}${it.thumbnailUrl}` : '');
+          const coverImages = items.slice(0, isCheckCount).map((it) => (it.thumbnailUrl ? `${IMG_BASE_URL}${it.thumbnailUrl}` : ''));
 
           return (
-            <div key={collectionId || idx} className={cx('col-card')}>
-              {/* Cover Image Stack */}
-              {coverImages.length > 0 && (
-                <div className={cx('col-cover')}>
-                  {coverImages.map((src, i) => (
-                    <img key={i} className={cx('cover-img')} src={src} alt="" />
-                  ))}
-                </div>
-              )}
+            <div>
+              <div key={collectionId || idx} className={cx('col-card')}>
+                {/* Cover Image Stack */}
+                {coverImages.length > 0 && (
+                  <div className={cx('col-cover')}>
+                    {coverImages.map((src, i) => (
+                      <img loading='lazy' key={i} className={cx('cover-img')} src={src} alt="" />
+                    ))}
+                  </div>
+                )}
 
-              <div className={cx('col-info')}>
-                <h3>{c.collectionName || c.name || 'Bộ sưu tập'}</h3>
-                <p>{c.description || 'Chưa có mô tả'}</p>
-                <div className={cx('col-stats')}>
-                  <span className={cx('badge')}>
-                    <Collections /> {c.totalItems ?? c.itemCount ?? items.length} truyện
-                  </span>
+                <div className={cx('col-info')}>
+                  <h3>{c.collectionName || c.name || 'Bộ sưu tập'}</h3>
+                  <p>{c.description || 'Chưa có mô tả'}</p>
+                  <div className={cx('col-stats')}>
+                    <span className={cx('badge')}>
+                      <Collections /> {c.totalItems ?? c.itemCount ?? items.length} truyện
+                    </span>
+                  </div>
+                  <div className={cx('col-btns')}>
+                    <button onClick={() => handleToggleDetail(collectionId)}>{detailLoadingId === collectionId ? 'Đang tải...' : detail ? 'Ẩn đi' : 'Xem chi tiết'}</button>
+                    <button onClick={() => handleRenameCollection(collectionId, c.collectionName || c.name)}>Đổi tên</button>
+                    <button
+                      className={cx('del')}
+                      onClick={() => {
+                        setCollectionData(c);
+                        setIsDeleteOpen(true);
+                      }}
+                    >
+                      <DeleteOutline />
+                    </button>
+                  </div>
                 </div>
-                <div className={cx('col-btns')}>
-                  <button onClick={() => handleToggleDetail(collectionId)}>
-                    {detailLoadingId === collectionId ? 'Đang tải...' : detail ? 'Ẩn đi' : 'Xem chi tiết'}
-                  </button>
-                  <button onClick={() => handleRenameCollection(collectionId, c.collectionName || c.name)}>Đổi tên</button>
-                  <button className={cx('del')} onClick={() => handleDeleteCollection(collectionId)}>
-                    <DeleteOutline />
-                  </button>
-                </div>
-              </div>
 
-              {detail && items.length > 0 && (
-                <div className={cx('col-items')}>
-                  {items.slice(0, 10).map((it, i) => {
-                    const mangaPath = it.mangaPath || it.slug;
-                    return (
-                      <div key={it.id || i} className={cx('it-row')}>
-                        <Link to={`${paths.mangaDetail}?slug=${mangaPath}`}>{it.mangaName || it.name}</Link>
-                        <div className={cx('it-actions')}>
-                          <button
-                            onClick={async () => {
-                              const nextNote = window.prompt('Ghi chú:', it.note || '');
-                              if (nextNote === null) return;
-                              try {
-                                await updateCollectionItemNote({ userId, collectionId, mangaPath, note: nextNote });
-                                load(); 
-                              } catch {}
-                            }}
-                          >
-                            <StickyNote2 />
-                          </button>
-                          <button
-                            className={cx('del')}
-                            onClick={async () => {
-                              try {
-                                await deleteCollectionItem({ userId, collectionId, mangaPath });
-                                handleToggleDetail(collectionId); 
-                              } catch {}
-                            }}
-                          >
-                            <DeleteOutline />
-                          </button>
+                {detail && items.length > 0 && (
+                  <div className={cx('col-items')}>
+                    {items.slice(0, 10).map((it, i) => {
+                      const mangaPath = it.mangaPath || it.slug;
+                      return (
+                        <div key={it.id || i} className={cx('it-row')}>
+                          <Link to={`${paths.mangaDetail}?slug=${mangaPath}`}>{it.mangaName || it.name}</Link>
+                          <div className={cx('it-actions')}>
+                            <button
+                              onClick={async () => {
+                                const nextNote = window.prompt('Ghi chú:', it.note || '');
+                                if (nextNote === null) return;
+                                try {
+                                  await updateCollectionItemNote({ userId, collectionId, mangaPath, note: nextNote });
+                                  load();
+                                } catch {}
+                              }}
+                            >
+                              <StickyNote2 />
+                            </button>
+                            <button
+                              className={cx('del')}
+                              onClick={async () => {
+                                try {
+                                  await deleteCollectionItem({ userId, collectionId, mangaPath });
+                                  handleToggleDetail(collectionId);
+                                } catch {}
+                              }}
+                            >
+                              <DeleteOutline />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
@@ -286,7 +288,9 @@ export default function Library() {
         <header className={cx('lib-header')}>
           <div className={cx('header-content')}>
             <span className={cx('kicker')}>Cá nhân hóa</span>
-            <h1>Thư viện của <span>bạn</span></h1>
+            <h1>
+              Thư viện của <span>bạn</span>
+            </h1>
             <p>Quản lý truyện đang theo dõi, tiếp tục đọc dở và bộ sưu tập cá nhân.</p>
           </div>
           <div className={cx('stats-grid')}>
@@ -329,8 +333,10 @@ export default function Library() {
                       {continueList.map((c, i) => (
                         <div key={i} className={cx('manga-card')}>
                           <Link to={`${paths.mangaDetail}?slug=${c.mangaPath}`} className={cx('img-box')}>
-                            <img loading='lazy' src={`https://sv1.otruyencdn.com/${c.thumbnailUrl}`} alt={c.mangaName} />
-                            <div className={cx('card-overlay')}><span>Tiếp tục</span></div>
+                            <img loading="lazy" src={`https://sv1.otruyencdn.com/${c.thumbnailUrl}`} alt={c.mangaName} />
+                            <div className={cx('card-overlay')}>
+                              <span>Tiếp tục</span>
+                            </div>
                           </Link>
                           <div className={cx('card-info')}>
                             <Link to={`${paths.mangaDetail}?slug=${c.mangaPath}`} className={cx('title')}>
@@ -347,8 +353,10 @@ export default function Library() {
                       {history.map((h, i) => (
                         <div key={i} className={cx('manga-card')}>
                           <Link to={`${paths.mangaDetail}?slug=${h.mangaPath}`} className={cx('img-box')}>
-                            <img src={`https://sv1.otruyencdn.com/${h.thumbnailUrl}`} alt={h.mangaName} />
-                            <div className={cx('card-overlay')}><span>Đọc lại</span></div>
+                            <img loading='lazy' src={`https://sv1.otruyencdn.com/${h.thumbnailUrl}`} alt={h.mangaName} />
+                            <div className={cx('card-overlay')}>
+                              <span>Đọc lại</span>
+                            </div>
                           </Link>
                           <div className={cx('card-info')}>
                             <Link to={`${paths.mangaDetail}?slug=${h.mangaPath}`} className={cx('title')}>
@@ -371,8 +379,10 @@ export default function Library() {
                       {bookmarks.map((b, i) => (
                         <div key={i} className={cx('manga-card')}>
                           <Link to={`${paths.mangaDetail}?slug=${b.mangaPath}`} className={cx('img-box')}>
-                            <img loading='lazy' src={`https://sv1.otruyencdn.com/${b.thumbnailUrl}`} alt={b.mangaName} />
-                            <div className={cx('card-overlay')}><span>Xem</span></div>
+                            <img loading="lazy" src={`https://sv1.otruyencdn.com/${b.thumbnailUrl}`} alt={b.mangaName} />
+                            <div className={cx('card-overlay')}>
+                              <span>Xem</span>
+                            </div>
                           </Link>
                           <div className={cx('card-info')}>
                             <div className={cx('title')}>{b.mangaName}</div>
@@ -388,6 +398,17 @@ export default function Library() {
           </main>
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={() => {
+          handleDeleteCollection(collectionData.id);
+          setIsDeleteOpen(false);
+        }}
+        title="Xóa chiến dịch quảng cáo"
+        content={`Bạn đang chuẩn bị xóa chiến dịch quảng cáo <strong>${collectionData.name}</strong>. Tiếp tục?`}
+      />
     </div>
   );
 }
