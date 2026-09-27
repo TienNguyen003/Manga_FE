@@ -1,28 +1,40 @@
 import { Box, Grid, LinearProgress, Paper, Typography, useTheme } from '@mui/material';
 import { ShowChartRounded, PieChartRounded, TrendingUpRounded } from '@mui/icons-material';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { adminService } from '~/services/adminService';
 import styles from './Stats.module.scss';
+import { toast } from 'react-toastify';
 
 const cx = classNames.bind(styles);
 
 export default function AdminStats() {
   const [userRoles, setUserRoles] = useState([]);
+  const [trend7Days, setTrend7Days] = useState([]);
 
   useEffect(() => {
-    const loadCharts = async () => {
-      try {
-        const response = await adminService.getStatsCharts();
-        const data = response?.result || response?.data || response || {};
-        setUserRoles(data.userRoles || data.roles || []);
-      } catch {
-        setUserRoles([]);
-      }
-    };
-
     loadCharts();
   }, []);
+
+  const loadCharts = async () => {
+    try {
+      const response = await adminService.getStatsCharts();
+      const data = response?.result || {};
+      setUserRoles(data.roleDistribution || []);
+      setTrend7Days(data.trend7Days || []);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Không thể tải dữ liệu thống kê');
+    }
+  };
+
+  const formattedData = trend7Days.map((i) => ({
+    ...i,
+    date: new Date(i.date).toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+    }),
+  }));
 
   return (
     <div className={cx('statsWrapper')}>
@@ -40,14 +52,16 @@ export default function AdminStats() {
               </div>
             </header>
 
-            <div className={cx('chartPlaceholder')}>
-              <div className={cx('visualIcon')}>
-                <TrendingUpRounded />
-              </div>
-              <Typography color="textSecondary" fontWeight={600}>
-                Area Chart Ready to Inject
-              </Typography>
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={formattedData}>
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Area dataKey="users" stroke="#4caf50" fill="#c8e6c9" />
+                <Area dataKey="posts" stroke="#2196f3" fill="#bbdefb" />
+                <Area dataKey="comments" stroke="#ff9800" fill="#ffe0b2" />
+              </AreaChart>
+            </ResponsiveContainer>
           </Paper>
         </Grid>
 
@@ -65,18 +79,23 @@ export default function AdminStats() {
             </header>
 
             <div className={cx('progressList')}>
-              {userRoles.map((item, idx) => (
-                <Box key={idx} className={cx('progressItem')}>
+              {Object.entries(userRoles).map(([role, count]) => (
+                <Box key={role} className={cx('progressItem')}>
                   <Box className={cx('labelRow')}>
-                    <Typography className={cx('roleName')}>{item.role || item.name || '-'}</Typography>
-                    <Typography className={cx('roleVal')}>{item.value ?? item.percent ?? 0}%</Typography>
+                    <Typography className={cx('roleName')}>{role || '-'}</Typography>
+                    <Typography className={cx('roleVal')}>{count || 0}</Typography>
                   </Box>
+
                   <LinearProgress
                     variant="determinate"
-                    value={item.value ?? item.percent ?? 0}
+                    value={count || 0}
                     className={cx('progBar')}
                     sx={{
-                      '& .MuiLinearProgress-bar': { backgroundColor: item.color || '#ea982b' },
+                      backgroundColor: '#e3f2fd', // nền nhạt
+
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: role === 'Admin' ? '#ea982b' : role === 'Member' ? '#4caf50' : '#64b5f6', // xanh nhạt hơn mặc định
+                      },
                     }}
                   />
                 </Box>

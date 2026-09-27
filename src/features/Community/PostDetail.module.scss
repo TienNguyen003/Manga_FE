@@ -298,9 +298,8 @@ $shadow-md: 0 10px 40px rgba(0, 0, 0, 0.08);
         margin-bottom: 10px;
 
         .authorSection {
-          display: flex;
-          align-items: start;
-          gap: 10px;
+          width: 100%;
+          margin-bottom: 5px;
 
           .commentAuthor {
             font-weight: 800;

@@ -76,7 +76,7 @@ export default function CollectionAuditPanel() {
                     <Box className={cx('userInfo')}>
                       <PersonSearchRounded sx={{ fontSize: 20 }} />
                       <Typography fontWeight={700} fontSize="1.3rem">
-                        {c.user || c.username || 'Unknown'}
+                        {c.id || 'Unknown'}
                       </Typography>
                     </Box>
 

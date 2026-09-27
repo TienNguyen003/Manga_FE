@@ -84,8 +84,10 @@ export default function SecurityAuditPanel() {
               <TableRow>
                 <TableCell className={cx('headCell')}>ID & IP</TableCell>
                 <TableCell className={cx('headCell')}>Loại sự kiện</TableCell>
-                <TableCell className={cx('headCell')}>Endpoint / Nguồn</TableCell>
-                <TableCell className={cx('headCell')}>Mức độ</TableCell>
+                <TableCell className={cx('headCell')}>Chi tiết</TableCell>
+                <TableCell className={cx('headCell')}>Thực hiện bởi</TableCell>
+                <TableCell className={cx('headCell')}>Đối tượng</TableCell>
+                <TableCell className={cx('headCell')}>Thời gian</TableCell>
                 <TableCell align="right" className={cx('headCell')}>
                   Thao tác
                 </TableCell>
@@ -94,24 +96,45 @@ export default function SecurityAuditPanel() {
             <TableBody>
               {logs.map((l) => (
                 <TableRow key={l.id} className={cx('tableRow')}>
+                  {/* ID + IP */}
                   <TableCell>
-                    <Typography className={cx('logId')}>{l.id}</Typography>
-                    <Typography variant="caption" className={cx('logIp')}>
+                    <Typography className={cx('logId')}>#{l.id}</Typography>
+                    <Typography variant="caption" color="text.secondary">
                       {l.ip || l.ipAddress || '-'}
                     </Typography>
                   </TableCell>
+
+                  {/* Event */}
                   <TableCell>
                     <Box className={cx('eventBox')}>
                       <BugReportRounded fontSize="small" />
-                      <Typography fontWeight={700}>{l.event || l.action || '-'}</Typography>
+                      <Typography fontSize={'1.2rem'} fontWeight={600}>{l.event || l.action || '-'}</Typography>
                     </Box>
                   </TableCell>
+
+                  {/* Details (plain text instead of code) */}
                   <TableCell>
-                    <code className={cx('sourceCode')}>{l.source || l.endpoint || '-'}</code>
+                    <Typography variant="body2" color="text.secondary">
+                      {l.details || '-'}
+                    </Typography>
                   </TableCell>
+
+                  {/* Actor */}
                   <TableCell>
-                    <Chip label={l.level || 'warning'} className={cx('levelChip', l.level || 'warning')} size="small" />
+                    <Typography variant="body2">{l.performedByUserId || '-'}</Typography>
                   </TableCell>
+
+                  {/* Target */}
+                  <TableCell>
+                    <Typography variant="body2">{l.affectedUserId || '-'}</Typography>
+                  </TableCell>
+
+                  {/* Time */}
+                  <TableCell>
+                    <Typography variant="body2">{l.createdAt ? new Date(l.createdAt).toLocaleString('vi-VN') : '-'}</Typography>
+                  </TableCell>
+
+                  {/* Actions */}
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
                       <Tooltip title="Chặn IP này">
@@ -119,6 +142,7 @@ export default function SecurityAuditPanel() {
                           <BlockRounded />
                         </IconButton>
                       </Tooltip>
+
                       <Tooltip title="Đánh dấu đã xử lý">
                         <IconButton color="success" onClick={() => markDone(l.id)} className={cx('actionBtn')}>
                           <DoneAllRounded />

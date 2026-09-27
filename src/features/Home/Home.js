@@ -168,7 +168,7 @@ export default function Home() {
             </header>
 
             <div className={cx('mangaGrid')}>
-              {section.data.slice(0, 10).map((manga, idx) => (
+              {section.data.slice(0, 14).map((manga, idx) => (
                 <Link key={`${manga.mangaPath || idx}`} to={`${paths.mangaDetail}?slug=${manga.mangaPath || manga.slug}`} className={cx('mangaCardWrap')}>
                   <div className={cx('mangaImgWrap')}>
                     <img src={manga.thumbnailUrl || manga.thumb_url ? `${IMG_BASE_URL}${manga.thumbnailUrl || manga.thumb_url}` : ''} alt={manga.name} className={cx('mangaImg')} />

@@ -1,58 +1,108 @@
-import { AddModeratorRounded, CloudSyncRounded, KeyRounded, ManageAccountsRounded, SecurityRounded, SupervisedUserCircleRounded, VerifiedUserRounded } from '@mui/icons-material';
-import { Alert, Box, Button, Chip, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
+import {
+  AddModeratorRounded,
+  CloudSyncRounded,
+  DeleteOutlineRounded,
+  EditRounded,
+  NotesRounded,
+  SupervisedUserCircleRounded,
+  TitleRounded,
+  VpnKeyRounded,
+} from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  IconButton,
+  InputAdornment,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
+import DataTablePagination from '~/components/common/DataTablePagination';
 import { adminService } from '~/services/adminService';
+import { roleService } from '~/services/roleService';
 import styles from './Rbac.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function RbacPanel() {
   const [roles, setRoles] = useState([]);
-  const [notice, setNotice] = useState('');
+  const [page, setPage] = useState({ currentPage: 0, totalItemsPerPage: 10, totalItems: 0, totalPages: 0 });
+  const [openModal, setOpenModal] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [permissionData, setPermissionData] = useState({ name: '', des: '' });
 
   useEffect(() => {
-    const loadMatrix = async () => {
-      try {
-        const response = await adminService.getRbacMatrix();
-        const data = response?.result || response?.data || response || [];
-        setRoles(Array.isArray(data) ? data : data.items || data.roles || []);
-      } catch {
-        setRoles([]);
-      }
-    };
+    getMatrix();
+  }, [page.currentPage, page.totalItemsPerPage]);
 
-    loadMatrix();
-  }, []);
-
-  const grantBan = async (role) => {
+  const getMatrix = async () => {
     try {
-      const current = roles.find((item) => item.role === role);
-      const permissions = current?.permissions || [];
-      if (permissions.includes('Cấm người dùng')) return;
-
-      await adminService.updateRbacRolePermissions(role, [...permissions, 'Cấm người dùng']);
-      setRoles((prev) =>
-        prev.map((r) => {
-          if (r.role !== role) return r;
-          return { ...r, permissions: [...permissions, 'Cấm người dùng'] };
-        }),
-      );
-      setNotice(`Cấp quyền 'Cấm người dùng' thành công cho nhóm ${role}.`);
-      setTimeout(() => setNotice(''), 3000);
-    } catch {
-      setNotice('Không thể cập nhật quyền RBAC.');
+      const response = await adminService.getRbacMatrix({page: page.currentPage + 1, limit: page.totalItemsPerPage});
+      const data = response?.result || [];
+      const newPage = response?.page || {};
+      setPage((prev) => ({ ...prev, totalItems: newPage?.totalItems || 0, totalPages: newPage?.totalPages || 0 }));
+      setRoles(data);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Không thể tải ma trận RBAC.');
     }
   };
 
-  const getLevelColor = (level) => {
-    switch (level) {
-      case 'Admin':
-        return 'error';
-      case 'Mod':
-        return 'warning';
-      default:
-        return 'info';
+  const handleCreateRole = async () => {
+    if (!permissionData?.name?.trim()) {
+      toast.error('Tên vai trò không được để trống.');
+      return;
+    }
+    try {
+      if (editing) {
+        await roleService.updateRole(permissionData.name, permissionData);
+        toast.success('Vai trò đã được cập nhật thành công.');
+      } else {
+        await roleService.createRole(permissionData);
+        toast.success('Vai trò đã được tạo thành công.');
+      }
+      setOpenModal(false);
+      setPermissionData({ name: '', description: '' });
+      getMatrix();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo vai trò.');
+    }
+  };
+
+  const handleEditRole = async (name) => {
+    try {
+      const response = await roleService.getRole({ name });
+      const data = response?.result;
+      setPermissionData(data);
+      setEditing(true);
+      setOpenModal(true);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Không thể tải thông tin vai trò.');
+    }
+  };
+
+  const handleDeleteRole = async (name) => {
+    try {
+      await roleService.deleteRole(name);
+      toast.success('Vai trò đã được xóa thành công.');
+      getMatrix();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi xóa vai trò.');
     }
   };
 
@@ -67,26 +117,28 @@ export default function RbacPanel() {
           <Button variant="outlined" startIcon={<CloudSyncRounded />} className={cx('secondaryBtn')}>
             Đồng bộ API
           </Button>
-          <Button variant="contained" startIcon={<AddModeratorRounded />} className={cx('primaryBtn')}>
+          <Button
+            variant="contained"
+            startIcon={<AddModeratorRounded />}
+            className={cx('primaryBtn')}
+            onClick={() => {
+              setOpenModal(true);
+              setPermissionData({});
+              setEditing(false);
+            }}
+          >
             Tạo vai trò mới
           </Button>
         </Stack>
       </Box>
 
-      {notice && (
-        <Alert severity="success" variant="filled" className={cx('alert')} icon={<KeyRounded />}>
-          {notice}
-        </Alert>
-      )}
-
       <Paper className={cx('mainPaper')} elevation={0}>
-        <TableContainer>
+        <TableContainer component={Paper} className={cx('tableCard')} elevation={0}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell className={cx('headCell')}>Nhóm vai trò</TableCell>
-                <TableCell className={cx('headCell')}>Mức độ truy cập</TableCell>
-                <TableCell className={cx('headCell')}>Danh sách quyền hạn</TableCell>
+                <TableCell className={cx('headCell')}>Tên vai trò</TableCell>
+                <TableCell className={cx('headCell')}>Mô tả</TableCell>
                 <TableCell align="right" className={cx('headCell')}>
                   Quản trị quyền
                 </TableCell>
@@ -94,40 +146,34 @@ export default function RbacPanel() {
             </TableHead>
             <TableBody>
               {roles.map((r) => (
-                <TableRow key={r.role} className={cx('tableRow')}>
+                <TableRow key={r.name} className={cx('tableRow')}>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1.5}>
-                      <div className={cx('roleIcon', r.level)}>{r.level === 'Admin' ? <SecurityRounded /> : <SupervisedUserCircleRounded />}</div>
+                      <div className={cx('roleIcon', r.level)}>
+                        <SupervisedUserCircleRounded />
+                      </div>
                       <Typography fontWeight={850} fontSize="1.4rem" color="#0f172a">
-                        {r.role || r.roleName || '-'}
+                        {r.name || '-'}
                       </Typography>
                     </Box>
                   </TableCell>
-                  <TableCell>
-                    <Chip label={r.level || r.roleName || 'User'} color={getLevelColor(r.level || 'User')} size="small" variant="outlined" className={cx('levelChip')} />
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 400 }}>
-                    <Stack direction="row" spacing={0.6} flexWrap="wrap" useFlexGap>
-                      {(r.permissions || r.permissionNames || []).map((p) => (
-                        <Chip key={p} size="small" label={p} className={cx('permChip')} />
-                      ))}
-                    </Stack>
-                  </TableCell>
+                  <TableCell sx={{ maxWidth: 400 }}>{r.des}</TableCell>
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
-                      <Tooltip title="Cấp quyền 'Cấm User'">
-                        <IconButton
-                          color="warning"
-                          onClick={() => grantBan(r.role || r.roleName)}
-                          disabled={(r.permissions || r.permissionNames || []).includes('Cấm người dùng')}
-                          className={cx('actionIcon')}
-                        >
-                          <VerifiedUserRounded />
+                      <Tooltip title="Chỉnh sửa" onClick={() => handleEditRole(r.name)}>
+                        <IconButton className={cx('actionBtn', 'edit')}>
+                          <EditRounded />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Chỉnh sửa chi tiết">
-                        <IconButton className={cx('actionIcon')}>
-                          <ManageAccountsRounded />
+                      <Tooltip title="Xóa">
+                        <IconButton
+                          className={cx('actionBtn', 'delete')}
+                          onClick={() => {
+                            setIsDeleteOpen(true);
+                            setPermissionData(r);
+                          }}
+                        >
+                          <DeleteOutlineRounded />
                         </IconButton>
                       </Tooltip>
                     </Stack>
@@ -137,7 +183,80 @@ export default function RbacPanel() {
             </TableBody>
           </Table>
         </TableContainer>
+        <DataTablePagination page={page} setPage={setPage} rowsPerPageLabel="Số quyền:" />
       </Paper>
+
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth PaperProps={{ className: cx('premiumModal') }}>
+        <Box className={cx('modalHeader')}>
+          <Typography variant="h5" className={cx('modalTitle')}>
+            {editing ? 'Chỉnh sửa vai trò' : 'Tạo vai trò mới'}
+          </Typography>
+        </Box>
+
+        <DialogContent className={cx('modalBody')}>
+          <Stack spacing={3} sx={{ pt: 1 }}>
+            <Typography className={cx('sectionLabel')}>
+              <VpnKeyRounded fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
+              Thông tin vai trò
+            </Typography>
+
+            {/* Trường Tên Vai Trò */}
+            <TextField
+              className={cx('premiumInput')}
+              placeholder="Tên vai trò * (VD: user.create, admin.manage)"
+              value={permissionData.name}
+              fullWidth
+              autoFocus
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <TitleRounded fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(e) => setPermissionData({ ...permissionData, name: e.target.value })}
+            />
+
+            {/* Trường Mô Tả */}
+            <TextField
+              className={cx('premiumInput')}
+              placeholder="Mô tả chi tiết vai trò này..."
+              value={permissionData.des}
+              fullWidth
+              multiline
+              rows={3} // Tạo textArea rộng rãi
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                    <NotesRounded fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(e) => setPermissionData({ ...permissionData, des: e.target.value })}
+            />
+          </Stack>
+        </DialogContent>
+
+        <DialogActions className={cx('modalFooter')}>
+          <Button onClick={() => setOpenModal(false)} className={cx('textBtn')}>
+            Hủy bỏ
+          </Button>
+          <Button variant="contained" className={cx('primaryBtn')} onClick={() => handleCreateRole()}>
+            {editing ? 'Cập nhật vai trò' : 'Lưu vai trò'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <ConfirmDeleteModal
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={() => {
+          handleDeleteRole(permissionData.name);
+          setIsDeleteOpen(false);
+        }}
+        title="Xóa vai trò"
+        content={`Bạn đang chuẩn bị xóa vai trò <strong>${permissionData.name}</strong>. Tiếp tục?`}
+      />
     </div>
   );
 }

@@ -218,7 +218,7 @@ export default function PostDetail() {
                       <div className={cx('timelineContent')} style={{ backgroundImage: `url(${c.author?.bgComment})` }}>
                         <div className={cx('timelineInfo')}>
                           <div className={cx('authorSection')}>
-                            <div className={cx('d-flex flex-column')}>
+                            <div className={cx('d-flex')} style={{justifyContent: "space-between", alignItems: 'center'}}>
                               <span className={cx('commentAuthor')}>{c.author?.name}</span>
                               <span className={cx('commentDate')}>{new Date(c.createdAt).toLocaleString('vi-VN')}</span>
                             </div>

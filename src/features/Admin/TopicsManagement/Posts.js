@@ -181,7 +181,7 @@ export default function PostManagement() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {posts.map((post, index) => (
+            {posts.length > 0 ? (posts.map((post, index) => (
               <TableRow key={post.id} className={cx('tableRow')}>
                 <TableCell className={cx('titleCell')}>
                   <Typography className={cx('postTitle')}>{post.title}</Typography>
@@ -225,7 +225,13 @@ export default function PostManagement() {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+            ))) : (
+              <TableRow>
+                <TableCell colSpan={5} align="center" className={cx('noDataCell')}>
+                  <Typography className={cx('noDataText')}>Không có bài viết nào trong chủ đề này.</Typography>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

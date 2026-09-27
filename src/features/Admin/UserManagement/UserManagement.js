@@ -1,4 +1,5 @@
 import {
+  AddModeratorRounded,
   AddRounded,
   AdminPanelSettingsRounded,
   AlternateEmailRounded,
@@ -50,29 +51,24 @@ import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 import DataTablePagination from '~/components/common/DataTablePagination';
 import { adminService } from '~/services/adminService';
 import { userService } from '~/services/userService';
+import { roleService } from '~/services/roleService';
 import styles from './Users.module.scss';
 
 const cx = classNames.bind(styles);
 
 const ROLES = [
   {
-    key: 'ADMIN',
-    title: 'Administrator',
-    desc: 'Toàn quyền quản trị hệ thống, quản lý người dùng và cấu hình.',
+    key: 'Admin',
     icon: <AdminPanelSettingsRounded />,
     color: '#ef4444',
   },
   {
-    key: 'MODERATOR',
-    title: 'Moderator',
-    desc: 'Quản lý nội dung, duyệt truyện, xử lý báo cáo từ người dùng.',
+    key: 'Moderator',
     icon: <ManageAccountsRounded />,
     color: '#3b82f6',
   },
   {
-    key: 'MEMBER',
-    title: 'Member',
-    desc: 'Người dùng cơ bản, có thể đọc và bình luận.',
+    key: 'Member',
     icon: <PersonOutlineRounded />,
     color: '#10b981',
   },
@@ -91,6 +87,7 @@ export default function UserManagement() {
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(false);
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [newUser, setNewUser] = useState({
     username: '',
     name: '',
@@ -106,6 +103,10 @@ export default function UserManagement() {
     loadUsers();
   }, [page.currentPage, page.totalItemsPerPage]);
 
+  useEffect(() => {
+    loadRoles();
+  }, []);
+
   const loadUsers = async () => {
     try {
       const response = await adminService.getUsers({ page: page.currentPage + 1, size: page.totalItemsPerPage });
@@ -118,6 +119,26 @@ export default function UserManagement() {
       }));
     } catch {
       toast.error('Lỗi tải dữ liệu.');
+    }
+  };
+
+  const loadRoles = async () => {
+    try {
+      const response = await roleService.getAllRole();
+      const mergedRoles = (response?.result || []).map((role) => {
+        const matched = ROLES.find((r) => r.key === role.name);
+
+        return {
+          ...role,
+          icon: matched?.icon || null,
+          color: matched?.color || '#9ca3af',
+          key: role.name,
+        };
+      });
+
+      setRoles(mergedRoles);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Lỗi tải danh sách vai trò.');
     }
   };
 
@@ -180,6 +201,17 @@ export default function UserManagement() {
     }
   };
 
+  const handleAssignRole = async (userId, roleName) => {
+    try {
+      await adminService.updateUserRole(userId, roleName);
+      toast.success('Đã gán quyền mới!');
+      setIsAssignOpen(false);
+      loadUsers();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Lỗi gán quyền.');
+    }
+  };
+
   return (
     <div className={cx('pageContainer')}>
       {/* HEADER */}
@@ -188,7 +220,7 @@ export default function UserManagement() {
           <Typography variant="h4" className={cx('pageTitle')}>
             Thành viên
           </Typography>
-          <Typography variant="body1" className={cx('pageSubtitle')}>
+          <Typography variant="body" className={cx('pageSubtitle')}>
             Quản lý hệ thống người dùng và phân quyền.
           </Typography>
         </Box>
@@ -198,6 +230,7 @@ export default function UserManagement() {
           onClick={() => {
             setOpenModal(true);
             setNewUser({});
+            setEditing(false);
           }}
           className={cx('primaryBtn')}
         >
@@ -230,7 +263,7 @@ export default function UserManagement() {
                 </TableCell>
                 <TableCell>
                   <Chip
-                    icon={user.role?.name === 'Admin' ? <ShieldMoonRounded /> : <PersonRounded />}
+                    icon={user.role?.name === 'Admin' ? <ShieldMoonRounded /> : user.role?.name === 'Moderator' ? <AddModeratorRounded /> : <PersonRounded />}
                     label={user.role?.name || 'Member'}
                     className={cx('roleBadge', user.role?.name)}
                   />
@@ -483,26 +516,35 @@ export default function UserManagement() {
           <Typography className={cx('sectionLabel')}>Chọn vai trò mới</Typography>
 
           <Stack spacing={2} className={cx('roleList')}>
-            {ROLES.map((role) => (
-              <Box key={role.key} className={cx('roleCard', { active: selectedRole === role.key })} onClick={() => setSelectedRole(role.key)}>
+            {roles.map((role) => (
+              <Box
+                key={role.key}
+                className={cx('roleCard', { active: selectedRole === role.key }, { available: role.key === newUser.role?.name })}
+                onClick={() => setSelectedRole(role.key)}
+              >
                 <Box className={cx('roleIcon')} sx={{ color: role.color, backgroundColor: `${role.color}15` }}>
                   {role.icon}
                 </Box>
                 <Box className={cx('roleInfo')}>
-                  <Typography className={cx('roleTitle')}>{role.title}</Typography>
-                  <Typography className={cx('roleDesc')}>{role.desc}</Typography>
+                  <Typography className={cx('roleTitle')}>{role.name}</Typography>
+                  <Typography className={cx('roleDesc')}>{role.des}</Typography>
                 </Box>
                 {selectedRole === role.key && <CheckCircleRounded className={cx('checkIcon')} />}
               </Box>
             ))}
           </Stack>
+
+          <Typography className={cx('warningText')}>
+            <AdminPanelSettingsRounded sx={{ mr: 1 }} />
+            Lưu ý: Thay đổi vai trò có thể ảnh hưởng đến quyền truy cập và khả năng quản lý của người dùng. Quyền có nền màu xám là quyền hiện có của thành viên.
+          </Typography>
         </DialogContent>
 
         <DialogActions className={cx('modalFooter')}>
           <Button onClick={() => setIsAssignOpen(false)} className={cx('textBtn')}>
             Hủy bỏ
           </Button>
-          <Button variant="contained" className={cx('primaryBtn')}>
+          <Button variant="contained" className={cx('primaryBtn')} onClick={() => handleAssignRole(newUser.id, selectedRole)}>
             Xác nhận gán quyền
           </Button>
         </DialogActions>
