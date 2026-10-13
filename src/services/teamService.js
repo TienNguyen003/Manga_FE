@@ -1,15 +1,22 @@
-import httpRequest from '~/lib/httpRequest';
+import { get, post, put, del } from '~/lib/httpRequest';
 
 const url = '/teams';
 
 export const teamService = {
-  async getTeamList() {
-    return httpRequest.get(url);
-  },
-  async getTeamById(id) {
-    return httpRequest.get(`${url}/team?id=${id}`);
-  },
-  async createTeam(data) {
-    return httpRequest.post(`${url}/create`, data);
-  },
+  getTeamList: () => get(url),
+
+  /** `GET /teams/team?id=` — singular path, query param for the id. */
+  getTeamById: (id) => get(`${url}/team`, { params: { id } }),
+
+  getTeamMembers: (teamId) => get(`${url}/${teamId}/members`),
+
+  createTeam: (data) => post(`${url}/create`, data),
+  addTeamMember: (teamId, userId) => post(`${url}/${teamId}/members`, null, { params: { userId } }),
+  updateTeam: (teamId, data) => put(`${url}/${teamId}`, data),
+  deleteTeam: (teamId) => del(`${url}/${teamId}`),
+  updateTeamMember: (teamId, userId, params) => put(`${url}/${teamId}/members/${userId}`, null, { params }),
+  removeTeamMember: (teamId, userId) => del(`${url}/${teamId}/members/${userId}`),
 };
+
+export default teamService;
+

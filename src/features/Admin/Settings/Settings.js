@@ -1,5 +1,5 @@
-import { SaveRounded, LanguageRounded, SecurityRounded, NotificationsRounded, ConstructionRounded } from '@mui/icons-material';
-import { Box, Button, Divider, FormControlLabel, Paper, Switch, TextField, Typography, Grid } from '@mui/material';
+import { SaveRounded, LanguageRounded, SecurityRounded } from '@mui/icons-material';
+import { Box, Button, Divider, Paper, Switch, TextField, Typography, Grid } from '@mui/material';
 import classNames from 'classnames/bind';
 import styles from './Settings.module.scss';
 

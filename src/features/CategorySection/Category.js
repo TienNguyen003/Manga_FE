@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import { Link, useLocation } from 'react-router-dom';
 import { Pagination, Stack, Skeleton } from '@mui/material';
-import { SearchOffRounded, StarRounded, AutoAwesome } from '@mui/icons-material';
+import { SearchOffRounded, AutoAwesome } from '@mui/icons-material';
 
 import styles from './Category.module.scss';
 import { getMangasByCategory, searchMangas } from '~/services/mangaService';

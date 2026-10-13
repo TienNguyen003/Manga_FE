@@ -1,4 +1,4 @@
-import { AdminPanelSettingsRounded, ArrowBackRounded, LockRounded } from '@mui/icons-material';
+import { ArrowBackRounded, LockRounded } from '@mui/icons-material';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useRef } from 'react';

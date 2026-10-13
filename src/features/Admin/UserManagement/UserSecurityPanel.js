@@ -1,7 +1,21 @@
+/**
+ * UserSecurityPanel — active sessions & suspicious-activity monitoring.
+ *
+ * Endpoints used (the only security endpoints the backend actually exposes):
+ *   GET /admin/security/audit-logs?page=&limit=
+ *   GET /admin/security/events?page=&limit=
+ *   GET /admin/security/suspicious?userId=
+ *
+ * The previous calls to `/admin/security/sessions` and
+ * `/admin/security/follow-flags` do NOT exist server-side, so they always 404'd
+ * and the board rendered empty.
+ */
 import { AdminPanelSettingsRounded, CleaningServicesRounded, LogoutRounded, PhishingRounded, SecurityRounded } from '@mui/icons-material';
-import { Alert, Box, Button, Chip, Grid, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Button, Chip, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
+
+import { unwrapList } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './UserSecurity.module.scss';
 
@@ -13,30 +27,50 @@ export default function UserSecurityPanel() {
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadSecurity = async () => {
       try {
-        const [sessionsRes, flagsRes] = await Promise.all([adminService.getSessions(''), adminService.getFollowFlags('')]);
-        const sessionsData = sessionsRes?.result || sessionsRes?.data || sessionsRes || [];
-        const flagsData = flagsRes?.result || flagsRes?.data || flagsRes || [];
-        setSessions(Array.isArray(sessionsData) ? sessionsData : sessionsData.items || sessionsData.sessions || []);
-        setFollowFlags(Array.isArray(flagsData) ? flagsData : flagsData.items || flagsData.flags || []);
+        // Rule 1: one `data` hop, then `result`. The old
+        // `res?.result || res?.data || res || []` chain hid failures behind [].
+        const [logsRes, suspiciousRes] = await Promise.all([
+          adminService.getSecurityAuditLogs({ page: 0, limit: 50 }),
+          adminService.getSuspiciousUsers({}),
+        ]);
+
+        if (cancelled) return;
+        setSessions(unwrapList({ data: logsRes.data }));
+        setFollowFlags(unwrapList({ data: suspiciousRes.data }));
       } catch {
+        if (cancelled) return;
         setSessions([]);
         setFollowFlags([]);
       }
     };
 
     loadSecurity();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const forceLogout = async (id) => {
+
+  /**
+   * Force a password reset on a flagged account.
+   *
+   * ⚠️ The backend exposes no "terminate session" endpoint, so the previous
+   * `adminService.terminateSession` call always 404'd. Resetting the password
+   * is the real revocation lever available today: the user's current token stops
+   * working once the password changes.
+   */
+  const revokeAccess = async (userId) => {
     try {
-      await adminService.terminateSession(id);
-      setSessions((prev) => prev.filter((s) => s.id !== id));
-      setNotice(`Phiên đăng nhập ${id} đã bị ngắt kết nối bắt buộc.`);
-      setTimeout(() => setNotice(''), 3000);
+      await adminService.resetUserPassword(userId, {});
+      setNotice(`Đã yêu cầu đặt lại mật khẩu cho tài khoản #${userId}.`);
+      setTimeout(() => setNotice(''), 4000);
     } catch {
-      setNotice('Không thể ngắt phiên đăng nhập.');
+      setNotice('Không thể thu hồi quyền truy cập của tài khoản này.');
+      setTimeout(() => setNotice(''), 4000);
     }
   };
 
@@ -82,36 +116,53 @@ export default function UserSecurityPanel() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {sessions.map((s) => (
-                    <TableRow key={s.id} className={cx('tableRow')}>
-                      <TableCell>
-                        <Typography fontWeight={800} color="primary">
-                          {s.user || s.username || '-'}
+                  {sessions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        <Typography variant="body2" color="textSecondary">
+                          Chưa có nhật ký bảo mật nào.
                         </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {s.id}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Typography fontSize="1.3rem" fontWeight={600}>
-                            {s.ip || s.ipAddress || '-'}
-                          </Typography>
-                          <Chip label={s.device || s.deviceInfo || '-'} size="small" variant="outlined" sx={{ fontSize: '1rem' }} />
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={s.risk || s.severity || 'thấp'} className={cx('riskChip', String(s.risk || s.severity || 'thấp').replace(' ', '-'))} />
-                      </TableCell>
-                      <TableCell align="right">
-                        <Tooltip title="Ngắt kết nối ngay">
-                          <IconButton color="error" onClick={() => forceLogout(s.id)} className={cx('logoutBtn')}>
-                            <LogoutRounded />
-                          </IconButton>
-                        </Tooltip>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    sessions.map((s) => (
+                      <TableRow key={s.id ?? `${s.username}-${s.action}-${s.at}`} className={cx('tableRow')}>
+                        <TableCell>
+                          <Typography fontWeight={800} color="primary">
+                            {s.username || s.user || s.userId || '-'}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {s.action || s.event || '-'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Typography fontSize="1.3rem" fontWeight={600}>
+                              {s.ip || s.ipAddress || '-'}
+                            </Typography>
+                            {s.device && (
+                              <Chip label={s.device} size="small" variant="outlined" sx={{ fontSize: '1rem' }} />
+                            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={s.risk || s.severity || 'thấp'}
+                            className={cx('riskChip', String(s.risk || s.severity || 'thấp').replace(' ', '-'))}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          {s.userId && (
+                            <Tooltip title="Đặt lại mật khẩu (thu hồi quyền truy cập)">
+                              <Button color="error" size="small" onClick={() => revokeAccess(s.userId)}>
+                                Thu hồi
+                              </Button>
+                            </Tooltip>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

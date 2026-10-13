@@ -1,9 +1,10 @@
 import { AutoAwesome, Bookmark, Collections, DeleteOutline, DeleteSweep, History as HistoryIcon, PlayCircleFilled, StickyNote2 } from '@mui/icons-material';
 import classNames from 'classnames/bind';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { EmptyState, ErrorState, LoadingSpinner } from '~/components/common/AsyncState';
+import { unwrapList } from '~/lib/httpRequest';
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
 import { getBookmarks } from '~/services/bookmarkService';
@@ -58,26 +59,41 @@ export default function Library() {
     bookmarks: bookmarks.length,
   };
 
+  // NEW CHAPTER ALERT — derived from the SAME follows payload the page already
+  // loads (no extra request): latestChapter > lastReadChapter.
+  const unreadBySlug = useMemo(
+    () =>
+      follows.reduce((acc, f) => {
+        const latest = parseFloat(String(f.latestChapter ?? '').replace(/[^\d.]/g, ''));
+        const last = parseFloat(String(f.lastReadChapter ?? '').replace(/[^\d.]/g, ''));
+        if (Number.isFinite(latest) && Number.isFinite(last) && latest > last) acc[f.mangaPath] = latest - last;
+        return acc;
+      }, {}),
+    [follows],
+  );
+
+  const newChapterCount = Object.values(unreadBySlug).reduce((sum, n) => sum + n, 0);
+
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     setError(null);
     try {
       if (activeTab === 0) {
-        const res = await getFollows({ userId });
-        setFollows(res?.result || []);
+        const { data } = await getFollows({ userId });
+        setFollows(unwrapList({ data }));
       } else if (activeTab === 1) {
-        const res = await getContinueReading({ userId, limit: 24 });
-        setContinueList(res?.result || []);
+        const { data } = await getContinueReading({ userId, limit: 24 });
+        setContinueList(unwrapList({ data }));
       } else if (activeTab === 2) {
-        const res = await getHistory({ userId });
-        setHistory(res?.result || []);
+        const { data } = await getHistory({ userId });
+        setHistory(unwrapList({ data }));
       } else if (activeTab === 3) {
-        const res = await getCollections({ userId });
-        setCollections(res?.result || []);
+        const { data } = await getCollections({ userId });
+        setCollections(unwrapList({ data }));
       } else {
-        const res = await getBookmarks({ userId });
-        setBookmarks(res?.result || []);
+        const { data } = await getBookmarks({ userId });
+        setBookmarks(unwrapList({ data }));
       }
     } catch {
       setError('Không thể tải dữ liệu. Vui lòng thử lại.');
@@ -143,8 +159,8 @@ export default function Library() {
     }
     setDetailLoadingId(collectionId);
     try {
-      const res = await getCollectionDetail({ userId, collectionId });
-      setCollectionDetails((prev) => ({ ...prev, [collectionId]: res?.result || {} }));
+      const { data } = await getCollectionDetail({ userId, collectionId });
+      setCollectionDetails((prev) => ({ ...prev, [collectionId]: data?.result ?? {} }));
     } catch {
     } finally {
       setDetailLoadingId(null);
@@ -167,6 +183,11 @@ export default function Library() {
               {f.mangaName}
             </Link>
             <div className={cx('meta')}>
+              {unreadBySlug[f.mangaPath] > 0 && (
+                <span className={cx('badge', 'unread')} title="Có chương mới bạn chưa đọc">
+                  🔔 MỚI {unreadBySlug[f.mangaPath]} chương
+                </span>
+              )}
               {f.latestChapter && <span className={cx('badge', 'new')}>Mới: {f.latestChapter}</span>}
               {f.lastReadChapter && <span className={cx('badge')}>Đã đọc: {f.lastReadChapter}</span>}
             </div>
@@ -298,6 +319,12 @@ export default function Library() {
               <span className={cx('val')}>{quickStats.follows}</span>
               <span className={cx('lbl')}>Theo dõi</span>
             </div>
+            {newChapterCount > 0 && (
+              <div className={cx('stat-item', 'highlight')}>
+                <span className={cx('val')}>{newChapterCount}</span>
+                <span className={cx('lbl')}>Chương mới</span>
+              </div>
+            )}
             <div className={cx('stat-item')}>
               <span className={cx('val')}>{quickStats.collections}</span>
               <span className={cx('lbl')}>Bộ sưu tập</span>

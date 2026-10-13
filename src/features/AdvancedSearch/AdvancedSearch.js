@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import paths from '~/routes/paths';
+import { unwrapList } from '~/lib/httpRequest';
 import { getCategories, getMangasByCategory, searchMangas } from '~/services/mangaService';
 import styles from './AdvancedSearch.module.scss';
 
@@ -22,7 +23,7 @@ export default function AdvancedSearch() {
 
   useEffect(() => {
     getCategories()
-      .then((res) => setCategories(Array.isArray(res?.result) ? res.result : []))
+      .then(({ data }) => setCategories(unwrapList({ data })))
       .catch(() => setCategories([]));
   }, []);
 

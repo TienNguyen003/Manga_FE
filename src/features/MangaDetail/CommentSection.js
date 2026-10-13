@@ -1,7 +1,8 @@
 import classNames from 'classnames/bind';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingSpinner } from '~/components/common/AsyncState';
-import { connectStomp, disconnectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { connectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { unwrapList } from '~/lib/httpRequest';
 import { useUser } from '~/providers/UserContext';
 import { deleteComment, getComments, getReplies, likeComment, postComment, unlikeComment } from '~/services/commentService';
 import styles from './CommentSection.module.scss';
@@ -29,23 +30,20 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const client = connectStomp({
-      onConnect: () => {
-        wsSubscribe(WS_TOPICS.commentReaction(comment.id), (msg) => {
-          console.log('Received reaction message for comment', comment.id, msg);
-          if (msg.type === 'LIKE') {
-            setLikesCount((c) => c + 1);
-            if (msg.userId === userId) setLiked(true);
-          } else if (msg.type === 'UNLIKE') {
-            setLikesCount((c) => c - 1);
-            if (msg.userId === userId) setLiked(false);
-          }
-        });
-      },
+    connectStomp();
+    // Rule 6: always unsubscribe — this component is rendered once per comment,
+    // so leaking subscriptions here fires handlers against unmounted state.
+    const subscription = wsSubscribe(WS_TOPICS.commentReaction(comment.id), (msg) => {
+      if (msg?.type === 'LIKE') {
+        setLikesCount((c) => c + 1);
+        if (String(msg.userId) === String(userId)) setLiked(true);
+      } else if (msg?.type === 'UNLIKE') {
+        setLikesCount((c) => c - 1);
+        if (String(msg.userId) === String(userId)) setLiked(false);
+      }
     });
-    return () => {
-      if (client) disconnectStomp();
-    };
+
+    return () => subscription?.unsubscribe();
   }, [comment.id, userId]);
 
   const handleLike = async () => {
@@ -61,8 +59,8 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
     if (!repliesLoaded) {
       setRepliesLoading(true);
       try {
-        const res = await getReplies({ parentCommentId: comment.id, currentUserId: userId || '' });
-        setReplies(res?.result || []);
+        const { data } = await getReplies({ parentCommentId: comment.id, currentUserId: userId || '' });
+        setReplies(unwrapList({ data }));
         setRepliesLoaded(true);
       } finally {
         setRepliesLoading(false);
@@ -75,16 +73,17 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
     if (!replyText.trim() || !userId || submitting) return;
     setSubmitting(true);
     try {
-      const res = await postComment({
-        userId,
+      const { data } = await postComment({
         mangaPath,
         mangaName,
         chapterName: chapterName || undefined,
         content: replyText.trim(),
         parentCommentId: comment.id,
       });
-      const newReply = res?.result || res;
-      setReplies((prev) => [...prev, newReply]);
+      // Rule 1: was `res?.result || res` — the fallback could append the whole
+      // envelope as if it were a comment.
+      const newReply = data?.result;
+      if (newReply) setReplies((prev) => [...prev, newReply]);
       setReplyText('');
       setShowReplyInput(false);
       if (!showReplies) setShowReplies(true);
@@ -107,7 +106,11 @@ function CommentItem({ comment, userAvatar, userId, mangaPath, chapterName, mang
     <div className={cx('commentWrapper', { [`level-${level}`]: level > 1 })}>
       {/* Chỉ phần này là có border */}
       <div className={cx('commentBody')}>
-        <img src={userAvatar || 'https://via.placeholder.com/40'} className={cx('commentAvatar')} />
+        <img
+          src={userAvatar || 'https://via.placeholder.com/40'}
+          alt={comment.userDisplayName || comment.name || 'Ảnh đại diện bình luận'}
+          className={cx('commentAvatar')}
+        />
         <div className={cx('commentContentSection')}>
           <div className={cx('commentHeader')}>
             <span className={cx('commentUser')}>{comment.userDisplayName || comment.name}</span>
@@ -186,46 +189,41 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
     if (!mangaPath) return;
     setLoading(true);
     try {
-      const res = await getComments({ mangaPath, chapterName: chapterName || undefined, currentUserId: userId || '' });
-      setComments(res?.result || []);
+      const { data } = await getComments({ mangaPath, chapterName: chapterName || undefined, currentUserId: userId || '' });
+      setComments(unwrapList({ data }));
     } finally {
       setLoading(false);
     }
   }, [mangaPath, chapterName, userId]);
 
   // Websocket để tự động cập nhật khi có bình luận mới hoặc bình luận bị xóa (do mình xóa hoặc do admin/xóa hộ)
+  // Rule 6: subscribe after connect, unsubscribe on unmount. Never disconnect the
+  // shared socket here — the reader page owns it.
   useEffect(() => {
     loadComments();
-    const client = connectStomp({
-      onConnect: () => {
-        wsSubscribe(WS_TOPICS.comments(mangaPath), () => {
-          loadComments();
-        });
-      },
-    });
-    return () => {
-      if (client) disconnectStomp();
-    };
-  }, [loadComments]);
+    if (!mangaPath) return undefined;
 
+    connectStomp();
+    const subscription = wsSubscribe(WS_TOPICS.comments(mangaPath), loadComments);
+
+    return () => subscription?.unsubscribe();
+  }, [loadComments, mangaPath]);
+
+  // Per-comment DELETE broadcasts. Subscriptions are rebuilt whenever the list
+  // changes, so each comment is only ever subscribed once.
   useEffect(() => {
-    if (!comments || comments.length === 0) return;
+    if (!comments?.length) return undefined;
 
-    const client = connectStomp({
-      onConnect: () => {
-        const subs = comments.map((c) =>
-          wsSubscribe(WS_TOPICS.commentReaction(c.id), (msg) => {
-            if (msg.type === 'DELETE') setComments((prev) => prev.filter((comment) => comment.id !== msg.commentId));
-          }),
-        );
+    connectStomp();
+    const subs = comments.map((c) =>
+      wsSubscribe(WS_TOPICS.commentReaction(c.id), (msg) => {
+        if (msg?.type === 'DELETE') {
+          setComments((prev) => prev.filter((comment) => comment.id !== msg.commentId));
+        }
+      }),
+    );
 
-        return () => subs.forEach((s) => s?.unsubscribe());
-      },
-    });
-
-    return () => {
-      client?.deactivate();
-    };
+    return () => subs.forEach((s) => s?.unsubscribe());
   }, [comments]);
   // End Websocket
 
@@ -233,14 +231,15 @@ export default function CommentSection({ mangaPath, chapterName, mangaName, titl
     if (!newComment.trim() || !userId || submitting) return;
     setSubmitting(true);
     try {
-      const res = await postComment({
-        userId,
+      // Rule 3: no `userId` in this write body — the JWT identifies the author.
+      const { data } = await postComment({
         mangaPath,
         mangaName,
         chapterName: chapterName || undefined,
         content: newComment.trim(),
       });
-      setComments((prev) => [res?.result || res, ...prev]);
+      const created = data?.result;
+      if (created) setComments((prev) => [created, ...prev]);
       setNewComment('');
     } finally {
       setSubmitting(false);

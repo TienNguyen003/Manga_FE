@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import classNames from 'classnames/bind';
-import { 
-    Box, Typography, TextField, Button, Stack, Alert, 
+import { Typography, TextField, Button, Stack, Alert, 
     InputAdornment, IconButton, CircularProgress 
 } from '@mui/material';
 import { LockResetRounded, VpnKeyRounded, Visibility, VisibilityOff } from '@mui/icons-material';
 import styles from './ChangePassword.module.scss';
+import { errorMessage } from '~/lib/httpRequest';
 import { userService } from '~/services/userService';
 
 const cx = classNames.bind(styles);
@@ -33,19 +33,20 @@ export default function ChangePassword() {
 
         setLoading(true);
         try {
-            const res = await userService.changePassword({ oldPassword: oldPass, newPassword: newPass });
-            if (res?.data?.success) {
-                setStatus({ type: 'success', msg: 'Đổi mật khẩu thành công!' });
-                setOldPass(''); setNewPass(''); setConfirmPass('');
-            } else {
-                setStatus({ type: 'error', msg: 'Thất bại. Mật khẩu cũ không đúng?' });
-            }
+            // Rule 8: POST /users/change-password is the canonical form.
+            // A 2xx response never rejects in axios, so success is simply
+            // "no exception" — the old `res.data.success` check could never
+            // fire and always showed the failure branch.
+            await userService.changePassword({ oldPassword: oldPass, newPassword: newPass });
+            setStatus({ type: 'success', msg: 'Đổi mật khẩu thành công!' });
+            setOldPass(''); setNewPass(''); setConfirmPass('');
         } catch (err) {
-            setStatus({ type: 'error', msg: 'Có lỗi xảy ra, thử lại sau.' });
+            setStatus({ type: 'error', msg: errorMessage(err, 'Có lỗi xảy ra, thử lại sau.') });
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <main className={cx('changePassPage')}>

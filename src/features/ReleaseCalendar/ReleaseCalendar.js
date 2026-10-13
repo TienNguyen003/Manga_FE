@@ -4,6 +4,7 @@ import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';
 import styles from './ReleaseCalendar.module.scss';
 import paths from '~/routes/paths';
+import { unwrapList } from '~/lib/httpRequest';
 import { getMangasByCategory } from '~/services/mangaService';
 
 const cx = classNames.bind(styles);
@@ -22,10 +23,11 @@ export default function ReleaseCalendar() {
 
   useEffect(() => {
     let mounted = true;
-    getMangasByCategory({ path: 'latest', page: 1 })
-      .then((res) => {
+    // `page` is 0-BASED (Rule 2).
+    getMangasByCategory({ path: 'latest', page: 0 })
+      .then(({ data }) => {
         if (!mounted) return;
-        setMangas((res?.result || []).slice(0, 28));
+        setMangas(unwrapList({ data }).slice(0, 28));
       })
       .catch(() => {
         if (!mounted) return;

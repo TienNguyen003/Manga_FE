@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
 import { toast } from 'react-toastify';
 import { connectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { errorMessage, unwrapList } from '~/lib/httpRequest';
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
 import { communityService } from '~/services/communityService';
@@ -29,92 +30,99 @@ export default function PostDetail() {
   const loadComments = async () => {
     setLoading(true);
     try {
-      const res = await communityService.getPostComments(id);
-      setPost(res?.result?.post || null);
-      setComments(res?.result?.comments || []);
-
-      return res?.result?.post || null;
+      // ⚠️ NESTED: the service already unwraps `data.result.comments`.
+      const { comments: list } = await communityService.getPostComments(id);
+      setComments(list);
+      return list.length;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thể tải bài viết. Vui lòng thử lại.');
+      toast.error(errorMessage(err, 'Không thể tải bình luận. Vui lòng thử lại.'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPost = async () => {
+    try {
+      // ⚠️ NESTED: the service already unwraps `data.result.post`.
+      const { post: found } = await communityService.getPostById(id);
+      setPost(found);
+      return found;
+    } catch (err) {
+      toast.error(errorMessage(err, 'Không thể tải bài viết. Vui lòng thử lại.'));
+      return null;
     }
   };
 
   const loadRecommendations = async () => {
     try {
-      const res = await getRecommendationPosts({ userId: userId || undefined, limit: 5 });
-      setRecommendations(res?.result || []);
+      const { data } = await getRecommendationPosts({ userId: userId || undefined, limit: 5 });
+      setRecommendations(unwrapList({ data }));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể tải bài viết gợi ý. Vui lòng thử lại.');
-    } finally {
-      setLoading(false);
+      toast.error(errorMessage(error, 'Không thể tải bài viết gợi ý. Vui lòng thử lại.'));
     }
   };
 
-  const isFollowing = async (followerId, followingId) => {
+  const checkFollow = async (followingId) => {
     try {
-      const isFollow = await userFollowService.isFollow({ followerId, followingId });
-      setIsFollow(isFollow);
+      // `targetUserId` is the person being followed (Rule 8 naming).
+      const { data } = await userFollowService.isFollow({ targetUserId: followingId });
+      setIsFollow(Boolean(data?.result));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể kiểm tra trạng thái theo dõi. Vui lòng thử lại.');
+      toast.error(errorMessage(error, 'Không thể kiểm tra trạng thái theo dõi. Vui lòng thử lại.'));
     }
   };
 
   useEffect(() => {
     const run = async () => {
-      const postData = await loadComments();
-
-      if (!postData?.author?.id) return;
-
-      await isFollowing(userId, postData.author.id);
+      const found = await loadPost();
+      if (!found?.author?.id) return;
+      await checkFollow(found.author.id);
     };
 
     run();
-  }, [id, userId]);
+    loadComments();
+  }, [id]);
 
   useEffect(() => {
     loadRecommendations();
   }, [userId]);
 
+  // Rule 6: subscribe AFTER connect and always unsubscribe on unmount.
   useEffect(() => {
-    const client = connectStomp({
-      onConnect: () => {
-        wsSubscribe(WS_TOPICS.commentPost(id), (msg) => {
-          if (msg.type === 'comment_post') {
-            msg.postID === Number(id) && loadComments();
-          }
-        });
-      },
+    if (!id) return undefined;
+
+    connectStomp();
+    const subscription = wsSubscribe(WS_TOPICS.commentPost(id), (msg) => {
+      if (msg?.type === 'comment_post' && Number(msg.postID) === Number(id)) {
+        loadComments();
+      }
     });
 
-    return () => {
-      client?.deactivate();
-    };
-  });
+    return () => subscription?.unsubscribe();
+  }, [id]);
 
-  const isLiked = post?.reactions?.some((r) => r.username === userId);
+  // The viewer has liked this post when any reaction belongs to them.
+  const isLiked = post?.reactions?.some((r) => String(r.userId) === String(userId));
 
   const handleToggleLike = async () => {
     try {
-      const res = await communityService.reactPost({ type: 'LIKE', postId: id }, userId);
-      const newReaction = res.result;
+      // Rule 3: the author is taken from the JWT — no userId in the body.
+      const { data } = await communityService.reactPost({ type: 'LIKE', postId: id });
+      const newReaction = data?.result;
+      if (!newReaction) return;
 
       setPost((prev) => {
         if (!prev) return prev;
-        let currentReactions = Array.isArray(prev.reactions) ? [...prev.reactions] : [];
+        const currentReactions = Array.isArray(prev.reactions) ? [...prev.reactions] : [];
         const existingIndex = currentReactions.findIndex((r) => String(r.userId) === String(userId));
 
-        if (existingIndex !== -1) {
-          currentReactions.splice(existingIndex, 1);
-        } else {
-          currentReactions.push(newReaction);
-        }
+        if (existingIndex !== -1) currentReactions.splice(existingIndex, 1);
+        else currentReactions.push(newReaction);
 
         return { ...prev, reactions: currentReactions };
       });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thể cập nhật trạng thái thích. Vui lòng thử lại.');
+      toast.error(errorMessage(err, 'Không thể cập nhật trạng thái thích. Vui lòng thử lại.'));
     }
   };
 
@@ -123,16 +131,16 @@ export default function PostDetail() {
     if (!commentContent) return;
 
     try {
-      const res = await communityService.commentPost(userId, { content: commentContent, postId: id });
-      const newComment = res.result;
-      setComments((prev) => [newComment, ...prev]);
+      // Rule 3: no userId in the body — the backend takes it from the JWT.
+      const { data } = await communityService.commentPost({ content: commentContent, postId: id });
+      const newComment = data?.result;
+      if (newComment) setComments((prev) => [newComment, ...prev]);
 
       if (commentRef.current) commentRef.current.value = '';
 
       toast.success('Bình luận đã được gửi!');
     } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || 'Không thể gửi bình luận. Vui lòng thử lại.');
+      toast.error(errorMessage(err, 'Không thể gửi bình luận. Vui lòng thử lại.'));
     }
   };
 
@@ -147,7 +155,7 @@ export default function PostDetail() {
       }
       setIsFollow(!isFollow);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể theo dõi người dùng. Vui lòng thử lại.');
+      toast.error(errorMessage(error, 'Không thể theo dõi người dùng. Vui lòng thử lại.'));
     }
   };
 

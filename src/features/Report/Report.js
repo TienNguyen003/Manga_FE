@@ -2,12 +2,19 @@ import { CampaignRounded } from '@mui/icons-material';
 import { Alert, Autocomplete, Button, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useState } from 'react';
+import { errorMessage } from '~/lib/httpRequest';
 import { reportService } from '~/services/reportService';
 import styles from './Report.module.scss';
 
 const cx = classNames.bind(styles);
 
-const REPORT_TYPES = ['Báo lỗi truyện', 'Báo cáo vi phạm', 'Báo lỗi hình ảnh', 'Vấn đề tài khoản', 'Khác'];
+/** Labels shown in the picker; the API expects the enum values below. */
+const REPORT_TYPE_OPTIONS = [
+  { value: 'OFFENSIVE', label: 'Báo lỗi truyện' },
+  { value: 'SPAM', label: 'Báo cáo vi phạm' },
+  { value: 'COPYRIGHT', label: 'Báo lỗi hình ảnh / bản quyền' },
+  { value: 'OTHER', label: 'Vấn đề tài khoản / Khác' },
+];
 
 export default function Report() {
   const [type, setType] = useState(null);
@@ -26,18 +33,24 @@ export default function Report() {
 
     setLoading(true);
     try {
-      const res = await reportService.sendReport({ type, content });
-      if (res?.data?.success) {
-        setStatus({ type: 'success', msg: 'Cảm ơn phản hồi của bạn, chúng tôi sẽ xử lý sớm!' });
-        setContent('');
-        setType(null);
-      }
+      // ⚠️ `reporterId` is NEVER sent — the backend takes the reporter from
+      // the JWT (see reportService). A 2xx never rejects, so reaching this
+      // line means the report was accepted.
+      await reportService.sendReport({
+        type: type.value,
+        targetType: 'MANGA',
+        content,
+      });
+      setStatus({ type: 'success', msg: 'Cảm ơn phản hồi của bạn, chúng tôi sẽ xử lý sớm!' });
+      setContent('');
+      setType(null);
     } catch (err) {
-      setStatus({ type: 'error', msg: 'Gửi báo cáo thất bại, thử lại sau nhé.' });
+      setStatus({ type: 'error', msg: errorMessage(err, 'Gửi báo cáo thất bại, thử lại sau nhé.') });
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <main className={cx('reportPage')}>
@@ -51,8 +64,9 @@ export default function Report() {
         <form className={cx('form')} onSubmit={handleSubmit}>
           <Stack spacing={4}>
             <Autocomplete
-              options={REPORT_TYPES}
+              options={REPORT_TYPE_OPTIONS}
               value={type}
+              getOptionLabel={(option) => option?.label ?? ''}
               onChange={(e, newValue) => setType(newValue)}
               renderInput={(params) => <TextField {...params} label="Vấn đề bạn gặp phải" variant="outlined" placeholder="Chọn loại báo cáo..." />}
             />

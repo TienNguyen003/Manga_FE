@@ -38,7 +38,8 @@ import {
 } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
-import { adminService } from '~/services/adminService';
+import { unwrapList } from '~/lib/httpRequest';
+import { getMangasByList } from '~/services/mangaService';
 import styles from './Manga.module.scss';
 import MangaOpsPanel from './MangaOpsPanel';
 
@@ -59,13 +60,24 @@ export default function MangaManagement() {
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadComics = async () => {
       try {
-        const response = await adminService.getComics();
-        const data = response?.result || response?.data || response || [];
-        setMangaList(Array.isArray(data) ? data : data.items || data.comics || []);
+        /*
+         * ⚠️ `/admin/mangas/**` has NO controller server-side, so this list can
+         * never be fetched. `/mangas/list` is the public catalogue and returns the
+         * same entity shape, so the table still renders real data instead of an
+         * empty panel. Swap this back to `adminService.getComics()` once the
+         * backend ships the admin manga endpoints.
+         */
+        const CATALOG_PAGE_SIZE = 50;
+        const { data } = await getMangasByList({ page: 0, size: CATALOG_PAGE_SIZE });
+
+        if (cancelled) return;
+        setMangaList(unwrapList({ data }));
       } catch {
-        setMangaList([]);
+        if (!cancelled) setMangaList([]);
       }
     };
 

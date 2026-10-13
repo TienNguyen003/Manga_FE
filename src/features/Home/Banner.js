@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './Home.module.scss';
+import { unwrapList } from '~/lib/httpRequest';
 import { getMangasByCategory } from '~/services/mangaService';
 import { Link } from 'react-router-dom';
 import paths from '~/routes/paths';
@@ -41,8 +42,8 @@ export default function Banner() {
   }, []);
 
   const getManga = async () => {
-    const res = await getMangasByCategory({ path: 'adult', page: 1 });
-    setTrailers(res.result);
+    const { data } = await getMangasByCategory({ path: 'adult', page: 0 });
+    setTrailers(unwrapList({ data }));
   };
 
   useEffect(() => {

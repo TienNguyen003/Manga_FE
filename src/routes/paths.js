@@ -23,6 +23,8 @@ const paths = {
   recommendations: '/goi-y',
   changePassword: '/doi-mat-khau',
   myComics: '/truyen-cua-toi',
+  membership: '/thanh-vien',
+  whatToReadNext: '/chon-truyen',
   login: '/dang-nhap',
   register: '/dang-ky',
   forgotPassword: '/quen-mat-khau',

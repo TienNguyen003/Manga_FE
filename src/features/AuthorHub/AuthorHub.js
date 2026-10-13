@@ -4,6 +4,7 @@ import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import paths from '~/routes/paths';
+import { unwrapList } from '~/lib/httpRequest';
 import { getMangasByCategory } from '~/services/mangaService';
 import { teamService } from '~/services/teamService';
 import styles from './AuthorHub.module.scss';
@@ -33,8 +34,8 @@ export default function AuthorHub() {
 
     teamService
       .getTeamList()
-      .then((res) => {
-        if (mounted) setTeams(res?.result || []);
+      .then(({ data }) => {
+        if (mounted) setTeams(unwrapList({ data }));
       })
       .catch(() => {
         if (mounted) setTeams([]);
@@ -43,9 +44,10 @@ export default function AuthorHub() {
         if (mounted) setLoadingTeams(false);
       });
 
-    getMangasByCategory({ path: 'manhwa', page: 1 })
-      .then((res) => {
-        if (mounted) setSpotlight((res?.result || []).slice(0, 6));
+    // `page` is 0-BASED (Rule 2).
+    getMangasByCategory({ path: 'manhwa', page: 0 })
+      .then(({ data }) => {
+        if (mounted) setSpotlight(unwrapList({ data }).slice(0, 6));
       })
       .catch(() => {
         if (mounted) setSpotlight([]);

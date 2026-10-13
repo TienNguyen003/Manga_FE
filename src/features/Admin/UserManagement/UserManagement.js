@@ -49,8 +49,10 @@ import { toast } from 'react-toastify';
 
 import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 import DataTablePagination from '~/components/common/DataTablePagination';
+import { errorMessage, unwrapList, unwrapPage } from '~/lib/httpRequest';
+import { useUser } from '~/providers/UserContext';
 import { adminService } from '~/services/adminService';
-import { userService } from '~/services/userService';
+import { userService, isUserBanned } from '~/services/userService';
 import { roleService } from '~/services/roleService';
 import styles from './Users.module.scss';
 
@@ -75,6 +77,9 @@ const ROLES = [
 ];
 
 export default function UserManagement() {
+  // The signed-in admin — Rule 9 uses this to disable self-targeting controls.
+  const { userId: currentUserId } = useUser();
+
   const [page, setPage] = useState({
     totalItems: 0,
     totalItemsPerPage: 10,
@@ -109,23 +114,30 @@ export default function UserManagement() {
 
   const loadUsers = async () => {
     try {
-      const response = await adminService.getUsers({ page: page.currentPage + 1, size: page.totalItemsPerPage });
-      const newPage = response?.page || {};
-      setUsers(response?.result);
+      // Rule 2: `/admin/users` is 1-BASED (`pageNumber` starts at 1) and returns
+      // a page object — not a bare array.
+      const { data } = await adminService.getUsers({
+        pageNumber: page.currentPage + 1,
+        limit: page.totalItemsPerPage,
+      });
+
+      const { content, totalElements, totalPages } = unwrapPage({ data });
+      setUsers(content);
       setPage((prev) => ({
         ...prev,
-        totalItems: newPage.totalItems,
-        totalPages: newPage.totalPages,
+        totalItems: totalElements,
+        totalPages,
       }));
     } catch {
-      toast.error('Lỗi tải dữ liệu.');
+      setUsers([]);
+      toast.error(errorMessage(null, 'Lỗi tải dữ liệu.'));
     }
   };
 
   const loadRoles = async () => {
     try {
-      const response = await roleService.getAllRole();
-      const mergedRoles = (response?.result || []).map((role) => {
+      const { data } = await roleService.getAllRole();
+      const mergedRoles = unwrapList({ data }).map((role) => {
         const matched = ROLES.find((r) => r.key === role.name);
 
         return {
@@ -138,14 +150,14 @@ export default function UserManagement() {
 
       setRoles(mergedRoles);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Lỗi tải danh sách vai trò.');
+      toast.error(errorMessage(error, 'Lỗi tải danh sách vai trò.'));
     }
   };
 
   const handleAddUser = async () => {
     try {
       if (editing) {
-        await userService.updateUser(newUser.id, newUser);
+        await userService.updateUser({ id: newUser.id, ...newUser });
         toast.success('Đã cập nhật thành viên!');
       } else {
         await userService.createUser(newUser);
@@ -155,17 +167,24 @@ export default function UserManagement() {
       setEditing(false);
       loadUsers();
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Lỗi tạo thành viên.');
+      toast.error(errorMessage(error, 'Lỗi tạo thành viên.'));
     }
   };
 
   const handleDeleteUser = async (userId) => {
+    // Rule 9: the backend refuses `DELETE /admin/users/{id}` on your own
+    // account with `403 FORBIDDEN_RESOURCE`. The button is disabled for self,
+    // so reaching here means a genuine mistake — guard anyway.
+    if (adminService.isSelf(userId, currentUserId)) {
+      toast.warning('Bạn không thể tự xoá tài khoản của chính mình.');
+      return;
+    }
     try {
-      await userService.deleteUser(userId);
+      await adminService.deleteUser(userId);
       toast.success('Đã xóa thành viên!');
       loadUsers();
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Lỗi xóa thành viên.');
+      toast.error(errorMessage(error, 'Lỗi xóa thành viên.'));
     }
   };
 
@@ -173,21 +192,24 @@ export default function UserManagement() {
     try {
       setOpenModal(true);
       setEditing(true);
-      const res = await userService.getUserById(userId);
-      const userData = res?.result || {};
-      setNewUser({ ...userData });
+      const { data } = await userService.getUserById({ userId });
+      setNewUser({ ...(data?.result ?? {}) });
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Lỗi tải thông tin thành viên.');
+      toast.error(errorMessage(error, 'Lỗi tải thông tin thành viên.'));
     }
   };
 
   const handleBanUser = async (userId) => {
+    if (adminService.isSelf(userId, currentUserId)) {
+      toast.warning('Bạn không thể tự khoá tài khoản của chính mình.');
+      return;
+    }
     try {
       await adminService.banUser(userId);
       toast.success('Thành viên đã bị khóa!');
       loadUsers();
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Lỗi khóa thành viên.');
+      toast.error(errorMessage(error, 'Lỗi khóa thành viên.'));
     }
   };
 
@@ -197,20 +219,26 @@ export default function UserManagement() {
       toast.success('Thành viên đã được mở khóa!');
       loadUsers();
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Lỗi mở khóa thành viên.');
+      toast.error(errorMessage(error, 'Lỗi mở khóa thành viên.'));
     }
   };
 
   const handleAssignRole = async (userId, roleName) => {
+    // Rule 9: revoking your OWN ADMIN role is also refused with 403.
+    if (adminService.isSelf(userId, currentUserId)) {
+      toast.warning('Bạn không thể tự thay đổi vai trò của chính mình.');
+      return;
+    }
     try {
       await adminService.updateUserRole(userId, roleName);
       toast.success('Đã gán quyền mới!');
       setIsAssignOpen(false);
       loadUsers();
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Lỗi gán quyền.');
+      toast.error(errorMessage(error, 'Lỗi gán quyền.'));
     }
   };
+
 
   return (
     <div className={cx('pageContainer')}>
@@ -270,52 +298,104 @@ export default function UserManagement() {
                 </TableCell>
                 <TableCell>
                   <Box className={cx('statusWrapper')}>
-                    <span className={cx('statusDot', { active: user.status })} />
-                    {user.status ? 'Hoạt động' : 'Bị khóa'}
+                    {/*
+                      ⚠️ `users.status` is a NUMBER: 0 = active, 1 = banned.
+                      `user.status ? ...` renders "Hoạt động" for the number 0
+                      because 0 is falsy — so every account looked active.
+                    */}
+                    {isUserBanned(user) ? (
+                      <>
+                        <span className={cx('statusDot')} />
+                        Bị khóa
+                      </>
+                    ) : (
+                      <>
+                        <span className={cx('statusDot', { active: true })} />
+                        Hoạt động
+                      </>
+                    )}
                   </Box>
                 </TableCell>
                 <TableCell align="right">
                   <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    <Tooltip title="Sửa">
-                      <IconButton className={cx('actionBtn', 'edit')} onClick={() => handleEditUser(user.id)}>
-                        <EditRounded fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Xóa">
-                      <IconButton
-                        className={cx('actionBtn', 'delete')}
-                        onClick={() => {
-                          setNewUser(user);
-                          setIsDeleteOpen(true);
-                        }}
-                      >
-                        <DeleteOutlineRounded fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    {user.status ? (
-                      <Tooltip title="Ban">
-                        <IconButton className={cx('actionBtn', 'ban')} onClick={() => handleBanUser(user.id)}>
-                          <BlockIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    ) : (
-                      <Tooltip title="Unban">
-                        <IconButton className={cx('actionBtn', 'unban')} onClick={() => handleUnbanUser(user.id)}>
-                          <CheckCircleIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    <Tooltip title="Gán quyền">
-                      <IconButton
-                        className={cx('actionBtn', 'assign')}
-                        onClick={() => {
-                          setIsAssignOpen(true);
-                          setNewUser(user);
-                        }}
-                      >
-                        <AdminPanelSettingsIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    {/*
+                      Rule 9: an admin may not target their OWN account.
+                      `PUT|DELETE /admin/users/{id}` and revoking one's own ADMIN
+                      role all answer `403 FORBIDDEN_RESOURCE`, so those controls
+                      are disabled here instead of offering a button that can
+                      only fail.
+                    */}
+                    {(() => {
+                      const isSelfRow = adminService.isSelf(user.id, currentUserId);
+                      const banned = isUserBanned(user);
+
+                      return (
+                        <>
+                          <Tooltip title={isSelfRow ? 'Không thể sửa chính mình' : 'Sửa'}>
+                            <span>
+                              <IconButton
+                                className={cx('actionBtn', 'edit')}
+                                disabled={isSelfRow}
+                                onClick={() => handleEditUser(user.id)}
+                              >
+                                <EditRounded fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+
+                          <Tooltip title={isSelfRow ? 'Không thể tự xoá tài khoản' : 'Xóa'}>
+                            <span>
+                              <IconButton
+                                className={cx('actionBtn', 'delete')}
+                                disabled={isSelfRow}
+                                onClick={() => {
+                                  setNewUser(user);
+                                  setIsDeleteOpen(true);
+                                }}
+                              >
+                                <DeleteOutlineRounded fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+
+                          {banned ? (
+                            <Tooltip title="Mở khoá">
+                              <IconButton className={cx('actionBtn', 'unban')} onClick={() => handleUnbanUser(user.id)}>
+                                <CheckCircleIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title={isSelfRow ? 'Không thể tự khoá tài khoản' : 'Khoá'}>
+                              <span>
+                                <IconButton
+                                  className={cx('actionBtn', 'ban')}
+                                  disabled={isSelfRow}
+                                  onClick={() => handleBanUser(user.id)}
+                                >
+                                  <BlockIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          )}
+
+                          <Tooltip title={isSelfRow ? 'Không thể tự đổi vai trò' : 'Phân quyền'}>
+                            <span>
+                              <IconButton
+                                className={cx('actionBtn', 'role')}
+                                disabled={isSelfRow}
+                                onClick={() => {
+                                  setNewUser(user);
+                                  setSelectedRole(user.role?.name || '');
+                                  setIsAssignOpen(true);
+                                }}
+                              >
+                                <AdminPanelSettingsIcon fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        </>
+                      );
+                    })()}
                   </Stack>
                 </TableCell>
               </TableRow>

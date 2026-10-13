@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
+import { errorMessage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './Dashboard.module.scss';
 
@@ -51,13 +52,14 @@ export default function AdminDashboard() {
 
   const loadOverview = async () => {
     try {
-      const response = await adminService.getDashboardOverview(keyword);
-      const data = response?.result || {};
-      setTotals(data.totals || {});
-      setSearchResults(data.quickSearch || { users: [], comics: [], posts: [] });
-      setTeams(data.teams || []);
+      // Rule 1: 19 headline metrics under `data.result`.
+      const { data } = await adminService.getDashboardOverview(keyword);
+      const result = data?.result ?? {};
+      setTotals(result.totals || {});
+      setSearchResults(result.quickSearch || { users: [], comics: [], posts: [] });
+      setTeams(Array.isArray(result.teams) ? result.teams : []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Đã có lỗi xảy ra khi tải dữ liệu.');
+      toast.error(errorMessage(error, 'Đã có lỗi xảy ra khi tải dữ liệu.'));
     }
   };
 

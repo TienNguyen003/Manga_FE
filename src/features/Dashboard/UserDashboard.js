@@ -2,12 +2,18 @@ import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { EmptyState, ErrorState, LoadingSpinner } from '~/components/common/AsyncState';
+import AchievementGrid from '~/components/reading/AchievementGrid';
+import DailyChallengesCard from '~/components/reading/DailyChallengesCard';
+import LevelProgress from '~/components/reading/LevelProgress';
+import ReadingGoalCard from '~/components/reading/ReadingGoalCard';
+import StreakCalendar from '~/components/reading/StreakCalendar';
+import CoinBalanceCard from '~/components/monetization/CoinBalanceCard';
+import { useMembership } from '~/hooks/useMembership';
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
 import { getBookmarkCount } from '~/services/bookmarkService';
 import { getCollectionCount } from '~/services/collectionService';
-import { getDashboard } from '~/services/dashboardService';
-import { getReadingCalendar, getReadingGoal, getReadingGoalProgress, getReadingStreak, updateReadingGoal } from '~/services/readingAnalyticsService';
+import { getReadingCalendar, getReadingGoal, getReadingGoalProgress, getReadingStreak, getDashboard, updateReadingGoal } from '~/services/readingAnalyticsService';
 import styles from './UserDashboard.module.scss';
 import { Avatar } from '@mui/material';
 
@@ -35,7 +41,8 @@ const STAT_CONFIG = [
 
 export default function UserDashboard() {
   const IMG_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
-  const { userId, username, userData } = useUser();
+  const { userId, userData } = useUser();
+  const { isPremium } = useMembership();
   const [data, setData] = useState(null);
   const [goalInput, setGoalInput] = useState('');
   const [savingGoal, setSavingGoal] = useState(false);
@@ -57,13 +64,16 @@ export default function UserDashboard() {
         getReadingCalendar({ userId, days: 7 }).catch(() => null),
       ]);
 
-      const dashboardData = dashboardRes?.result || dashboardRes || {};
-      const collectionRaw = collectionCountRes?.result;
-      const bookmarkRaw = bookmarkCountRes?.result;
-      const goalRaw = goalProgressRes?.result || {};
-      const streakRaw = streakRes?.result || {};
-      const goalConfigRaw = goalRes?.result || {};
-      const calendarRaw = calendarRes?.result || [];
+      // Rule 1: one `data` hop, then `result`. The old
+      // `res?.result || res || {}` fallbacks silently turned a failed request
+      // into an all-zero dashboard instead of showing the error state.
+      const dashboardData = dashboardRes?.data?.result ?? {};
+      const collectionRaw = collectionCountRes?.data?.result;
+      const bookmarkRaw = bookmarkCountRes?.data?.result;
+      const goalRaw = goalProgressRes?.data?.result ?? {};
+      const streakRaw = streakRes?.data?.result ?? {};
+      const goalConfigRaw = goalRes?.data?.result ?? {};
+      const calendarRaw = calendarRes?.data?.result;
 
       const totalCollections = typeof collectionRaw === 'number' ? collectionRaw : (collectionRaw?.count ?? collectionRaw?.total ?? 0);
       const totalBookmarks = typeof bookmarkRaw === 'number' ? bookmarkRaw : (bookmarkRaw?.count ?? bookmarkRaw?.total ?? 0);
@@ -103,7 +113,9 @@ export default function UserDashboard() {
     if (!userId || !goal || goal < 1 || savingGoal) return;
     setSavingGoal(true);
     try {
-      await updateReadingGoal({ userId, goal });
+      // Rule 3: no `userId` in a write body — the JWT identifies the caller.
+      await updateReadingGoal({ targetChapters: goal, targetMinutes: 0, period: 'DAILY' });
+
       setData((prev) => ({ ...prev, goalTarget: goal }));
     } catch {} finally {
       setSavingGoal(false);
@@ -160,6 +172,36 @@ export default function UserDashboard() {
               <div className={cx('statLabel')}>{s.label}</div>
             </div>
           ))}
+        </div>
+
+        {/* ---- RETENTION & ENGAGEMENT ROW ----
+            The server goal above is chapter-based (REAL API, unit owned by the
+            backend). The widgets below are page/minute based (LOCAL) because
+            the unit is ours. Both are shown, neither pretends to be the other. */}
+        <div className={cx('readerPanels')}>
+          <LevelProgress />
+          <ReadingGoalCard />
+        </div>
+
+        <div className={cx('readerPanels')}>
+          <StreakCalendar />
+          <DailyChallengesCard />
+        </div>
+
+        <div className={cx('readerPanels', 'single')}>
+          <AchievementGrid />
+        </div>
+
+        <div className={cx('membershipRow')}>
+          <Link to={paths.membership} className={cx('membershipCard', { premium: isPremium })}>
+            <span className={cx('membershipIcon')}>{isPremium ? '👑' : '💎'}</span>
+            <div>
+              <strong>{isPremium ? 'Bạn đang là thành viên Premium' : 'Nâng cấp Premium'}</strong>
+              <span>Đọc không quảng cáo · Xem chương sớm · Mở khóa mọi chương</span>
+            </div>
+            <span className={cx('membershipCta')}>{isPremium ? 'Quản lý' : 'Xem gói'} →</span>
+          </Link>
+          <CoinBalanceCard variant="compact" />
         </div>
 
         <div className={cx('sections')}>

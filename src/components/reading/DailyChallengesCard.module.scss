@@ -1,0 +1,141 @@
+.card {
+  border-radius: 20px;
+  border: 1px solid var(--line, #e2d1bd);
+  background: var(--card, #fffbf4);
+  padding: 18px 20px;
+  box-shadow: 0 4px 20px rgba(80, 55, 30, 0.07);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+}
+
+.sub {
+  margin: 3px 0 0;
+  font-size: 1.22rem;
+  color: var(--muted-ink, #665f58);
+  font-weight: 600;
+}
+
+.claimable {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f0a04b, #b45309);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fdf7ee;
+  border: 1px solid #eadcc6;
+}
+
+.item.done {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.icon {
+  font-size: 1.9rem;
+  text-align: center;
+}
+
+.body {
+  min-width: 0;
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #4a3f34;
+}
+
+.count {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #b45309;
+  white-space: nowrap;
+}
+
+.track {
+  height: 7px;
+  border-radius: 999px;
+  background: #ece0cc;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f0a04b, #b45309);
+  transition: width 0.4s ease;
+}
+
+.item.done .fill {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.claim {
+  background: linear-gradient(135deg, #b4232d, #ef5b42);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.claimed {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #047857;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .item {
+    grid-template-columns: 28px 1fr;
+  }
+
+  .claim,
+  .claimed {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

@@ -4,7 +4,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Popper, Paper, Stack, IconButton, Fade, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Box } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ForumIcon from '@mui/icons-material/Forum';
+import { toast } from 'react-toastify';
 
+import { errorMessage } from '~/lib/httpRequest';
 import { communityService } from '~/services/communityService';
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
@@ -50,11 +52,13 @@ export default function CommunityTopic() {
     let mounted = true;
     setLoading(true);
     communityService
-      .getPosts(id)
-      .then((res) => {
+      .getTopic(id)
+      .then(({ data }) => {
         if (!mounted) return;
-        setPosts(res?.result?.posts || []);
-        setTopic(res?.result || null);
+        const result = data?.result ?? {};
+        // The topic endpoint nests its feed: `result.posts`.
+        setPosts(Array.isArray(result.posts) ? result.posts : []);
+        setTopic(result);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -81,11 +85,12 @@ export default function CommunityTopic() {
     if (!postData.title.trim() || !postData.content.trim()) return;
     setSubmitting(true);
     try {
-      await communityService.createPost(userId, postData);
+      // Rule 3: no user id in the body — the backend takes the author from the JWT.
+      await communityService.createPost({ ...postData, topicId: id });
       handleCloseModal();
       setReloadFlag(!reloadFlag);
     } catch (error) {
-      console.error('Lỗi tạo bài viết:', error);
+      toast.error(errorMessage(error, 'Không thể tạo bài viết. Vui lòng thử lại.'));
     } finally {
       setSubmitting(false);
     }
@@ -106,10 +111,11 @@ export default function CommunityTopic() {
 
   const handleReact = async (type, postId) => {
     try {
-      const res = await communityService.reactPost({ type, postId }, userId);
+      const { data } = await communityService.reactPost({ type, postId });
 
-      // Object reaction mới từ API
-      const newReaction = res.result;
+      // The API returns the reaction the server just recorded.
+      const newReaction = data?.result;
+      if (!newReaction) return;
 
       setPosts((prevPosts) =>
         prevPosts.map((p) => {

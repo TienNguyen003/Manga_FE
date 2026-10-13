@@ -6,6 +6,7 @@ import { AutoAwesome, ArrowForwardRounded, ExploreRounded } from '@mui/icons-mat
 
 import styles from './Discover.module.scss';
 import paths from '~/routes/paths';
+import { unwrapList } from '~/lib/httpRequest';
 import { getMangasByCategory } from '~/services/mangaService';
 
 const cx = classNames.bind(styles);
@@ -28,8 +29,8 @@ export default function Discover() {
             const data = await Promise.all(
                 DISCOVER_BLOCKS.map(async (block) => {
                     try {
-                        const res = await getMangasByCategory({ path: block.slug, page: 1 });
-                        return { ...block, mangas: (res?.result || []).slice(0, 10) };
+                        const { data } = await getMangasByCategory({ path: block.slug, page: 0 });
+                        return { ...block, mangas: unwrapList({ data }).slice(0, 10) };
                     } catch {
                         return { ...block, mangas: [] };
                     }

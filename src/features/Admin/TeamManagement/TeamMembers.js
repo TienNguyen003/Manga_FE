@@ -37,7 +37,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 import MangaCard from '~/components/common/MangaCard';
+import { errorMessage, unwrapList } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
+import { teamService } from '~/services/teamService';
 import styles from './TeamMembers.module.scss';
 
 const cx = classNames.bind(styles);
@@ -91,55 +93,62 @@ export default function TeamMembers() {
 
   const loadMembers = async () => {
     try {
-      const response = await adminService.getTeamMembers(id);
-      const data = response?.result || [];
-      setMembers(data.members || []);
-      setTeamInfo(data || {});
-      setProjects(data.projects || []);
-    } catch {
-      toast.error('Không thể tải danh sách thành viên nhóm dịch.');
+      // `/teams/{teamId}/members` is the real endpoint. The admin-scoped variant
+      // does not exist server-side, so calling it threw a TypeError at runtime.
+      const { data } = await teamService.getTeamMembers(id);
+      const info = data?.result ?? {};
+      setMembers(Array.isArray(info) ? info : info.members ?? []);
+      setTeamInfo(Array.isArray(info) ? {} : info);
+      setProjects(Array.isArray(info.projects) ? info.projects : []);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Không thể tải danh sách thành viên nhóm dịch.'));
     }
   };
 
   const loadSuggestedUsers = async () => {
     try {
-      const response = await adminService.getUsers({ page: 1, size: searchKeyword ? 999 : 3, keyword: searchKeyword });
-      setSuggestedUsers(response?.result || []);
+      // Rule 2: `/admin/users` is 1-BASED and returns a page object.
+      const { data } = await adminService.getUsers({
+        pageNumber: 1,
+        limit: searchKeyword ? 999 : 3,
+        keyword: searchKeyword,
+      });
+      setSuggestedUsers(unwrapList({ data }));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể tải danh sách người dùng gợi ý.');
+      toast.error(errorMessage(error, 'Không thể tải danh sách người dùng gợi ý.'));
     }
   };
 
   const handleAddTeamMember = async (userId) => {
     try {
-      await adminService.addTeamMember(id, userId);
+      await teamService.addTeamMember(id, userId);
       toast.success('Thêm thành viên vào nhóm thành công!');
       // setIsAddMemberOpen(false);
       loadMembers();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể thêm thành viên vào nhóm.');
+      toast.error(errorMessage(error, 'Không thể thêm thành viên vào nhóm.'));
     }
   };
 
   const handleRemoveTeamMember = async (userId) => {
     try {
-      await adminService.deleteTeamMember(id, userId);
+      await teamService.removeTeamMember(id, userId);
       toast.success('Xóa thành viên khỏi nhóm thành công!');
       setIsRemoveOpen(false);
       loadMembers();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể xóa thành viên khỏi nhóm.');
+      toast.error(errorMessage(error, 'Không thể xóa thành viên khỏi nhóm.'));
     }
   };
 
   const handleAssignRole = async () => {
     try {
-      await adminService.updateTeamMemberRole(id, member.id, {role: selectedRole});
+      await teamService.updateTeamMember(id, member.id, { role: selectedRole });
       toast.success('Gán quyền thành viên thành công!');
       setIsAssignOpen(false);
       loadMembers();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể gán quyền cho thành viên.');
+      toast.error(errorMessage(error, 'Không thể gán quyền cho thành viên.'));
     }
   };
 

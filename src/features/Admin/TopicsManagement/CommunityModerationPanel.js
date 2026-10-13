@@ -3,6 +3,7 @@ import { Alert, Box, Button, Chip, Grid, Paper, Stack, Table, TableBody, TableCe
 import { GavelRounded, DeleteSweepRounded, VisibilityOffRounded, ForumRounded, ArticleRounded, BugReportRounded, ShieldRounded, AddModeratorRounded } from '@mui/icons-material';
 import classNames from 'classnames/bind';
 import { useEffect } from 'react';
+import { errorMessage, unwrapPage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './Moderation.module.scss';
 
@@ -13,27 +14,40 @@ export default function CommunityModerationPanel() {
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadReports = async () => {
       try {
-        const response = await adminService.getReports('');
-        const data = response?.result || response?.data || response || [];
-        setReports(Array.isArray(data) ? data : data.items || data.reports || []);
+        // `page` is 0-BASED; the response is a page object.
+        const { data } = await adminService.getReports({ status: 'NEW', page: 0, limit: 50 });
+        if (cancelled) return;
+        setReports(unwrapPage({ data }).content);
       } catch {
-        setReports([]);
+        if (!cancelled) setReports([]);
       }
     };
 
     loadReports();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
+  /**
+   * Reports move through NEW -> IN_REVIEW -> RESOLVED -> ARCHIVED.
+   * `action` is the UI's verb; map it onto the next legal status.
+   */
+  const STATUS_BY_ACTION = { review: 'IN_REVIEW', resolve: 'RESOLVED', archive: 'ARCHIVED' };
+
   const resolveReport = async (id, action) => {
+    const nextStatus = STATUS_BY_ACTION[action] ?? 'RESOLVED';
     try {
-      await adminService.resolveReport(id, action);
+      await adminService.updateReportStatus({ reportId: id, status: nextStatus });
       setReports((prev) => prev.filter((r) => r.id !== id));
-      setNotice(`Đã thực thi hành động: ${action.toUpperCase()} trên mã báo cáo ${id}.`);
+      setNotice(`Đã chuyển báo cáo ${id} sang ${nextStatus}.`);
       setTimeout(() => setNotice(''), 3000);
-    } catch {
-      setNotice('Không thể xử lý báo cáo.');
+    } catch (error) {
+      setNotice(errorMessage(error, 'Không thể xử lý báo cáo.'));
     }
   };
 

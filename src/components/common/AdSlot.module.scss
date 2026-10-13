@@ -1,0 +1,72 @@
+.slot {
+  position: relative;
+  display: block;
+  margin: 14px auto;
+  max-width: 100%;
+
+  img {
+    display: block;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--line, #e2d1bd);
+  }
+}
+
+.tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(20, 16, 24, 0.62);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.placeholder .box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+  padding: 16px;
+  border: 1px dashed var(--line-dark, #cbb79e);
+  border-radius: 12px;
+  background: #fdf6ea;
+  color: var(--muted-ink, #665f58);
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.rail {
+  width: 100%;
+  max-width: 260px;
+
+  img {
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.placeholder .box {
+    min-height: 420px;
+  }
+}
+
+.inline {
+  max-width: 900px;
+}
+
+@media (max-width: 768px) {
+  .rail {
+    max-width: 100%;
+  }
+
+  .slot img {
+    max-height: 120px;
+    object-fit: cover;
+  }
+}

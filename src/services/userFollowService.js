@@ -1,29 +1,37 @@
-import httpRequest, { get } from '~/lib/httpRequest';
+/**
+ * USER-SIDE FOLLOWS (distinct from `/mangas/follows`, which follows comics).
+ *
+ *   GET    /users/follow/check?targetUserId=
+ *   GET    /users/follow/count?userId=
+ *   GET    /users/follow/followers?userId=&page=&limit=
+ *   GET    /users/follow/followings?userId=&page=&limit=   <- canonical name
+ *          (`/followings` also resolves; prefer the full path.)
+ *   POST   /users/follow
+ *   DELETE /users/follow
+ *
+ * `page` is 0-BASED (Rule 2).
+ */
+import { get, post, del } from '~/lib/httpRequest';
 
 const url = '/users/follow';
 
 export const userFollowService = {
-  isFollow: async (params) => {
-    return httpRequest.get(`${url}/check`, { params }); // params: { followerId, followingId }
-  },
+  /** `params: { targetUserId }` */
+  isFollow: ({ targetUserId, followerId } = {}) => get(`${url}/check`, { params: { targetUserId, followerId } }),
 
-  getFollowCount: async (params) => {
-    return httpRequest.get(`${url}/count`, { params }); // params: { userId }
-  },
+  /** `params: { userId }` — follower + following counts. */
+  getFollowCount: ({ userId } = {}) => get(`${url}/count`, { params: { userId } }),
 
-  getFollowers: async (params) => {
-    return httpRequest.get(`${url}/followers`, { params }); // params: { userId, page, limit }
-  },
+  getFollowers: ({ userId, page = 0, limit = 20 } = {}) =>
+    get(`${url}/followers`, { params: { userId, page, limit } }),
 
-  getFollowings: async (params) => {
-    return httpRequest.get(`${url}/followings`, { params }); // params: { userId, page, limit }
-  },
+  getFollowings: ({ userId, page = 0, limit = 20 } = {}) =>
+    get(`${url}/followings`, { params: { userId, page, limit } }),
 
-  followUser: async (data) => {
-    return httpRequest.post(url, data); // data: { followerId, followingId }
-  },
+  followUser: (data) => post(url, data),
 
-  unfollowUser: async (params) => {
-    return httpRequest.delete(url, { params }); // params: { followerId, followingId }
-  }
+  unfollowUser: ({ followerId, followingId } = {}) => del(url, { params: { followerId, followingId } }),
 };
+
+export default userFollowService;
+

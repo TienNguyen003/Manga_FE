@@ -1,8 +1,11 @@
 ﻿.readerContainer {
+  flex: 1 1 auto;
+  min-width: 0;
   max-width: 980px;
   margin: 0 auto;
   padding: 16px 14px 96px;
   color: #2d3a4b;
+  transition: max-width var(--transition-base);
 
   .header {
     text-align: center;
@@ -25,12 +28,31 @@
     gap: 12px;
   }
 
+  // Paged mode: one page per viewport, driven by the page slider.
+  .imageContainer.paged {
+    height: calc(100vh - 190px);
+    gap: 0;
+
+    .image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
+  }
+
   .image {
     width: 100%;
     border-radius: 10px;
     border: 1px solid #e7d3ba;
     box-shadow: 0 10px 20px rgba(67, 53, 36, 0.08);
     background: #f5e5d3;
+    // Reader zoom is a CSS variable so it applies without re-rendering images.
+    transform: scale(var(--reader-zoom, 1));
+    transform-origin: top center;
   }
 
   .loadingModal {
@@ -166,6 +188,210 @@
       }
     }
   }
+}
+
+.readerShell {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 100vh;
+  transition: background-color var(--transition-base);
+}
+
+.progressTop {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(120, 100, 80, 0.18);
+  overflow: hidden;
+  margin-bottom: 12px;
+  z-index: 8;
+}
+
+.progressTopFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #b4232d, #ef5b42);
+  transition: width 0.25s ease;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.accessPill {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: #ece5d8;
+  color: #6b6155;
+
+  &[data-tone='premium'] {
+    background: linear-gradient(135deg, #7a2f8f, #b4232d);
+    color: #ffe9c7;
+  }
+
+  &[data-tone='early'] {
+    background: linear-gradient(135deg, #1f4e79, #3b82f6);
+    color: #e6f0ff;
+  }
+}
+
+.pageCounter {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--muted-ink, #665f58);
+}
+
+.headBtn {
+  border: 1px solid var(--line, #e2d1bd);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #5b5248;
+  white-space: nowrap;
+}
+
+.headBtn:hover {
+  border-color: var(--primary, #b4232d);
+  color: var(--primary, #b4232d);
+}
+
+.dropdownLock {
+  margin-left: 6px;
+  font-size: 1.2rem;
+}
+
+/* --- Premium gate --- */
+.gateBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 46px 24px;
+  border-radius: 18px;
+  border: 2px dashed #d8c49c;
+  background: linear-gradient(170deg, #fffaf1, #fdf1e2);
+  margin: 24px 0;
+}
+
+.gateIcon {
+  font-size: 3.4rem;
+  line-height: 1;
+}
+
+.gateTitle {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #5b2a6e;
+}
+
+.gateText {
+  margin: 0;
+  max-width: 460px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--muted-ink, #665f58);
+  line-height: 1.6;
+}
+
+.gateBtn {
+  margin-top: 8px;
+  background: linear-gradient(135deg, #7a2f8f, #b4232d);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 11px 26px;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+/* --- Chapter complete / new chapter --- */
+.completeBox {
+  margin: 22px 0;
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid #a7f3d0;
+  background: linear-gradient(160deg, #ecfdf5, #d1fae5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.completeHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.completeIcon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.completeTitle {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #065f46;
+}
+
+.completeText {
+  margin: 2px 0 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #047857;
+}
+
+.completeActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.completePrimary {
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.completePrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.completeGhost {
+  background: #fff;
+  border: 1px solid #6ee7b7;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #047857;
+  white-space: nowrap;
 }
 
 .banner1,

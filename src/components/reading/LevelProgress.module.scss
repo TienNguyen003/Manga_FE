@@ -1,0 +1,114 @@
+.card {
+  border-radius: 18px;
+  border: 1px solid var(--line, #e2d1bd);
+  background: linear-gradient(140deg, #fff8ec, #f6ecdb);
+  padding: 14px 18px;
+  box-shadow: 0 4px 16px rgba(80, 55, 30, 0.08);
+}
+
+.card.sm {
+  padding: 10px 14px;
+  border-radius: 14px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.levelBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.levelNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7a2f8f, #b4232d);
+  color: #ffe9c7;
+  font-size: 2rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(122, 47, 143, 0.3);
+}
+
+.card.sm .levelNum {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 1.5rem;
+}
+
+.levelTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #6b3a1f;
+  line-height: 1.2;
+}
+
+.card.sm .levelTitle {
+  display: none;
+}
+
+.xpBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.xpText {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #6b5a48;
+  margin-bottom: 5px;
+
+  strong {
+    color: var(--primary, #b4232d);
+  }
+}
+
+.track {
+  height: 9px;
+  border-radius: 999px;
+  background: #ecdfc9;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #b4232d, #f0a04b);
+  transition: width 0.45s ease;
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.stat {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #7b6a56;
+
+  strong {
+    color: #4a3f34;
+  }
+}
+
+@media (max-width: 640px) {
+  .head {
+    gap: 10px;
+  }
+
+  .stats {
+    gap: 10px;
+  }
+}

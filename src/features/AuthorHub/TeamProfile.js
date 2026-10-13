@@ -38,9 +38,8 @@ export default function TeamProfile() {
     setLoading(true);
     teamService
       .getTeamById(id)
-      .then((res) => {
-        const found = res?.result;
-        setTeam(found || null);
+      .then(({ data }) => {
+        setTeam(data?.result ?? null);
       })
       .catch(() => setError('Không thể tải thông tin nhóm.'))
       .finally(() => setLoading(false));

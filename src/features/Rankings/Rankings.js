@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';
-import { Container, Typography, Stack, Skeleton, Box } from '@mui/material';
+import { Container, Typography, Stack, Skeleton } from '@mui/material';
 import { EmojiEventsRounded, TrendingUpRounded, LocalFireDepartmentRounded, ArrowForwardIosRounded } from '@mui/icons-material';
 import styles from './Rankings.module.scss';
 import paths from '~/routes/paths';
+import { unwrapList } from '~/lib/httpRequest';
 import { getMangasByCategory } from '~/services/mangaService';
 
 const cx = classNames.bind(styles);
@@ -16,9 +17,10 @@ export default function Rankings() {
 
   useEffect(() => {
     let mounted = true;
-    getMangasByCategory({ path: 'trending', page: 1 })
-      .then((res) => {
-        if (mounted) setMangas(res?.result || []);
+    // `page` is 0-BASED (Rule 2) — page 1 is the SECOND page.
+    getMangasByCategory({ path: 'trending', page: 0 })
+      .then(({ data }) => {
+        if (mounted) setMangas(unwrapList({ data }));
       })
       .catch(() => {
         if (mounted) setMangas([]);

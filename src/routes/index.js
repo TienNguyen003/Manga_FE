@@ -21,6 +21,8 @@ import CreateStory from '~/features/CreateStory/CreateStory';
 import Report from '~/features/Report/Report';
 import Profile from '~/features/Profile/Profile';
 import Recommendations from '~/features/Recommendations/Recommendations';
+import Membership from '~/features/Membership/Membership';
+import WhatToReadNext from '~/features/WhatToReadNext/WhatToReadNext';
 import ChangePassword from '~/features/ChangePassword/ChangePassword';
 import MyComics from '~/features/MyComics/MyComics';
 import Login from '~/features/Login/Login';
@@ -70,6 +72,8 @@ const publicRoutes = [
   { path: paths.login, component: Login, layout: 'default' },
   { path: paths.register, component: Register, layout: 'default' },
   { path: paths.forgotPassword, component: ForgotPassword, layout: 'default' },
+  { path: paths.membership, component: Membership, layout: 'default' },
+  { path: paths.whatToReadNext, component: WhatToReadNext, layout: 'default' },
 ];
 
 const publicRoutesNoHeader = [

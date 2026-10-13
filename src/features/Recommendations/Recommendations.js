@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { unwrapList } from '~/lib/httpRequest';
 import { getRecommendationsMangas } from '~/services/recommendationService';
 import classNames from 'classnames/bind';
 import styles from './Recommendations.module.scss';
@@ -17,9 +18,11 @@ export default function Recommendations() {
     setLoading(true);
     setError('');
     getRecommendationsMangas({userId})
-      .then((res) => {
+      .then(({ data }) => {
         if (!mounted) return;
-        setList(res?.data || []);
+        // Rule 1: was `res?.data` — that skips the axios layer and is always
+        // undefined, so this list rendered empty for every reader.
+        setList(unwrapList({ data }));
       })
       .catch(() => {
         if (mounted) setError('Không thể tải danh sách đề xuất.');

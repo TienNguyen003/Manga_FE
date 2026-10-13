@@ -1,0 +1,100 @@
+.paper {
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.title {
+  font-size: 1.8rem !important;
+  font-weight: 800 !important;
+  padding: 20px 24px 6px !important;
+  color: var(--ink, #221f1d);
+}
+
+.body {
+  padding: 0 24px 8px !important;
+}
+
+.card,
+.cardFallback {
+  width: 100%;
+  aspect-ratio: 1200 / 630;
+  border-radius: 14px;
+  border: 1px solid var(--line, #e2d1bd);
+  object-fit: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #141018, #2a1f24);
+  color: #fffaf3;
+}
+
+.fallbackTitle {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.fallbackChapter {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffca7a;
+}
+
+.fallbackNote {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.preview {
+  margin: 12px 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #4a3f34;
+  text-align: center;
+}
+
+.referral {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  color: var(--muted-ink, #665f58);
+  text-align: center;
+  font-weight: 600;
+}
+
+.actions {
+  padding: 10px 20px 20px !important;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.primary {
+  background: linear-gradient(135deg, #b4232d, #ef5b42) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  border-radius: 999px !important;
+  padding: 8px 24px !important;
+  text-transform: none !important;
+}
+
+.secondary {
+  color: #6b5a48 !important;
+  font-weight: 700 !important;
+  border-radius: 999px !important;
+  text-transform: none !important;
+}
+
+@media (max-width: 480px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+}

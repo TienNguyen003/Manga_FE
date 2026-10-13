@@ -13,14 +13,34 @@ export default function OpsMonitoringPanel() {
   const [activities, setActivities] = useState([]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadMetrics = async () => {
       try {
-        const response = await adminService.getOpsMetrics();
-        const data = response?.result || response?.data || response || {};
-        setKpis(data.kpis || data.metrics || []);
-        setTopMangas(data.topMangas || data.mangas || []);
-        setActivities(data.activity || data.activities || []);
+        /*
+         * ⚠️ `/admin/ops/metrics` does not exist. The dashboard overview is the
+         * real aggregate, and `/admin/stats/charts` supplies the series, so the
+         * panel is fed from those instead of an endpoint that always 404s.
+         */
+        const [overviewRes, chartsRes] = await Promise.all([
+          adminService.getDashboardOverview(''),
+          adminService.getStatsCharts(),
+        ]);
+
+        if (cancelled) return;
+        const totals = overviewRes?.data?.result?.totals ?? {};
+        const result = chartsRes?.data?.result ?? {};
+
+        setKpis(
+          Object.entries(totals).map(([key, value]) => ({
+            label: key,
+            value: String(value),
+          })),
+        );
+        setTopMangas(Array.isArray(result.topMangas) ? result.topMangas : []);
+        setActivities(Array.isArray(result.activity) ? result.activity : []);
       } catch {
+        if (cancelled) return;
         setKpis([]);
         setTopMangas([]);
         setActivities([]);
@@ -28,6 +48,9 @@ export default function OpsMonitoringPanel() {
     };
 
     loadMetrics();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

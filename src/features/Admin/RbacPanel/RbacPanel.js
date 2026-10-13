@@ -33,6 +33,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 import DataTablePagination from '~/components/common/DataTablePagination';
+import { errorMessage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import { roleService } from '~/services/roleService';
 import styles from './Rbac.module.scss';
@@ -53,13 +54,13 @@ export default function RbacPanel() {
 
   const getMatrix = async () => {
     try {
-      const response = await adminService.getRbacMatrix({page: page.currentPage + 1, limit: page.totalItemsPerPage});
-      const data = response?.result || [];
-      const newPage = response?.page || {};
-      setPage((prev) => ({ ...prev, totalItems: newPage?.totalItems || 0, totalPages: newPage?.totalPages || 0 }));
-      setRoles(data);
+      // The matrix is a single document, not a paged list.
+      const { data } = await adminService.getRbacMatrix();
+      const result = data?.result;
+      setRoles(Array.isArray(result) ? result : result?.roles ?? []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Không thể tải ma trận RBAC.');
+      setRoles([]);
+      toast.error(errorMessage(error, 'Không thể tải ma trận RBAC.'));
     }
   };
 

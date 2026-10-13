@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { EmptyState, ErrorState, LoadingSpinner } from '~/components/common/AsyncState';
-import { connectStomp, disconnectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { connectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { unwrapPage } from '~/lib/httpRequest';
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
 import { deleteAllNotifications, deleteNotification, getNotifications, markAllRead, markRead } from '~/services/notificationService';
@@ -42,17 +43,23 @@ export default function Notifications() {
       if (!userId) return;
       setLoading(true);
       setError(null);
-      const pageNum = reset ? 1 : page;
+      // Rule 2: `/notifications` is 1-based — page 1 is the FIRST page.
+      const pageNumber = reset ? 1 : page;
       try {
-        const res = await getNotifications({
+        const { data } = await getNotifications({
           userId,
+          // `isRead` is 0/1 on the wire, not a boolean.
           isRead: filter === 'unread' ? 0 : undefined,
-          pageNumber: pageNum,
+          pageNumber,
           pageSize: PAGE_SIZE,
         });
-        const list = res?.result || [];
-        setItems((prev) => (reset || pageNum === 1 ? list : [...prev, ...list]));
-        setHasMore(list.length === PAGE_SIZE);
+
+        // The response is a page object, NOT a bare array.
+        const { content, hasNext } = unwrapPage({ data });
+
+        setItems((prev) => (reset ? content : [...prev, ...content]));
+        // `hasNext` comes from the server — never infer it from length.
+        setHasMore(hasNext);
         if (reset) setPage(1);
       } catch {
         setError('Không thể tải thông báo. Vui lòng thử lại.');
@@ -70,35 +77,46 @@ export default function Notifications() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, filter]);
 
+  // Rule 6: subscribe only after sign-in, and ALWAYS unsubscribe on unmount.
   useEffect(() => {
-    const client = connectStomp({
-      onConnect: () => {
-        wsSubscribe(WS_TOPICS.notifications(userId), (msg) => {
-          if(msg.type === 'READ-ALL') setUnreadCount(msg.count);
-        });
-      },
+    if (!userId) return undefined;
+
+    connectStomp();
+    const subscription = wsSubscribe(WS_TOPICS.notifications(userId), (msg) => {
+      if (msg?.type === 'READ-ALL') {
+        setItems((prev) => prev.map((n) => ({ ...n, isRead: 1 })));
+        setUnreadCount(0);
+        return;
+      }
+      setUnreadCount((c) => c + 1);
+      // `isRead` arrives as 0/1 — normalise before it hits the list.
+      setItems((prev) => [{ ...msg, isRead: Number(msg.isRead) === 1 ? 1 : 0 }, ...prev]);
     });
-    return () => {
-      if (client) disconnectStomp();
-    };
-  }, []);
+
+    return () => subscription?.unsubscribe();
+  }, [userId, setUnreadCount]);
+
+  // `isRead` is 0/1 — `!n.isRead` is always false for the number 0.
+  const isUnread = (notif) => Number(notif?.isRead) === 0;
 
   const handleMarkRead = async (notif) => {
-    if (notif.isRead) return;
-    setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)));    
+    if (!isUnread(notif)) return;
+    // Optimistic: flip to read immediately, roll back if the write fails.
+    setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: 1 } : n)));
+    setUnreadCount((c) => Math.max(0, c - 1));
     try {
-      await markRead(userId, notif.id);
+      await markRead(notif.id);
     } catch {
-      setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: false } : n)));
+      setItems((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: 0 } : n)));
       setUnreadCount((c) => c + 1);
     }
   };
 
   const handleMarkAllRead = async () => {
-    setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setItems((prev) => prev.map((n) => ({ ...n, isRead: 1 })));
     setUnreadCount(0);
     try {
-      await markAllRead(userId);
+      await markAllRead();
     } catch {
       load(true);
     }
@@ -107,11 +125,11 @@ export default function Notifications() {
   const handleDeleteOne = async (notifId) => {
     const target = items.find((n) => n.id === notifId);
     setItems((prev) => prev.filter((n) => n.id !== notifId));
-    if (target && !target.isRead) {
+    if (target && isUnread(target)) {
       setUnreadCount((c) => Math.max(0, c - 1));
     }
     try {
-      await deleteNotification({ userId, notificationId: notifId });
+      await deleteNotification({ notificationId: notifId });
     } catch {
       load(true);
     }
@@ -122,7 +140,7 @@ export default function Notifications() {
     setItems([]);
     setUnreadCount(0);
     try {
-      await deleteAllNotifications({ userId });
+      await deleteAllNotifications();
     } catch {
       setItems(prev);
       load(true);
@@ -130,7 +148,8 @@ export default function Notifications() {
   };
 
   const handleLoadMore = () => {
-    setPage((p) => p + 1);
+    const next = page + 1;
+    setPage(next);
     load(false);
   };
 
@@ -150,7 +169,7 @@ export default function Notifications() {
         <div className={cx('header')}>
           <h1 className={cx('pageTitle')}>Thông báo</h1>
           <div className={cx('headerActions')}>
-            {items.some((n) => !n.isRead) && (
+            {items.some((n) => isUnread(n)) && (
               <button className={cx('actionBtn', 'markRead')} onClick={handleMarkAllRead}>
                 <i className="fa-regular fa-circle-check"></i> Đã đọc tất cả
               </button>
@@ -182,7 +201,7 @@ export default function Notifications() {
           {items.map((notif) => {
             const typeConf = TYPE_CONFIG[notif.type] || TYPE_CONFIG.DEFAULT;
             return (
-              <div key={notif.id} className={cx('item', { unread: !notif.isRead })} onClick={() => handleMarkRead(notif)}>
+              <div key={notif.id} className={cx('item', { unread: isUnread(notif) })} onClick={() => handleMarkRead(notif)}>
                 <div className={cx('notifIcon', notif.type || 'DEFAULT')}>
                   <i className={typeConf?.icon}></i>
                 </div>
@@ -197,7 +216,7 @@ export default function Notifications() {
                 </div>
                 <div className={cx('itemMeta')}>
                   <span className={cx('time')}>{timeAgo(notif.createdAt)}</span>
-                  {!notif.isRead && <span className={cx('dot')} />}
+                  {isUnread(notif) && <span className={cx('dot')} />}
                   <button
                     className={cx('deleteOneBtn')}
                     onClick={(e) => {

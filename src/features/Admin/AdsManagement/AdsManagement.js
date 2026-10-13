@@ -25,6 +25,7 @@ import {
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { errorMessage, unwrapPage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './Ads.module.scss';
 import DataTablePagination from '~/components/common/DataTablePagination';
@@ -55,15 +56,15 @@ export default function AdsManagement() {
 
   const loadAds = async () => {
     try {
-      const response = await adminService.getAds({ page: page.currentPage + 1, size: page.totalItemsPerPage });
-      const data = response?.result;
-      const newPage = response?.page || {};
-      setAds(data);
-      setPage((prev) => ({
-        ...prev,
-        totalItems: newPage?.totalItems || 0,
-        totalPages: newPage?.totalPages || 0,
-      }));
+      // `/admin/ads/manage` needs ROLE_ADMIN (Rule 5) and `page` is 0-BASED.
+      const { data } = await adminService.getAdsForManage({
+        page: page.currentPage,
+        limit: page.totalItemsPerPage,
+      });
+
+      const { content, totalElements, totalPages } = unwrapPage({ data });
+      setAds(content);
+      setPage((prev) => ({ ...prev, totalItems: totalElements, totalPages }));
     } catch {
       setAds([]);
     }
@@ -82,7 +83,7 @@ export default function AdsManagement() {
       setEditing(false);
       loadAds();
     } catch (error) {
-      toast.error('Đã có lỗi xảy ra khi tạo chiến dịch quảng cáo.');
+      toast.error(errorMessage(error, 'Đã có lỗi xảy ra khi tạo chiến dịch quảng cáo.'));
     }
   };
 
@@ -90,11 +91,11 @@ export default function AdsManagement() {
     setOpenModal(true);
     setEditing(true);
     try {
-      const res = await adminService.getAd(adID);
-      const ads = res?.result;
-      setNewAd({ ...ads });
+      const { data } = await adminService.getAds({ id: adID });
+      const found = Array.isArray(data?.result) ? data.result.find((a) => String(a.id) === String(adID)) : data?.result;
+      setNewAd({ ...(found ?? {}) });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra khi cập nhật chiến dịch quảng cáo.');
+      toast.error(errorMessage(error, 'Đã có lỗi xảy ra khi cập nhật chiến dịch quảng cáo.'));
     }
   };
 
@@ -104,7 +105,7 @@ export default function AdsManagement() {
       toast.success('Chiến dịch quảng cáo đã được xóa thành công!');
       loadAds();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra khi xóa chiến dịch quảng cáo.');
+      toast.error(errorMessage(error, 'Đã có lỗi xảy ra khi xóa chiến dịch quảng cáo.'));
     }
   };
 

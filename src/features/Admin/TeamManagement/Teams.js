@@ -40,7 +40,8 @@ import { toast } from 'react-toastify';
 import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 import DataTablePagination from '~/components/common/DataTablePagination';
 import paths from '~/routes/paths';
-import { adminService } from '~/services/adminService';
+import { errorMessage, unwrapList } from '~/lib/httpRequest';
+import { teamService } from '~/services/teamService';
 import styles from './Teams.module.scss';
 
 const cx = classNames.bind(styles);
@@ -74,60 +75,30 @@ export default function TeamManagement() {
 
   const loadTeams = async () => {
     try {
-      const response = await adminService.getTeams({
-        page: page.currentPage + 1,
-        size: page.totalItemsPerPage,
-      });
-      const data = response?.result || [];
-      const newPage = response?.page || {};
-      setPage((prev) => ({
-        ...prev,
-        totalPages: newPage.totalPages,
-        totalItems: newPage.totalItems,
-      }));
-      setTeams(data);
+      /*
+       * ⚠️ `/admin/teams/**` has NO controller server-side. `/teams` is the public
+       * listing and returns the same entity shape, so the table renders real
+       * data. Team CRUD stays unavailable until the backend ships it.
+       */
+      const { data } = await teamService.getTeamList();
+      setTeams(unwrapList({ data }));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể tải danh sách nhóm dịch.');
+      setTeams([]);
+      toast.error(errorMessage(error, 'Không thể tải danh sách nhóm dịch.'));
     }
   };
 
   const handleSaveTeam = async () => {
-    try {
-      if (editing) {
-        await adminService.updateTeam(newTeam.id, newTeam);
-        toast.success('Cập nhật thông tin nhóm dịch thành công!');
-      } else {
-        await adminService.createTeam(newTeam);
-        toast.success('Tạo nhóm dịch mới thành công!');
-      }
-      setOpenModal(false);
-      setEditing(false);
-      loadTeams();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể lưu thông tin nhóm dịch.');
-    }
+    toast.warning('Tạo / sửa nhóm dịch chưa được hỗ trợ — backend chưa có endpoint quản trị nhóm.');
   };
 
-  const handleEditTeam = async (teamId) => {
-    try {
-      const response = await adminService.getTeam(teamId);
-      const teamData = response?.result;
-      setNewTeam(teamData);
-      setEditing(true);
-      setOpenModal(true);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể tải thông tin nhóm dịch.');
-    }
+  const handleEditTeam = async () => {
+    toast.warning('Sửa nhóm dịch chưa được hỗ trợ — backend chưa có endpoint quản trị nhóm.');
   };
 
-  const handleDeleteTeam = async (teamId) => {
-    try {
-      await adminService.deleteTeam(teamId);
-      toast.success('Giải tán nhóm dịch thành công!');
-      loadTeams();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể giải tán nhóm dịch.');
-    }
+
+  const handleDeleteTeam = async () => {
+    toast.warning('Giải tán nhóm dịch chưa được hỗ trợ — backend chưa có endpoint quản trị nhóm.');
   };
 
   return (

@@ -13,7 +13,7 @@ import {
   StyleRounded,
   VisibilityRounded,
 } from '@mui/icons-material';
-import { Alert, Avatar, Button, CircularProgress, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Button, CircularProgress, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -62,10 +62,10 @@ export default function Profile() {
   const getMyProfile = async () => {
     setLoading(true);
     try {
-      const res = await userService.getProfile();
-      const data = res?.result || {};
-      setUsername(data.name || '');
-      setEmail(data.email || '');
+      const { data } = await userService.getProfile();
+      const profile = data?.result ?? {};
+      setUsername(profile.name || '');
+      setEmail(profile.email || '');
     } catch (err) {
       toast.error('Không thể tải thông tin hồ sơ. Vui lòng thử lại sau.');
     } finally {
@@ -75,21 +75,21 @@ export default function Profile() {
 
   const getProfileSettings = async () => {
     try {
-      const res = await userService.getMySettings();
-      const data = res?.result || {};
-      setDisplayName(data.displayName || '');
-      setBio(data.bio || '');
-      setPreviewUrl(data.avatarUrl || '');
-      setAvatarFrameUrl(data.avatarFrameUrl || '');
-      setBgComment(data.bgComment || '');
-      setBannerUrl(data.bannerUrl || '');
-      setQuickProfileBannerUrl(data.quickProfileBannerUrl || '');
-      setQuickProfileCardStyle(data.quickProfileCardStyle || '');
-      setQuickProfileAccentColor(data.quickProfileAccentColor || '');
-      setIsProfilePublic(data.isProfilePublic ?? 1);
-      setShowFollowerCount(data.showFollowerCount ?? 1);
-      setShowFollowingCount(data.showFollowingCount ?? 1);
-      setAllowFollow(data.allowFollow ?? 1);
+      const { data } = await userService.getMySettings();
+      const settings = data?.result ?? {};
+      setDisplayName(settings.displayName || '');
+      setBio(settings.bio || '');
+      setPreviewUrl(settings.avatarUrl || '');
+      setAvatarFrameUrl(settings.avatarFrameUrl || '');
+      setBgComment(settings.bgComment || '');
+      setBannerUrl(settings.bannerUrl || '');
+      setQuickProfileBannerUrl(settings.quickProfileBannerUrl || '');
+      setQuickProfileCardStyle(settings.quickProfileCardStyle || '');
+      setQuickProfileAccentColor(settings.quickProfileAccentColor || '');
+      setIsProfilePublic(settings.isProfilePublic ?? 1);
+      setShowFollowerCount(settings.showFollowerCount ?? 1);
+      setShowFollowingCount(settings.showFollowingCount ?? 1);
+      setAllowFollow(settings.allowFollow ?? 1);
     } catch (err) {
       toast.error('Không thể tải cài đặt hồ sơ. Vui lòng thử lại sau.');
     }
@@ -132,8 +132,8 @@ export default function Profile() {
     if (!file) return;
     setAvatarUploading(true);
     try {
-      const res = await fileService.uploadSingleFile(file, `avatars-${username}`);
-      setPreviewUrl(res?.result);
+      const { data } = await fileService.uploadSingleFile(file, `avatars-${username}`);
+      setPreviewUrl(data?.result ?? null);
     } catch (err) {
       toast.error('Tải lên ảnh đại diện thất bại. Vui lòng thử lại sau.');
     } finally {

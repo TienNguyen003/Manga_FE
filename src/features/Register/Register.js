@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
+import { errorCode, errorFields, errorMessage } from '~/lib/httpRequest';
 import paths from '~/routes/paths';
 import { userService } from '~/services/userService';
 import styles from './Register.module.scss';
@@ -12,10 +13,12 @@ import { toast } from 'react-toastify';
 
 const cx = classNames.bind(styles);
 
+/** `409` — the username/email is already taken; highlight the offending field. */
 export default function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -26,17 +29,47 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFieldErrors({});
+
+    if (formData.password !== formData.confirmPassword) {
+      setFieldErrors({ confirmPassword: 'Mật khẩu xác nhận không khớp.' });
+      return;
+    }
+
     setLoading(true);
     try {
-      await userService.createUser(formData);
+      // `confirmPassword` is client-only validation — never sent to the API.
+      const { confirmPassword, ...payload } = formData;
+      await userService.createUser(payload);
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
       navigate(paths.login);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+      const code = errorCode(error);
+
+      // Duplicated username/email -> mark the field instead of a generic toast.
+      if (code === 'USERNAME_ALREADY_EXISTS') {
+        setFieldErrors({ username: 'Tên đăng nhập đã tồn tại.' });
+        return;
+      }
+      if (code === 'SLUG_ALREADY_EXISTS') {
+        setFieldErrors({ username: 'Tên đăng nhập đã tồn tại.' });
+        return;
+      }
+      if (code === 'VALIDATION_FAILED') {
+        const fields = {};
+        errorFields(error).forEach((f) => {
+          if (f?.field) fields[f.field] = f.message;
+        });
+        setFieldErrors(fields);
+        return;
+      }
+
+      toast.error(errorMessage(error, 'Đăng ký thất bại. Vui lòng thử lại.'));
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,6 +96,8 @@ export default function Register() {
               name="username"
               value={formData.username}
               onChange={handleChange}
+              error={Boolean(fieldErrors.username)}
+              helperText={fieldErrors.username || ''}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -79,6 +114,8 @@ export default function Register() {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              error={Boolean(fieldErrors.name)}
+              helperText={fieldErrors.name || ''}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -95,6 +132,8 @@ export default function Register() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              error={Boolean(fieldErrors.email)}
+              helperText={fieldErrors.email || ''}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -112,6 +151,8 @@ export default function Register() {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              error={Boolean(fieldErrors.password)}
+              helperText={fieldErrors.password || ''}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -134,6 +175,8 @@ export default function Register() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              error={Boolean(fieldErrors.confirmPassword)}
+              helperText={fieldErrors.confirmPassword || ''}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">

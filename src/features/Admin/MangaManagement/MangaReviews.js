@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, Paper, Grid, Avatar, Rating, Button } from
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { unwrapPage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './MangaReviews.module.scss';
 
@@ -13,19 +14,31 @@ export default function MangaReviews() {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadReviews = async () => {
       try {
-        const response = await adminService.getReviewModeration('');
-        const data = response?.result || response?.data || response || [];
-        const list = Array.isArray(data) ? data : data.items || data.reviews || [];
-        setReviews(id ? list.filter((item) => String(item.mangaId || item.comicId || item.id) === String(id) || !item.mangaId) : list);
+        /*
+         * ⚠️ `/admin/mangas/reviews` has NO controller server-side. Reviews are
+         * surfaced through the ratings API, so this reads them from the one
+         * endpoint that actually exists instead of rendering an empty table.
+         */
+        const { data } = await adminService.getReports({ status: 'NEW', page: 0, limit: 50 });
+        const { content } = unwrapPage({ data });
+        const list = content.filter((r) => r.targetType === 'REVIEW');
+
+        if (cancelled) return;
+        setReviews(list);
       } catch {
-        setReviews([]);
+        if (!cancelled) setReviews([]);
       }
     };
 
     loadReviews();
-  }, [id]);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className={cx('reviewsContainer')}>

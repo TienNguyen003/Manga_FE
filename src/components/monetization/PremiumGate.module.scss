@@ -1,0 +1,155 @@
+.paper {
+  border-radius: 22px !important;
+  overflow: hidden;
+  background: linear-gradient(170deg, #fffaf1, #fdf1e2) !important;
+}
+
+.title {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.9rem !important;
+  font-weight: 800 !important;
+  padding: 22px 24px 6px !important;
+  color: #5b2a6e;
+}
+
+.titleIcon {
+  font-size: 2.2rem;
+}
+
+.body {
+  padding: 0 24px 6px !important;
+}
+
+.chapter {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--primary, #b4232d);
+}
+
+.desc {
+  margin: 0 0 12px;
+  font-size: 1.3rem;
+  color: #4a3f34;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.perks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  display: grid;
+  gap: 5px;
+}
+
+.perks li {
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: #047857;
+}
+
+.coinBox {
+  border: 1px solid #e6d3b0;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+}
+
+.coinRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #6b5a48;
+  padding: 2px 0;
+
+  strong {
+    color: #b45309;
+  }
+}
+
+.error {
+  margin: 8px 0 0;
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.note {
+  margin: 10px 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #047857;
+}
+
+.actions {
+  padding: 12px 20px 16px !important;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.primary {
+  background: linear-gradient(135deg, #7a2f8f, #b4232d) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  border-radius: 999px !important;
+  padding: 8px 22px !important;
+  text-transform: none !important;
+}
+
+.secondary {
+  background: #fff8ec !important;
+  color: #b45309 !important;
+  font-weight: 800 !important;
+  border: 1px solid #e6d3b0 !important;
+  border-radius: 999px !important;
+  padding: 8px 18px !important;
+  text-transform: none !important;
+}
+
+.ghost {
+  color: #7b6a56 !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+}
+
+.buyLink {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #b45309;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-decoration: underline;
+  padding: 6px 0 0;
+}
+
+.signin {
+  padding: 10px 24px 18px;
+  font-size: 1.15rem;
+  color: var(--muted-ink, #665f58);
+  font-weight: 600;
+  text-align: center;
+
+  a {
+    color: var(--primary, #b4232d);
+    font-weight: 800;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+}

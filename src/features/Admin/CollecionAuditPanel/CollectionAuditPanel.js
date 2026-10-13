@@ -3,6 +3,7 @@ import SourceIcon from '@mui/icons-material/Source';
 import { Alert, Box, Button, Chip, Divider, Grid, Paper, Stack, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
+import { unwrapList } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './CollectionAudit.module.scss';
 
@@ -13,17 +14,24 @@ export default function CollectionAuditPanel() {
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadCases = async () => {
       try {
-        const response = await adminService.getCollectionAuditCases('');
-        const data = response?.result || response?.data || response || [];
-        setCases(Array.isArray(data) ? data : data.items || data.cases || []);
+        // Rule 1: `data.result` — the old `res?.result || res?.data || res || []`
+        // chain silently rendered an empty table on any failure.
+        const { data } = await adminService.getCollectionAuditCases({ status: 'NEW', page: 0, limit: 50 });
+        if (cancelled) return;
+        setCases(unwrapList({ data }));
       } catch {
-        setCases([]);
+        if (!cancelled) setCases([]);
       }
     };
 
     loadCases();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const resolveCase = async (id) => {

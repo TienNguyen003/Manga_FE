@@ -369,3 +369,11 @@
     color: #f7efe2;
   }
 }
+
+// Access badge (PREMIUM / EARLY ACCESS) sits under the status pill.
+.accessBadge {
+  position: absolute;
+  top: 44px;
+  left: 12px;
+  z-index: 3;
+}

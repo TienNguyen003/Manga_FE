@@ -1,7 +1,10 @@
 import classNames from 'classnames/bind';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { connectStomp, disconnectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { connectStomp, WS_TOPICS, subscribe as wsSubscribe } from '~/lib/realtime';
+import { unwrapList } from '~/lib/httpRequest';
+import { useMembership } from '~/hooks/useMembership';
+import { useReaderStats } from '~/providers/ReaderStatsProvider';
 import { useUser } from '~/providers/UserContext';
 import paths from '~/routes/paths';
 import { getCategories } from '~/services/mangaService';
@@ -15,22 +18,23 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { userId, unreadCount, setUnreadCount, logout, userData } = useUser();
+  const { streak } = useReaderStats();
+  const { isPremium, balance } = useMembership();
   const [categories, setCategories] = useState([]);
 
   const refreshUnreadCount = useCallback(() => {
     if (!userId) return;
     getUnreadCount(userId)
-      .then((res) => {
-        return setUnreadCount(res?.result ?? 0);
+      .then(({ data }) => {
+        return setUnreadCount(Number(data?.result ?? 0));
       })
       .catch(() => {});
   }, [userId, setUnreadCount]);
 
   useEffect(() => {
     getCategories()
-      .then((res) => {
-        const list = Array.isArray(res?.result) ? res.result : [];
-        setCategories(list);
+      .then(({ data }) => {
+        setCategories(unwrapList({ data }));
       })
       .catch(() => {
         setCategories([]);
@@ -42,25 +46,20 @@ export default function Header() {
     refreshUnreadCount();
   }, [refreshUnreadCount]);
 
-  // Realtime notification badge
+  // Realtime notification badge.
+  // Rule 6: subscribe AFTER sign-in and unsubscribe on unmount. Disconnecting the
+  // whole shared socket here would also kill the reader's comment subscriptions.
   useEffect(() => {
-    if (!userId) return;
-    const client = connectStomp({
-      onConnect: () => {
-        wsSubscribe(WS_TOPICS.notifications(userId), () => {
-          refreshUnreadCount();
-        });
-        wsSubscribe(WS_TOPICS.login, () => {
-          refreshUnreadCount();
-        });
-        wsSubscribe(WS_TOPICS.updateStatus, () => {
-          refreshUnreadCount();
-        });
-      },
-    });
-    return () => {
-      if (client) disconnectStomp();
-    };
+    if (!userId) return undefined;
+
+    connectStomp();
+    const subscriptions = [
+      wsSubscribe(WS_TOPICS.notifications(userId), refreshUnreadCount),
+      wsSubscribe(WS_TOPICS.login, refreshUnreadCount),
+      wsSubscribe(WS_TOPICS.updateStatus, refreshUnreadCount),
+    ];
+
+    return () => subscriptions.forEach((s) => s?.unsubscribe());
   }, [userId, refreshUnreadCount]);
 
   const handleToggleMenu = () => {
@@ -132,10 +131,36 @@ export default function Header() {
         </form>
 
         <div className={cx('rightActions')}>
-          <Link to={paths.notifications} className={cx('alertBtn')}>
+          <Link to={paths.notifications} className={cx('alertBtn')} title="Thông báo">
             <i className="fa-regular fa-bell"></i>
             {unreadCount > 0 && <span className={cx('notif-badge')}>{Math.min(unreadCount, 99)}</span>}
           </Link>
+
+          {/* RETENTION SIGNALS: streak + coins + plan, always visible so the
+              reason to come back tomorrow is on every page, not just Home. */}
+          {userId && (
+            <>
+              <Link
+                to={paths.dashboard}
+                className={cx('streakChip', { muted: streak.current === 0 })}
+                title={
+                  streak.current > 0
+                    ? `Bạn đã đọc ${streak.current} ngày liên tiếp (kỷ lục ${streak.best})`
+                    : 'Đọc hôm nay để bắt đầu chuỗi đọc'
+                }
+              >
+                🔥 <strong>{streak.current}</strong>
+              </Link>
+              <Link to={paths.membership} className={cx('coinChip')} title="Số dư Coin của bạn">
+                🪙 <strong>{(balance || 0).toLocaleString('vi-VN')}</strong>
+              </Link>
+              {isPremium && (
+                <span className={cx('premiumChip')} title="Bạn đang là thành viên Premium">
+                  👑 PREMIUM
+                </span>
+              )}
+            </>
+          )}
 
           {userId ? (
             <>
@@ -170,6 +195,18 @@ export default function Header() {
                       <i className="fa-regular fa-bell"></i>
                       Thông báo
                       {unreadCount > 0 && <span className={cx('menu-badge')}>{unreadCount}</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to={paths.membership}>
+                      <i className="fa-solid fa-crown"></i>
+                      {isPremium ? 'Thành viên Premium' : 'Nâng cấp Premium'}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to={paths.whatToReadNext}>
+                      <i className="fa-solid fa-wand-magic-sparkles"></i>
+                      Chọn truyện cho tôi
                     </Link>
                   </li>
                   <li>
@@ -221,6 +258,12 @@ export default function Header() {
           <li>
             <Link to={paths.advancedSearch} className={cx({ active: location.pathname === paths.advancedSearch })}>
               Tìm nâng cao
+            </Link>
+          </li>
+
+          <li>
+            <Link to={paths.whatToReadNext} className={cx({ active: location.pathname === paths.whatToReadNext })}>
+              Chọn truyện cho tôi
             </Link>
           </li>
         </ul>

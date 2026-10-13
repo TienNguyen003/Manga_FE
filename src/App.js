@@ -7,6 +7,7 @@ import { adminRoutes, privateRoutes, privateRoutesNoHeader, publicRoutes, public
 
 import '~/components/LibaralyLayout/grid.css';
 import { UserProvider } from '~/providers/UserContext';
+import { ReaderStatsProvider } from '~/providers/ReaderStatsProvider';
 import styles from './App.module.scss';
 import Error from './components/Errors/404';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
@@ -92,18 +93,11 @@ function AppContent() {
 }
 
 function App() {
-  const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setLoading(false);
-  //   }, 1500);
-
-  //   return () => clearTimeout(timer);
-  // }, []);
-
   return (
     <UserProvider>
+      {/* Retention + monetization state (streak, goal, XP, badges, plan, coins).
+          Wraps the app so Header, Home, Library and Reader always agree. */}
+      <ReaderStatsProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
@@ -133,6 +127,7 @@ function App() {
           <AppContent />
         </Router>
       </ThemeProvider>
+      </ReaderStatsProvider>
     </UserProvider>
   );
 }

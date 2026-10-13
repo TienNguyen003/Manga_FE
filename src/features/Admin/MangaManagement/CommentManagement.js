@@ -1,31 +1,45 @@
-import { ReplyRounded, DeleteSweepRounded, BlockRounded, FlagRounded, CheckCircleRounded } from '@mui/icons-material';
-import { Box, Typography, IconButton, Paper, Avatar, Button, Chip, Stack } from '@mui/material';
+import { ReplyRounded, DeleteSweepRounded, BlockRounded, CheckCircleRounded } from '@mui/icons-material';
+import { Box, Typography, Paper, Avatar, Button, Chip, Stack } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { unwrapPage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './CommentManagement.module.scss';
 
 const cx = classNames.bind(styles);
 
 export default function CommentManagement() {
-  const { id } = useParams();
+  // The route's `:id` is a manga id, but the moderation queue is global — the
+  // list is filtered server-side by target type, not by this route param.
   const [comments, setComments] = useState([]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadComments = async () => {
       try {
-        const response = await adminService.getCommentModeration('');
-        const data = response?.result || response?.data || response || [];
-        const list = Array.isArray(data) ? data : data.items || data.comments || [];
-        setComments(id ? list.filter((item) => String(item.mangaId || item.comicId || item.id) === String(id) || !item.mangaId) : list);
+        /*
+         * ⚠️ `/admin/mangas/comments` has NO controller server-side, so it always
+         * 404s. The only comment moderation surface that exists is the report
+         * queue, so this screen reads pending reports on COMMENT targets until
+         * the backend ships the moderation endpoints.
+         */
+        const { data } = await adminService.getReports({ status: 'NEW', page: 0, limit: 50 });
+        const { content } = unwrapPage({ data });
+        const list = content.filter((r) => r.targetType === 'COMMENT');
+
+        if (cancelled) return;
+        setComments(list);
       } catch {
-        setComments([]);
+        if (!cancelled) setComments([]);
       }
     };
 
     loadComments();
-  }, [id]);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className={cx('commentWrapper')}>

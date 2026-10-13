@@ -31,14 +31,13 @@ import {
 } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
-import { adminService } from '~/services/adminService';
+import { errorMessage, unwrapList } from '~/lib/httpRequest';
 import styles from './Posts.module.scss';
 import { useNavigate, useParams } from 'react-router-dom';
 import DataTablePagination from '~/components/common/DataTablePagination';
 import paths from '~/routes/paths';
 import { toast } from 'react-toastify';
 import { communityService } from '~/services/communityService';
-import { useUser } from '~/providers/UserContext';
 import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
 
 const cx = classNames.bind(styles);
@@ -46,7 +45,6 @@ const cx = classNames.bind(styles);
 export default function PostManagement() {
   const navigate = useNavigate();
   const id = useParams();
-  const { userId } = useUser();
   const [editing, setEditing] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -69,15 +67,16 @@ export default function PostManagement() {
 
   const loadPosts = async () => {
     try {
-      const response = await adminService.getPosts({ topicId: id.id, page: page.currentPage + 1, size: page.totalItemsPerPage });
-      const data = response?.result || [];
-      const newPage = response?.page || {};
-      setPosts(data);
-      setPage((prev) => ({
-        ...prev,
-        totalPages: newPage.totalPages || 0,
-        totalItems: newPage.totalItems || 0,
-      }));
+      /*
+       * ⚠️ `/admin/posts` has NO controller server-side, so that call threw a
+       * TypeError. `/community/posts` is the real listing. `page` is 0-BASED.
+       */
+      const { data } = await communityService.getPosts({
+        topicId: id.id,
+        page: page.currentPage,
+        limit: page.totalItemsPerPage,
+      });
+      setPosts(unwrapList({ data }));
     } catch {
       setPosts([]);
     }
@@ -85,29 +84,31 @@ export default function PostManagement() {
 
   const handleSavePost = async () => {
     try {
+      // Rule 3: no `userId` in the create body — the JWT identifies the author.
       if (editing) {
         await communityService.updatePost(newPost.id, newPost);
         toast.success('Cập nhật bài viết thành công!');
       } else {
-        await communityService.createPost(userId, newPost);
+        await communityService.createPost(newPost);
         toast.success('Đăng bài viết thành công!');
       }
       setOpenModal(false);
       setEditing(false);
       loadPosts();
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(errorMessage(error, 'Đã có lỗi xảy ra. Vui lòng thử lại.'));
     }
   };
 
   const handleEditPost = async (postId) => {
     try {
-      const response = await communityService.getPostById(postId);
-      setNewPost(response.result);
+      // The service unwraps the nested `data.result.post` shape.
+      const { post } = await communityService.getPostById(postId);
+      setNewPost(post ?? {});
       setEditing(true);
       setOpenModal(true);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(errorMessage(error, 'Đã có lỗi xảy ra. Vui lòng thử lại.'));
     }
   };
 

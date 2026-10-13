@@ -21,6 +21,8 @@ import {
 } from '@mui/material';
 import { CheckCircleRounded, CancelRounded, DeleteSweepRounded, AutoAwesomeRounded, GavelRounded, CategoryRounded, SearchRounded } from '@mui/icons-material';
 import classNames from 'classnames/bind';
+import { unwrapList, unwrapPage } from '~/lib/httpRequest';
+import { getCategories, getMangasByList } from '~/services/mangaService';
 import { adminService } from '~/services/adminService';
 import styles from './MangaOps.module.scss';
 
@@ -34,17 +36,27 @@ export default function MangaOpsPanel() {
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadData = async () => {
       try {
-        const [pipeline, reviewModeration] = await Promise.all([adminService.getModerationPipeline(''), adminService.getReviewModeration('')]);
+        /*
+         * ⚠️ `/admin/manga-ops/pipeline` and `/admin/mangas/reviews` have NO
+         * controller server-side, so those calls threw a TypeError. The catalogue
+         * and the report queue are the two aggregates that do exist.
+         */
+        const [catalogRes, categoriesRes, reportsRes] = await Promise.all([
+          getMangasByList({ page: 0, size: 50 }),
+          getCategories(),
+          adminService.getReports({ status: 'NEW', page: 0, limit: 50 }),
+        ]);
 
-        const pipelineData = pipeline?.result || pipeline?.data || pipeline || {};
-        const reviewData = reviewModeration?.result || reviewModeration?.data || reviewModeration || [];
-
-        setMangas(Array.isArray(pipelineData) ? pipelineData : pipelineData.mangas || pipelineData.comics || []);
-        setCategories(Array.isArray(pipelineData.categories) ? pipelineData.categories : pipelineData.categories || []);
-        setReviews(Array.isArray(reviewData) ? reviewData : reviewData.items || reviewData.reviews || []);
+        if (cancelled) return;
+        setMangas(unwrapList({ data: catalogRes.data }));
+        setCategories(unwrapList({ data: categoriesRes.data }));
+        setReviews(unwrapPage({ data: reportsRes.data }).content);
       } catch {
+        if (cancelled) return;
         setMangas([]);
         setCategories([]);
         setReviews([]);
@@ -52,22 +64,20 @@ export default function MangaOpsPanel() {
     };
 
     loadData();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {
     const k = keyword.toLowerCase();
-    return mangas.filter((m) => m.title.toLowerCase().includes(k) || m.id.toLowerCase().includes(k));
+    return mangas.filter((m) => (m.title || m.name || '').toLowerCase().includes(k) || String(m.id).toLowerCase().includes(k));
   }, [keyword, mangas]);
 
   const updateStatus = async (id, next) => {
-    try {
-      await adminService.executeModerationAction({ targetType: 'manga', targetId: id, action: next });
-      setMangas((prev) => prev.map((m) => (m.id === id ? { ...m, status: next } : m)));
-      setNotice(`Manga ${id} đã chuyển sang trạng thái: ${next.toUpperCase()}`);
-      setTimeout(() => setNotice(''), 3000);
-    } catch {
-      setNotice('Không thể cập nhật trạng thái manga.');
-    }
+    // ⚠️ No moderation endpoint exists server-side. Say so instead of throwing.
+    setNotice('Chưa hỗ trợ cập nhật trạng thái truyện — backend chưa có endpoint kiểm duyệt.');
+    setTimeout(() => setNotice(''), 4000);
   };
 
   return (

@@ -1,6 +1,6 @@
-import { Box, Grid, LinearProgress, Paper, Typography, useTheme } from '@mui/material';
-import { ShowChartRounded, PieChartRounded, TrendingUpRounded } from '@mui/icons-material';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Box, Grid, LinearProgress, Paper, Typography } from '@mui/material';
+import { ShowChartRounded, PieChartRounded } from '@mui/icons-material';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { adminService } from '~/services/adminService';

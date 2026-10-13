@@ -1,7 +1,8 @@
 import { BlockRounded, BugReportRounded, DoneAllRounded, PolicyRounded, RadarRounded, TerminalRounded } from '@mui/icons-material';
-import { Alert, Box, Button, Chip, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Button, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
+import { errorMessage, unwrapPage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './SecurityAudit.module.scss';
 import { toast } from 'react-toastify';
@@ -25,28 +26,31 @@ export default function SecurityAuditPanel() {
 
   const loadLogs = async () => {
     try {
-      const response = await adminService.getSecurityAuditLogs({
-        page: page.currentPage + 1,
-        size: page.totalItemsPerPage,
+      // `page` is 0-BASED (Rule 2).
+      const { data } = await adminService.getSecurityAuditLogs({
+        page: page.currentPage,
+        limit: page.totalItemsPerPage,
       });
-      const data = response?.result || [];
-      const newPage = response?.page || {};
-      setPage((prev) => ({ ...prev, totalItems: newPage.totalItems, totalPages: newPage.totalPages }));
-      setLogs(data);
+
+      const { content, totalElements, totalPages } = unwrapPage({ data });
+      setLogs(content);
+      setPage((prev) => ({ ...prev, totalItems: totalElements, totalPages }));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể tải logs bảo mật.');
+      toast.error(errorMessage(error, 'Không thể tải logs bảo mật.'));
     }
   };
 
+  /**
+   * Acknowledge a log entry.
+   *
+   * ⚠️ The backend exposes no "create audit log" write endpoint, so the previous
+   * `adminService.createSecurityAuditLog` call threw a TypeError. Acknowledging is
+   * recorded in local state until that endpoint exists.
+   */
   const markDone = async (id) => {
-    try {
-      await adminService.createSecurityAuditLog({ eventId: id, status: 'acknowledged' });
-      setLogs((prev) => prev.filter((l) => l.id !== id));
-      setNotice(`Sự kiện ${id} đã được xác nhận và đưa vào kho lưu trữ.`);
-      setTimeout(() => setNotice(''), 3000);
-    } catch {
-      setNotice('Không thể xác nhận log bảo mật.');
-    }
+    setLogs((prev) => prev.filter((l) => l.id !== id));
+    setNotice(`Sự kiện ${id} đã được xác nhận (tạm thời, chưa lưu về máy chủ).`);
+    setTimeout(() => setNotice(''), 3000);
   };
 
   return (

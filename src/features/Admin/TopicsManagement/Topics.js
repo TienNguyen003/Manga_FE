@@ -1,10 +1,11 @@
 import { AddRounded, DeleteOutlineRounded, DynamicFeedRounded, EditRounded, LinkRounded, TagRounded } from '@mui/icons-material';
-import { Chip, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Tooltip } from '@mui/material';
+import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Tooltip } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
-import { adminService } from '~/services/adminService';
+import { errorMessage, unwrapList } from '~/lib/httpRequest';
+import { communityService } from '~/services/communityService';
 import styles from './Topics.module.scss';
-import { TopicRounded, DescriptionRounded, ToggleOnRounded, SettingsBackupRestoreRounded } from '@mui/icons-material';
+import { TopicRounded, DescriptionRounded } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogContent, DialogActions, Stack, TextField, InputAdornment, Switch } from '@mui/material';
 import { toast } from 'react-toastify';
 import DataTablePagination from '~/components/common/DataTablePagination';
@@ -37,55 +38,29 @@ export default function TopicManagement() {
 
   const loadTopics = async () => {
     try {
-      const response = await adminService.getTopics({
-        page: page.currentPage + 1,
-        size: page.totalItemsPerPage,
-      });
-      const data = response?.result || [];
-      const newPage = response?.page || {};
-      setPage((prev) => ({ ...prev, totalItems: newPage?.totalItems || 0, totalPages: newPage?.totalPages || 0 }));
-      setTopics(data);
+      /*
+       * ⚠️ `/admin/topics` has NO controller server-side. `/community/topics` is
+       * the public list and returns the same entity shape, so the table renders
+       * real data. Topic CRUD stays unavailable until the backend ships it.
+       */
+      const { data } = await communityService.getTopics();
+      setTopics(unwrapList({ data }));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách topic.');
+      setTopics([]);
+      toast.error(errorMessage(error, 'Lỗi khi tải danh sách topic.'));
     }
   };
 
   const handleCreateTopic = async () => {
-    try {
-      if (editing) {
-        await adminService.updateTopic(newTopic.id, newTopic);
-        toast.success('Cập nhật topic thành công!');
-      } else {
-        await adminService.createTopic(newTopic);
-        toast.success('Tạo topic mới thành công!');
-      }
-      setOpenModal(false);
-      setEditing(false);
-      loadTopics();
-    } catch (error) {
-      toast.error(error.response?.data?.message || `Lỗi khi ${editing ? 'cập nhật' : 'tạo'} topic.`);
-    }
-  };
-  const handleEditTopic = async (topicId) => {
-    setEditing(true);
-    setOpenModal(true);
-    try {
-      const response = await adminService.getTopic(topicId);
-      const topicData = response?.result || {};
-      setNewTopic(topicData);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi tải thông tin topic.');
-    }
+    toast.warning('Tạo topic chưa được hỗ trợ — backend chưa có endpoint quản trị topic.');
   };
 
-  const handleDeleteTopic = async (topicId) => {
-    try {
-      await adminService.deleteTopic(topicId);
-      toast.success('Xóa topic thành công!');
-      loadTopics();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi xóa topic.');
-    }
+  const handleEditTopic = async () => {
+    toast.warning('Sửa topic chưa được hỗ trợ — backend chưa có endpoint quản trị topic.');
+  };
+
+  const handleDeleteTopic = async () => {
+    toast.warning('Xoá topic chưa được hỗ trợ — backend chưa có endpoint quản trị topic.');
   };
 
   return (

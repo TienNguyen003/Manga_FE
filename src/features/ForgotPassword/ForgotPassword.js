@@ -1,6 +1,5 @@
 import { ArrowBackRounded, EmailRounded } from '@mui/icons-material';
 import {
-  Alert,
   Button,
   CircularProgress,
   InputAdornment,

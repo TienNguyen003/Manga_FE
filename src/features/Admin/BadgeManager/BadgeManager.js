@@ -26,6 +26,7 @@ import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import DataTablePagination from '~/components/common/DataTablePagination';
+import { errorMessage, unwrapPage } from '~/lib/httpRequest';
 import { adminService } from '~/services/adminService';
 import styles from './Badges.module.scss';
 import ConfirmDeleteModal from '~/components/common/ConfirmDeleteModal';
@@ -69,13 +70,17 @@ export default function BadgeManager() {
 
   const loadBadges = async () => {
     try {
-      const response = await adminService.getBadges({ page: page.currentPage + 1, size: page.totalItemsPerPage });
-      const data = response?.result || [];
-      const newPage = response?.page || {};
-      setPage((prev) => ({ ...prev, totalItems: newPage?.totalItems || 0, totalPages: newPage?.totalPages || 0 }));
-      setBadges(data);
+      // `page` is 0-BASED (Rule 2).
+      const { data } = await adminService.getBadges({
+        page: page.currentPage,
+        limit: page.totalItemsPerPage,
+      });
+
+      const { content, totalElements, totalPages } = unwrapPage({ data });
+      setBadges(content);
+      setPage((prev) => ({ ...prev, totalItems: totalElements, totalPages }));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách huy hiệu.');
+      toast.error(errorMessage(error, 'Lỗi khi tải danh sách huy hiệu.'));
     }
   };
 
@@ -104,11 +109,10 @@ export default function BadgeManager() {
     setEditing(true);
     setOpenModal(true);
     try {
-      const response = await adminService.getBadge(badgeId);
-      const badgeData = response?.result || {};
-      setNewBadge(badgeData);
+      const { data } = await adminService.getBadge(badgeId);
+      setNewBadge(data?.result ?? {});
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi tải thông tin huy hiệu.');
+      toast.error(errorMessage(error, 'Lỗi khi tải thông tin huy hiệu.'));
     }
   };
 

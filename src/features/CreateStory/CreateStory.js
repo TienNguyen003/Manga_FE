@@ -1,5 +1,5 @@
 import { AddRounded, AutoAwesomeRounded, CloudUploadRounded, CloseRounded, DeleteOutlineRounded, RocketLaunchRounded, SaveRounded } from '@mui/icons-material';
-import { Alert, Autocomplete, Box, Button, Chip, CircularProgress, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Autocomplete, Box, Button, Chip, CircularProgress, IconButton, Paper, TextField, Typography } from '@mui/material';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -37,8 +37,10 @@ export default function CreateStory() {
     setLoadingDetail(true);
     comicService
       .getComic(comicId)
-      .then((res) => {
-        const comic = res?.result || res?.data || res || {};
+      .then(({ data }) => {
+        // Rule 1: was `res?.result || res?.data || res || {}` — the fallback
+        // chain made a failed request look like an empty comic.
+        const comic = data?.result ?? {};
         setTitle(comic.title || '');
         setDescription(comic.description || '');
         if (Array.isArray(comic.genres)) setSelectedGenres(comic.genres);
@@ -50,8 +52,12 @@ export default function CreateStory() {
               .filter(Boolean),
           );
         if (comic.cover) setPreview(`${process.env.REACT_APP_IMAGE_BASE_URL || ''}${comic.cover}`);
-        const data = Array.isArray(comic.chapters) ? comic.chapters : Array.isArray(comic.chapterList) ? comic.chapterList : [];
-        setChapters(data.map((ch, i) => ({ id: ch.id || ch.chapterId || `ch-${i}`, title: ch.title || ch.name || `Chương ${i + 1}`, content: ch.content || ch.text || '' })));
+        const chapterList = Array.isArray(comic.chapters)
+          ? comic.chapters
+          : Array.isArray(comic.chapterList)
+            ? comic.chapterList
+            : [];
+        setChapters(chapterList.map((ch, i) => ({ id: ch.id || ch.chapterId || `ch-${i}`, title: ch.title || ch.name || `Chương ${i + 1}`, content: ch.content || ch.text || '' })));
       })
       .catch(() => setStatus({ type: 'error', msg: 'Lỗi tải dữ liệu.' }))
       .finally(() => setLoadingDetail(false));
